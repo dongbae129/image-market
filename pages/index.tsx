@@ -22,6 +22,11 @@ const Home: NextPage = () => {
             <button>SIGNUP</button>
           </a>
         </Link>
+        <Link href={'/signin'}>
+          <a>
+            <button>SIGNIN</button>
+          </a>
+        </Link>
         <Link href={'/test'}>
           <a>
             <button>Test User</button>

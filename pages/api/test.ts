@@ -5,6 +5,13 @@ const Test = async (
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) => {
+  if (req.method === 'POST') {
+    console.log(req.body, '$$^$^');
+    res.json({
+      ok: true,
+      message: 'Hio?'
+    });
+  }
   if (req.method === 'GET') {
     const user = await client.user.findUnique({
       where: {

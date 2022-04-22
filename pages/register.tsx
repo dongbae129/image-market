@@ -23,7 +23,8 @@ const Register: NextPage = () => {
     setError,
     formState: { errors }
   } = useForm<RegisterForm>();
-  const signupUser = (data: RegisterForm) => axios.post('/api/signup', data);
+  const signupUser = (data: RegisterForm) =>
+    axios.post('/api/signup', data).then((res) => res.data);
 
   const signupMutate = useMutation(signupUser);
 
@@ -37,6 +38,7 @@ const Register: NextPage = () => {
     if (userId === '' || password === '') {
       return setError('formErrors', { message: 'id and password is required' });
     }
+
     signupMutate.mutateAsync({ name, userId, password }).then((res) => {
       console.log(res.data);
       setError('formErrors', { message: res.data.error });

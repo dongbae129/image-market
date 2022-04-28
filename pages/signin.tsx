@@ -4,6 +4,8 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
+import { useDispatch } from 'react-redux';
+import { setAccessToken } from 'reducers/user';
 
 interface SingInForm {
   userId: string;
@@ -11,6 +13,7 @@ interface SingInForm {
   formErrors?: string;
 }
 const Signin: NextPage = () => {
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
@@ -25,7 +28,14 @@ const Signin: NextPage = () => {
     onError: (error) => {
       console.log(error, '%^%^%^');
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
+      console.log(res, '$$');
+      dispatch(setAccessToken(res.accessToken));
+      // axios.defaults.headers.common['Authorization'] = '';
+
+      axios.defaults.headers.common['Authorization'] =
+        'Bearer ' + res.accessToken;
+      console.log(axios.defaults.headers, '$$$');
       router.push('/');
     }
   });

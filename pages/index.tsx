@@ -5,8 +5,30 @@ import Head from 'next/head';
 import Link from 'next/link';
 
 import styles from '../styles/Home.module.scss';
+import { useQuery } from 'react-query';
+import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
+import { setAccessToken } from 'reducers/user';
 
 const Home: NextPage = () => {
+  const { accessToken } = useSelector((state: any) => state.user);
+  const dispatch = useDispatch();
+  const header = {
+    headers: { authorization: `Bearer ${accessToken}` }
+  };
+
+  const getUserFetcher = () => axios.get('/api/user').then((res) => res.data);
+  const { data } = useQuery(['userInfo'], getUserFetcher, {
+    onSuccess: (res) => {
+      dispatch(setAccessToken(res.accessToken));
+      axios.defaults.headers.common['Authorization'] = '';
+      axios.defaults.headers.common[
+        'Authorization'
+      ] = `Bearer ${res.accessToken}`;
+    }
+  });
+
+  console.log(accessToken, '#$#');
   return (
     <Layout>
       <div className={styles.container}>

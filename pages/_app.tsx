@@ -3,6 +3,9 @@ import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useState } from 'react';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { Provider } from 'react-redux';
+
+import store from 'reducers/store';
 function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(
     () =>
@@ -15,12 +18,14 @@ function MyApp({ Component, pageProps }: AppProps) {
       })
   );
   return (
-    <QueryClientProvider client={queryClient}>
-      <div>
-        <Component {...pageProps} />
-      </div>
-      <ReactQueryDevtools initialIsOpen />
-    </QueryClientProvider>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <div>
+          <Component {...pageProps} />
+        </div>
+        <ReactQueryDevtools initialIsOpen />
+      </QueryClientProvider>
+    </Provider>
   );
 }
 

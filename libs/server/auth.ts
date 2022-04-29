@@ -21,7 +21,7 @@ export const createAccessToken = (id: number) => {
 
 export const createRefreshToken = (id: number) => {
   return sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: '1m'
+    expiresIn: '20m'
   });
 };
 

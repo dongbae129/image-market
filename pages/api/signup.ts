@@ -16,7 +16,7 @@ const Signup = async (
     }
     const userExist = await client.user.findUnique({
       where: {
-        userId
+        email: userId
       }
     });
     if (userExist) {
@@ -29,7 +29,7 @@ const Signup = async (
       await client.user.create({
         data: {
           name: name ? name : 'Annoymous',
-          userId,
+          email: userId,
           password: hashedPassword
         }
       });

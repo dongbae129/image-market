@@ -23,7 +23,7 @@ const Login = async (
     }
     const user = await client.user.findUnique({
       where: {
-        userId
+        email: userId
       }
     });
 

@@ -1,3 +1,4 @@
+import Button from '@components/button';
 import Input from '@components/input';
 import axios from 'axios';
 import type { NextPage } from 'next';
@@ -64,7 +65,7 @@ const Signin: NextPage = () => {
           register={register('password', { required: true })}
           required
         />
-        <button>{isLoading ? 'Loading...' : 'LOGIN'}</button>
+        <Button isLoading={isLoading} text="LOGIN" />
       </form>
     </div>
   );

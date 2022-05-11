@@ -1,3 +1,4 @@
+import Button from '@components/button';
 import Input from '@components/input';
 import axios from 'axios';
 import type { NextPage } from 'next';
@@ -71,7 +72,7 @@ const Register: NextPage = () => {
           required
         />
         {errors.formErrors ? <span>{errors.formErrors.message}</span> : null}
-        <button>회원가입</button>
+        <Button isLoading={signupMutate.isLoading} text="회원가입" />
       </form>
     </div>
   );

@@ -23,13 +23,16 @@ const Home: NextPage = () => {
     onSuccess: (res) => {
       dispatch(setAccessToken(res.accessToken));
       // axios.defaults.headers.common['Authorization'] = '';
-      // axios.defaults.headers.common[
-      //   'Authorization'
-      // ] = `Bearer ${res.accessToken}`;
-      console.log(axios.defaults.headers.common['Authorization'], 'index');
+      axios.defaults.headers.common[
+        'Authorization'
+      ] = `Bearer ${res.accessToken}`;
+      // console.log(axios.defaults.headers.common['Authorization'], 'index');
+    },
+    onError: (res) => {
+      console.log(res, '!');
     }
   });
-  console.log(accessToken, 'AAA');
+
   return (
     <Layout>
       <div className={styles.container}>
@@ -55,8 +58,13 @@ const Home: NextPage = () => {
             <button>Test User</button>
           </a>
         </Link>
+        <Link href={'/products'}>
+          <a>
+            <button>Products</button>
+          </a>
+        </Link>
       </div>
-      <p>{data?.message}</p>
+      <p>{data?.message || data?.error}</p>
     </Layout>
   );
 };

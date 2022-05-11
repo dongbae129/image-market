@@ -4,9 +4,10 @@ import path from 'path';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads');
+    cb(null, '/public/uploads');
   },
   filename: function (req, file, cb) {
+    console.log(file, '**');
     const ext = path.extname(file.originalname);
     const basename = path.basename(file.originalname, ext);
     cb(null, basename + new Date().valueOf() + ext);
@@ -39,6 +40,7 @@ const app = nextConnect({
 });
 
 app.post(upload.single('file'), (req, res) => {
+  console.log(req.body.form, '$#%#$%');
   res.json(req.file?.filename);
 });
 

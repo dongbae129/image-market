@@ -6,7 +6,9 @@ import { useMutation } from 'react-query';
 import Layout from './../components/layout';
 import Input from './../components/input';
 import { Product } from '@prisma/client';
-
+import style from '@styles/Upload.module.scss';
+import axios from 'axios';
+import Button from '@components/Button';
 interface UploadProductForm {
   image: FileList;
   title: string;
@@ -22,36 +24,42 @@ const Upload: NextPage = () => {
   const [imagePreview, setImagePreview] = useState('');
   const router = useRouter();
   const { register, handleSubmit, watch } = useForm<UploadProductForm>();
-
+  const uploadPost = (data: UploadProductForm) =>
+    axios.post('/api/upload', data).then((res) => res.data);
   const { mutate, isLoading, isError } = useMutation<
     UploadProductResponse,
     any,
     UploadProductForm
-  >('/api/products', {
+  >(uploadPost, {
     onSuccess: (res) => {
-      router.push(`product/${res.product.id}`);
+      // router.push(`product/${res.product.id}`);
     }
   });
+  const imageWatch = watch('image');
   const onValid = ({ image, title, description }: UploadProductForm) => {
     if (isLoading) return;
+    // console.log(imageWatch[0], '@@');
     const form = new FormData();
     form.append('file', image[0]);
-    mutate({ image, title, description });
+
+    // form.append('file', imageWatch[0]);
+    console.log(form.get('file'), '!!');
+    mutate({ title, description, form });
   };
-  const imageWatch = watch('image');
+
   useEffect(() => {
     if (imageWatch && imageWatch.length > 0) {
       const file = imageWatch[0];
       setImagePreview(URL.createObjectURL(file));
     }
-  }, []);
+  }, [imageWatch]);
   return (
     <Layout>
       <form onSubmit={handleSubmit(onValid)}>
         <div>
-          <div>
+          <div className={style.imageInput}>
             {imagePreview ? (
-              <img src="" alt="" />
+              <img src={imagePreview} alt="" />
             ) : (
               <label>
                 <Input
@@ -81,7 +89,7 @@ const Upload: NextPage = () => {
             register={register('description', { required: true })}
           />
         </div>
-        <button>{isLoading ? 'Loading..' : '저장'}</button>
+        <Button isLoading text="저장" />
       </form>
     </Layout>
   );

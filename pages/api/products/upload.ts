@@ -1,10 +1,16 @@
 import nextConnect from 'next-connect';
 import multer from 'multer';
 import path from 'path';
+import { checkAuth } from '../../../libs/server/auth';
 
+export const config = {
+  api: {
+    bodyParser: false
+  }
+};
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '/public/uploads');
+    cb(null, './public/uploads');
   },
   filename: function (req, file, cb) {
     console.log(file, '**');
@@ -13,7 +19,8 @@ const storage = multer.diskStorage({
     cb(null, basename + new Date().valueOf() + ext);
   }
 });
-const fileFilter = (req, file, cb) => {
+
+const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
   const ext = path.extname(file.originalname);
   if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
     return cb(new Error('png, jpg만 업로드 가능합니다'));
@@ -40,8 +47,7 @@ const app = nextConnect({
 });
 
 app.post(upload.single('file'), (req, res) => {
-  console.log(req.body.form, '$#%#$%');
-  res.json(req.file?.filename);
+  console.log(req.file, req.body, '!!');
 });
 
-export default app;
+export default checkAuth(app);

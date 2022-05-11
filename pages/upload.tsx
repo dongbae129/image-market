@@ -8,12 +8,13 @@ import Input from './../components/input';
 import { Product } from '@prisma/client';
 import style from '@styles/Upload.module.scss';
 import axios from 'axios';
-import Button from '@components/Button';
+import Button from '@components/button';
 interface UploadProductForm {
   image: FileList;
   title: string;
   description?: string;
 }
+
 interface UploadProductResponse {
   ok: boolean;
   product: Product;
@@ -24,12 +25,12 @@ const Upload: NextPage = () => {
   const [imagePreview, setImagePreview] = useState('');
   const router = useRouter();
   const { register, handleSubmit, watch } = useForm<UploadProductForm>();
-  const uploadPost = (data: UploadProductForm) =>
-    axios.post('/api/upload', data).then((res) => res.data);
-  const { mutate, isLoading, isError } = useMutation<
+  const uploadPost = (data: FormData) =>
+    axios.post('/api/products/upload', data).then((res) => res.data);
+  const { mutate, isLoading } = useMutation<
     UploadProductResponse,
     any,
-    UploadProductForm
+    FormData
   >(uploadPost, {
     onSuccess: (res) => {
       // router.push(`product/${res.product.id}`);
@@ -41,10 +42,10 @@ const Upload: NextPage = () => {
     // console.log(imageWatch[0], '@@');
     const form = new FormData();
     form.append('file', image[0]);
+    form.append('title', title);
+    form.append('description', description!);
 
-    // form.append('file', imageWatch[0]);
-    console.log(form.get('file'), '!!');
-    mutate({ title, description, form });
+    mutate(form);
   };
 
   useEffect(() => {
@@ -89,7 +90,7 @@ const Upload: NextPage = () => {
             register={register('description', { required: true })}
           />
         </div>
-        <Button isLoading text="저장" />
+        <Button isLoading={isLoading} text="저장" />
       </form>
     </Layout>
   );

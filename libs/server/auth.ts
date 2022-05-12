@@ -1,10 +1,14 @@
 import axios from 'axios';
 import cookie from 'cookie';
-import { sign, verify, decode, JwtPayload } from 'jsonwebtoken';
-import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
+import { sign, verify, decode } from 'jsonwebtoken';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 export const checkAuth =
-  (fn: NextApiHandler) => (req: NextApiRequest, res: NextApiResponse) => {
+  (fn: any) => (req: NextApiRequest, res: NextApiResponse) => {
+    if (req.method === 'GET') {
+      return fn(req, res);
+    }
+    console.log('TTTTTTT');
     const clientAccessToken = req.headers['authorization']?.split(' ')[1];
     console.log(clientAccessToken, 'api/index');
     // 쿠키 있을때
@@ -52,12 +56,12 @@ export const checkAuth =
                     // re: o, ac: o
                     else {
                       console.log(decode(clientAccessToken), 'auth testtt');
-                      fn(req, res);
-                      return res.json({
-                        ok: true,
-                        accessToken: clientAccessToken,
-                        message: 're:o, ac:o, old access'
-                      });
+                      return fn(req, res);
+                      // return res.json({
+                      //   ok: true,
+                      //   accessToken: clientAccessToken,
+                      //   message: 're:o, ac:o, old access'
+                      // });
                       // return fn(req, res);
                     }
                   }

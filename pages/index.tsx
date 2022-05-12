@@ -65,7 +65,12 @@ const Home: NextPage = () => {
         </Link>
         <Link href={'/upload'}>
           <a>
-            <button>Upload</button>
+            <button>Product Upload</button>
+          </a>
+        </Link>
+        <Link href={'/board'}>
+          <a>
+            <button>Board</button>
           </a>
         </Link>
       </div>

@@ -3,16 +3,15 @@ import multer from 'multer';
 import path from 'path';
 import { checkAuth } from '../../../libs/server/auth';
 import client from '@libs/server/client';
-import { decode, JwtPayload } from 'jsonwebtoken';
+import { decode } from 'jsonwebtoken';
+import { accessTokenPayload } from './../board/index';
 
 export const config = {
   api: {
     bodyParser: false
   }
 };
-interface myRequest extends Request {
-  filename?: string;
-}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './public/uploads');
@@ -56,15 +55,20 @@ const app = nextConnect({
 app.post(upload.single('file'), async (req, res) => {
   try {
     const clientAccessToken = req.headers['authorization']?.split(' ')[1];
-    const decoded = (await decode(clientAccessToken!)) as JwtPayload;
+    const decoded = decode(clientAccessToken!) as accessTokenPayload;
     console.log(decoded, '!!!!');
-    await client.product.create({
+    const product = await client.product.create({
       data: {
         image: req.filename,
         title: req.body.title,
         description: req.body.description,
         userId: decoded?.id
       }
+    });
+    return res.json({
+      ok: true,
+      message: 'create product success',
+      product
     });
   } catch (error) {
     console.log(error, 'create product error');

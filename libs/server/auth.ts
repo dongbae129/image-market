@@ -1,6 +1,6 @@
 import axios from 'axios';
 import cookie from 'cookie';
-import { sign, verify } from 'jsonwebtoken';
+import { sign, verify, decode, JwtPayload } from 'jsonwebtoken';
 import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
 
 export const checkAuth =
@@ -34,16 +34,24 @@ export const checkAuth =
                     // re: o, ac: x
                     if (err) {
                       console.log(err, '2222');
-                      const accessToken = createAccessToken(payload?.id);
+                      console.log(clientAccessToken, 'bb');
+                      const decoded = decode(clientAccessToken);
+                      console.log(decoded, 'BB');
+                      // if (decoded) {
+                      const accessToken = createAccessToken(decoded?.id);
+                      console.log(accessToken, 'aa');
+                      console.log(decode(accessToken), 'AA');
+                      fn(req, res);
                       return res.json({
                         ok: true,
                         accessToken,
                         message: 're: o, ac:x , new access'
                       });
+                      // }
                     }
                     // re: o, ac: o
-                    if (payload) {
-                      console.log('auth testtt');
+                    else {
+                      console.log(decode(clientAccessToken), 'auth testtt');
                       fn(req, res);
                       return res.json({
                         ok: true,
@@ -107,7 +115,7 @@ export const refreshToken = () => {
 };
 export const createAccessToken = (id: number) => {
   return sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: '10s'
+    expiresIn: '20s'
   });
 };
 

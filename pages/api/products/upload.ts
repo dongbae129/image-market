@@ -2,21 +2,28 @@ import nextConnect from 'next-connect';
 import multer from 'multer';
 import path from 'path';
 import { checkAuth } from '../../../libs/server/auth';
+import client from '@libs/server/client';
+import { decode, JwtPayload } from 'jsonwebtoken';
 
 export const config = {
   api: {
     bodyParser: false
   }
 };
+interface myRequest extends Request {
+  filename?: string;
+}
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './public/uploads');
   },
-  filename: function (req, file, cb) {
-    console.log(file, '**');
+  filename: function (req: any, file, cb) {
     const ext = path.extname(file.originalname);
     const basename = path.basename(file.originalname, ext);
-    cb(null, basename + new Date().valueOf() + ext);
+    const filename = basename + new Date().valueOf() + ext;
+    req.filename = filename;
+
+    cb(null, filename);
   }
 });
 
@@ -46,8 +53,22 @@ const app = nextConnect({
   }
 });
 
-app.post(upload.single('file'), (req, res) => {
-  console.log(req.file, req.body, '!!');
+app.post(upload.single('file'), async (req, res) => {
+  try {
+    const clientAccessToken = req.headers['authorization']?.split(' ')[1];
+    const decoded = (await decode(clientAccessToken!)) as JwtPayload;
+    console.log(decoded, '!!!!');
+    await client.product.create({
+      data: {
+        image: req.filename,
+        title: req.body.title,
+        description: req.body.description,
+        userId: decoded?.id
+      }
+    });
+  } catch (error) {
+    console.log(error, 'create product error');
+  }
 });
 
 export default checkAuth(app);

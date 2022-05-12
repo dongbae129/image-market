@@ -1,6 +1,6 @@
 import { ResponseType } from '@libs/server/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { verify } from 'jsonwebtoken';
+import { verify, decode } from 'jsonwebtoken';
 import cookie from 'cookie';
 import { createAccessToken } from '@libs/server/auth';
 
@@ -38,7 +38,8 @@ const userAuth = async (
                     // re: o, ac: x
                     if (err) {
                       console.log(err, '2222');
-                      const accessToken = createAccessToken(payload?.id);
+                      const decoded = decode(clientAccessToken);
+                      const accessToken = createAccessToken(decoded?.id);
                       return res.json({
                         ok: true,
                         accessToken,

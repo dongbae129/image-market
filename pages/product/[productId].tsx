@@ -1,5 +1,5 @@
-import type { NextPage } from "next";
-import styles from "@styles/ProductDetail.module.scss";
+import type { NextPage } from 'next';
+import styles from '@styles/ProductDetail.module.scss';
 const ProductDetail: NextPage = () => {
   return (
     <div className={styles.productwrap}>

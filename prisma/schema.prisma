@@ -21,6 +21,7 @@ model User {
   updatedAt DateTime  @updatedAt
   products  Product[]
   boards    Board[]
+  Chat      Chat[]
 }
 
 model Product {
@@ -52,4 +53,6 @@ model Chat {
   updatedAt   DateTime @updatedAt
   product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId   Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
 }

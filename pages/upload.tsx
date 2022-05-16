@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
-import Layout from './../components/layout';
 import Input from './../components/input';
 import { Product } from '@prisma/client';
 import style from '@styles/Upload.module.scss';
@@ -55,7 +54,7 @@ const Upload: NextPage = () => {
     }
   }, [imageWatch]);
   return (
-    <Layout>
+    <>
       <form onSubmit={handleSubmit(onValid)}>
         <div>
           <div className={style.imageInput}>
@@ -92,7 +91,7 @@ const Upload: NextPage = () => {
         </div>
         <Button isLoading={isLoading} text="저장" />
       </form>
-    </Layout>
+    </>
   );
 };
 

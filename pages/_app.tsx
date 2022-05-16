@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import { Provider } from 'react-redux';
 
 import store from 'reducers/store';
+import Layout from '@components/layout';
 function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(
     () =>
@@ -20,9 +21,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <div>
+        <Layout>
           <Component {...pageProps} />
-        </div>
+        </Layout>
         <ReactQueryDevtools initialIsOpen />
       </QueryClientProvider>
     </Provider>

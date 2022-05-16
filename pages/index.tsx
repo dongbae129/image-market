@@ -1,5 +1,4 @@
 import ImageProduct from '@components/imageproduct';
-import Layout from '@components/layout';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -34,7 +33,7 @@ const Home: NextPage = () => {
   });
 
   return (
-    <Layout>
+    <>
       <div className={styles.container}>
         <Head>
           <title>이름 못정했어</title>
@@ -75,7 +74,7 @@ const Home: NextPage = () => {
         </Link>
       </div>
       <p>{data?.message || data?.error}</p>
-    </Layout>
+    </>
   );
 };
 

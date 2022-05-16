@@ -20,7 +20,7 @@ const Signup = async (
       }
     });
     if (userExist) {
-      return res.json({
+      return res.status(409).json({
         ok: false,
         error: 'existe duplicated userId'
       });

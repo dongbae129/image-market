@@ -11,9 +11,14 @@ import { Chat } from '@prisma/client';
 interface boardChat {
   chat: string;
 }
+interface chatWithUser extends Chat {
+  user: {
+    name: string;
+  };
+}
 interface UploadChatResponse {
   ok: boolean;
-  chat: Chat[];
+  comments: chatWithUser[];
   error?: string;
   message?: string;
 }
@@ -23,14 +28,21 @@ const BoardDetail: NextPage = () => {
   const { register, handleSubmit } = useForm<boardChat>();
   const onValid = ({ chat }: boardChat) => {
     if (isLoading) return;
+    console.log(chat, '!!@@');
     mutate({ chat });
   };
-  const { data } = useQuery<UploadChatResponse>(
+
+  const { data, refetch } = useQuery<UploadChatResponse>(
     ['getChats'],
-    getFetch('/api/chat')
+    getFetch(`/api/chat/${router.query.boardId}`),
+    {
+      enabled: !!router.query.boardId
+    }
   );
   const chatting = (data: boardChat) =>
-    axios.post('/api/chat', data).then((res) => res.data);
+    axios
+      .post(`/api/chat/${router.query.boardId}`, data)
+      .then((res) => res.data);
   const { mutate, isLoading } = useMutation<UploadChatResponse, any, boardChat>(
     chatting,
     {
@@ -39,10 +51,11 @@ const BoardDetail: NextPage = () => {
       },
       onSuccess: (res) => {
         console.log(res, 'RES');
-        queryClient.setQueryData(['getChats'], (prev: any) => ({
-          ...prev,
-          chat: prev.chat.concat(res.chat)
-        }));
+        refetch();
+        // queryClient.setQueryData(['getChats'], (prev: any) => ({
+        //   ...prev,
+        //   comments: res.comments
+        // }));
       }
     }
   );
@@ -54,18 +67,24 @@ const BoardDetail: NextPage = () => {
           name="chat"
           label="chat"
           type="text"
+          required
           register={register('chat', { required: true })}
         />
         <Button isLoading={isLoading} text="등록" />
       </form>
-      <div>
-        {data?.chat.map((boardchat) => (
-          <div key={boardchat.id}>
-            <div>
-              <div>img</div>
-              <span>user정보</span>
+      <div
+        style={{
+          width: '500px',
+          margin: '0 auto'
+        }}
+      >
+        {data?.comments.map((comment) => (
+          <div key={comment.id} style={{ borderBottom: '1px solid black' }}>
+            <div style={{ display: 'flex' }}>
+              <div style={{ marginRight: '20px' }}>img</div>
+              <span>{comment.user.name}</span>
             </div>
-            {boardchat.description}
+            {comment.description}
           </div>
         ))}
       </div>

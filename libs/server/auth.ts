@@ -26,7 +26,10 @@ export const checkAuth =
             // re: x
             if (err) {
               console.log(err, '11');
-              return false;
+              return res.status(401).json({
+                ok: false,
+                error: 'login please'
+              });
             }
             // re: 0
             if (payload) {
@@ -45,7 +48,7 @@ export const checkAuth =
                       const accessToken = createAccessToken(decoded?.id);
                       console.log(accessToken, 'aa');
                       console.log(decode(accessToken), 'AA');
-                      fn(req, res);
+                      fn(req, res, accessToken);
                       return res.json({
                         ok: true,
                         accessToken,
@@ -56,7 +59,7 @@ export const checkAuth =
                     // re: o, ac: o
                     else {
                       console.log(decode(clientAccessToken), 'auth testtt');
-                      return fn(req, res);
+                      return fn(req, res, clientAccessToken);
                       // return res.json({
                       //   ok: true,
                       //   accessToken: clientAccessToken,
@@ -84,6 +87,7 @@ export const checkAuth =
                     // not author, re: o
                     if (payload) {
                       const accessToken = createAccessToken(payload.id);
+                      fn(req, res, accessToken);
                       return res.json({
                         ok: true,
                         accessToken,

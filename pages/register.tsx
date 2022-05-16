@@ -27,22 +27,32 @@ const Register: NextPage = () => {
   const signupUser = (data: RegisterForm) =>
     axios.post('/api/signup', data).then((res) => res.data);
 
-  const signupMutate = useMutation(signupUser);
+  // const { mutate, isLoading } = useMutation(signupUser, {
+  //   onError: (res, a, c) => {
+  //     res.val
+  //     console.log(res, a, c, 'fail');
+  //     setError('formErrors', { message: res.error });
+  //   },
+  //   onSuccess: (res) => {
+  //     console.log(res, 'Succ');
+  //   }
+  // });
 
   // const { mutate, data, isLoading } = useMutation<
   //   RegisterResponse,
   //   any,
   //   RegisterForm
   // >((data) => axios.post('/api/signup', data).then((res) => res.data));
+  const signupMutate = useMutation(signupUser);
   const onValid = ({ name, userId, password }: RegisterForm) => {
     if (signupMutate.isLoading) return;
     if (userId === '' || password === '') {
       return setError('formErrors', { message: 'id and password is required' });
     }
-
+    // mutate({ name, password, userId });
     signupMutate.mutateAsync({ name, userId, password }).then((res) => {
-      console.log(res.data);
-      setError('formErrors', { message: res.data.error });
+      console.log(res, '^%^%^%^');
+      // if (res.data.error) setError('formErrors', { message: res.data.error });
     });
   };
 

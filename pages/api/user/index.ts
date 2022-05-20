@@ -11,9 +11,11 @@ const userAuth = async (
   if (req.method === 'GET') {
     const clientAccessToken = req.headers['authorization']?.split(' ')[1];
     console.log(clientAccessToken, 'api/index');
+
     // 쿠키 있을때
     if (req.headers.cookie) {
       const clientRefreshToken = cookie.parse(req.headers.cookie).refreshToken;
+      console.log(clientRefreshToken, 'CC');
       // 쿠키에서 refresh 있을때
       if (clientRefreshToken) {
         verify(
@@ -86,6 +88,11 @@ const userAuth = async (
             }
           }
         );
+      } else {
+        return res.status(401).json({
+          ok: false,
+          message: 'no refresh'
+        });
       }
     }
     // 쿠키 없을때

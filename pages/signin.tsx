@@ -2,7 +2,9 @@ import Button from '@components/button';
 import Input from '@components/input';
 import axios from 'axios';
 import type { NextPage } from 'next';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import { useDispatch } from 'react-redux';
@@ -13,7 +15,43 @@ interface SingInForm {
   password: string;
   formErrors?: string;
 }
+// export async function getKakao(accessToken: string): Promise<any> {
+//   const payload = {
+//     kakaoToken: accessToken
+//   };
+//   try {
+//     const data: any = await axios.post('/api/auth/kakao', payload);
+//     return data.kakaoProfile;
+//   } catch (error) {
+//     return 'whatt';
+//   }
+// }
 const Signin: NextPage = () => {
+  const kakaoLogin = () => {
+    window.Kakao.Auth.login({
+      scope: 'profile_nickname, account_email, gender',
+      success: (authObj) => {
+        console.log(authObj, 'authObj');
+        window.Kakao.API.request({
+          url: '/v2/user/me',
+          success: (res) => {
+            const kakao_account = res.kakao_account;
+            console.log(kakao_account, 'kakao_account');
+          }
+        });
+      }
+    });
+  };
+  // };useEffect(() => {
+  //   const kakao = document.createElement('script');
+  //   kakao.src = 'https://developers.kakao.com/sdk/js/kakao.js';
+  //   document.head.appendChild(kakao);
+
+  //   window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_KEY);
+  //   return () => {
+  //     document.head.removeChild(kakao);
+  //   };
+  // }, []);
   const dispatch = useDispatch();
   const {
     register,
@@ -40,6 +78,7 @@ const Signin: NextPage = () => {
       router.push('/');
     }
   });
+
   const onValid = ({ userId, password }: SingInForm) => {
     if (isLoading) return;
     if (userId === '' || password === '') {
@@ -67,6 +106,8 @@ const Signin: NextPage = () => {
         />
         <Button isLoading={isLoading} text="LOGIN" />
       </form>
+      <button onClick={() => signIn('kakao')}>kakaoLogin</button>
+      {/* <button onClick={kakaoLogin}>kakaoLogin</button> */}
     </div>
   );
 };

@@ -8,8 +8,12 @@ import { useQuery } from 'react-query';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
+import { signOut, useSession } from 'next-auth/react';
 
 const Home: NextPage = () => {
+  const { data: ddata, status } = useSession();
+  console.log(ddata, 'ddata');
+  console.log(status, 'status');
   const { accessToken } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const header = {
@@ -52,6 +56,9 @@ const Home: NextPage = () => {
             <button>SIGNIN</button>
           </a>
         </Link>
+
+        <button onClick={() => signOut()}>kakaoLogout</button>
+
         <Link href={'/test'}>
           <a>
             <button>Test User</button>
@@ -70,6 +77,16 @@ const Home: NextPage = () => {
         <Link href={'/board'}>
           <a>
             <button>Board</button>
+          </a>
+        </Link>
+        <Link href={'/payment'}>
+          <a>
+            <button>Pay</button>
+          </a>
+        </Link>
+        <Link href={'/certification'}>
+          <a>
+            <button>certification</button>
           </a>
         </Link>
       </div>

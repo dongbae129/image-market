@@ -10,6 +10,7 @@ export const checkAuth =
     }
     console.log('TTTTTTT');
     const clientAccessToken = req.headers['authorization']?.split(' ')[1];
+    console.log(req.cookies, 'Refresh');
     console.log(clientAccessToken, 'api/index');
     // 쿠키 있을때
     // console.log(req.headers, '000');

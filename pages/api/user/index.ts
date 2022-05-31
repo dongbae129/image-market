@@ -3,12 +3,18 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { verify, decode } from 'jsonwebtoken';
 import cookie from 'cookie';
 import { createAccessToken } from '@libs/server/auth';
+import { getSession } from 'next-auth/react';
+import { getToken } from 'next-auth/jwt';
 
 const userAuth = async (
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) => {
   if (req.method === 'GET') {
+    // const secret = process.env.ACCESS_TOKEN_SECRET;
+    const session = await getSession({ req });
+    // const session = await getToken({ req, secret });
+    console.log(session, 'SESESESE');
     const clientAccessToken = req.headers['authorization']?.split(' ')[1];
     console.log(clientAccessToken, 'api/index');
 
@@ -91,7 +97,8 @@ const userAuth = async (
       } else {
         return res.status(401).json({
           ok: false,
-          message: 'no refresh'
+          message: 'no refresh',
+          session
         });
       }
     }

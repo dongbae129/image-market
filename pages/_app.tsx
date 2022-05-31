@@ -18,24 +18,23 @@ function MyApp({ Component, pageProps }: AppProps) {
         }
       })
   );
-  useEffect(() => {
-    window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_KEY);
-    // const kakao = document.createElement('script');
-    // kakao.src = 'https://developers.kakao.com/sdk/js/kakao.js';
-    // document.head.appendChild(kakao);
-
-    // window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_KEY);
-    // return () => {
-    //   document.head.removeChild(kakao);
-    // };
-  }, []);
+  // useEffect(() => {
+  //   // window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_KEY);
+  //   // const kakao = document.createElement('script');
+  //   // kakao.src = 'https://developers.kakao.com/sdk/js/kakao.js';
+  //   // document.head.appendChild(kakao);
+  //   // window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_KEY);
+  //   // return () => {
+  //   //   document.head.removeChild(kakao);
+  //   // };
+  // }, []);
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <Layout>
-          <SessionProvider session={pageProps.session}>
-            <Component {...pageProps} />
-          </SessionProvider>
+          {/* <SessionProvider session={pageProps.session}> */}
+          <Component {...pageProps} />
+          {/* </SessionProvider> */}
         </Layout>
         <ReactQueryDevtools initialIsOpen />
       </QueryClientProvider>

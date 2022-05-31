@@ -27,21 +27,24 @@ interface SingInForm {
 //   }
 // }
 const Signin: NextPage = () => {
-  const kakaoLogin = () => {
-    window.Kakao.Auth.login({
-      scope: 'profile_nickname, account_email, gender',
-      success: (authObj) => {
-        console.log(authObj, 'authObj');
-        window.Kakao.API.request({
-          url: '/v2/user/me',
-          success: (res) => {
-            const kakao_account = res.kakao_account;
-            console.log(kakao_account, 'kakao_account');
-          }
-        });
-      }
-    });
-  };
+  const redirect_uri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
+  // const testurl = 'http://localhost:3000/test';
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&redirect_uri=${redirect_uri}&response_type=code`;
+  // const kakaoLogin = () => {
+  //   window.Kakao.Auth.login({
+  //     scope: 'profile_nickname, account_email, gender',
+  //     success: (authObj) => {
+  //       console.log(authObj, 'authObj');
+  //       window.Kakao.API.request({
+  //         url: '/v2/user/me',
+  //         success: (res) => {
+  //           const kakao_account = res.kakao_account;
+  //           console.log(kakao_account, 'kakao_account');
+  //         }
+  //       });
+  //     }
+  //   });
+  // };
   // };useEffect(() => {
   //   const kakao = document.createElement('script');
   //   kakao.src = 'https://developers.kakao.com/sdk/js/kakao.js';
@@ -106,8 +109,13 @@ const Signin: NextPage = () => {
         />
         <Button isLoading={isLoading} text="LOGIN" />
       </form>
-      <button onClick={() => signIn('kakao')}>kakaoLogin</button>
+      {/* <button onClick={() => signIn('kakao')}>kakaoLogin</button> */}
+      <button onClick={() => signIn('naver')}>naverLogin</button>
+      <button onClick={() => signIn('credentials')}>credential</button>
       {/* <button onClick={kakaoLogin}>kakaoLogin</button> */}
+      <a href={KAKAO_AUTH_URL}>
+        <button>kakaoLogin</button>
+      </a>
     </div>
   );
 };

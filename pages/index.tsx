@@ -8,12 +8,21 @@ import { useQuery } from 'react-query';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
-import { signOut, useSession } from 'next-auth/react';
+import { getCsrfToken, signOut, useSession } from 'next-auth/react';
 
 const Home: NextPage = () => {
-  const { data: ddata, status } = useSession();
-  console.log(ddata, 'ddata');
-  console.log(status, 'status');
+  // const { data: ddata, status } = useSession();
+  // const csrfToekn = getCsrfToken();
+  // csrfToekn
+  //   .then((res) => {
+  //     console.log(res, 'RES');
+  //   })
+  //   .catch((err) => {
+  //     console.log(err, 'ERR');
+  //   });
+  // console.log(ddata, 'ddata');
+
+  // console.log(status, 'status');
   const { accessToken } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const header = {
@@ -22,19 +31,19 @@ const Home: NextPage = () => {
 
   const getUserFetcher = () =>
     axios.get('/api/user', header).then((res) => res.data);
-  const { data } = useQuery(['userInfo'], getUserFetcher, {
-    onSuccess: (res) => {
-      dispatch(setAccessToken(res.accessToken));
-      // axios.defaults.headers.common['Authorization'] = '';
-      axios.defaults.headers.common[
-        'Authorization'
-      ] = `Bearer ${res.accessToken}`;
-      // console.log(axios.defaults.headers.common['Authorization'], 'index');
-    },
-    onError: (res) => {
-      console.log(res, '!');
-    }
-  });
+  // const { data } = useQuery(['userInfo'], getUserFetcher, {
+  //   onSuccess: (res) => {
+  //     dispatch(setAccessToken(res.accessToken));
+  //     // axios.defaults.headers.common['Authorization'] = '';
+  //     axios.defaults.headers.common[
+  //       'Authorization'
+  //     ] = `Bearer ${res.accessToken}`;
+  //     // console.log(axios.defaults.headers.common['Authorization'], 'index');
+  //   },
+  //   onError: (res) => {
+  //     console.log(res, '!');
+  //   }
+  // });
 
   return (
     <>
@@ -57,7 +66,7 @@ const Home: NextPage = () => {
           </a>
         </Link>
 
-        <button onClick={() => signOut()}>kakaoLogout</button>
+        <button onClick={() => signOut()}>snsLogout</button>
 
         <Link href={'/test'}>
           <a>
@@ -90,7 +99,8 @@ const Home: NextPage = () => {
           </a>
         </Link>
       </div>
-      <p>{data?.message || data?.error}</p>
+      {/* <p>{ddata?.user?.name}</p> */}
+      {/* <p>{data?.message || data?.error}</p> */}
     </>
   );
 };

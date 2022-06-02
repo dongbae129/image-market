@@ -3,7 +3,20 @@ import { ResponseType } from '@libs/server/utils';
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sendRefreshToken } from './../../../libs/server/auth';
-
+import client from '@libs/server/client';
+interface kakaoUserInfoResponse {
+  id: number;
+  connected_at: string;
+  kakao_account: {
+    profile: {
+      nickname: string;
+      thumbnail_image_url: string;
+      profile_image_url: string;
+    };
+    email: string;
+    gender: string;
+  };
+}
 const Kakao = async (
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
@@ -25,16 +38,55 @@ const Kakao = async (
           }
         }
       )
-      .then((res) => res.data.access_token)
+      .then((res) => {
+        console.log(res.data, 'accesstoken');
+        return res.data.access_token;
+      })
       .catch((e) => console.log(e.response.data, 'tokenerror'));
     const userInfo = await axios
-      .get('https://kapi.kakao.com/v2/user/me', {
+      .get<kakaoUserInfoResponse>('https://kapi.kakao.com/v2/user/me', {
         headers: {
           Authorization: `Bearer ${access_token}`
         }
       })
-      .then((res) => res.data);
+      .then((res) => {
+        console.log(res.data, 'userInfo');
+        return res.data;
+      });
 
+    const exitUser = await client.user.findUnique({
+      where: {
+        email: userInfo.kakao_account.email + userInfo.id
+      }
+    });
+    if (exitUser) {
+    } else {
+      const user = await client.user.create({
+        data: {
+          email: userInfo.kakao_account.email + userInfo.id,
+          emailActive: true,
+          image: userInfo.kakao_account.profile.thumbnail_image_url || '',
+          name: userInfo.kakao_account.profile.nickname
+        }
+      });
+      const socialUser = await client.socialUser.create({
+        data: {
+          socialId: userInfo.id,
+          type: 'kakao',
+          userId: user.id
+        }
+      });
+    }
+    // const user = await client.user.upsert({
+    //   create: {
+    //     email: userInfo.kakao_account.email,
+    //     image: userInfo.kakao_account.profile.thumbnail_image_url,
+    //     name: userInfo.kakao_account.profile.nickname
+    //   },
+    //   where: {
+
+    //   }
+    // });
     const jwtAccessToken = createAccessToken(userInfo.id);
     const jwtRefreshToken = createRefreshToken(userInfo.id);
 

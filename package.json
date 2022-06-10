@@ -16,6 +16,7 @@
     "axios": "^0.26.1",
     "bcrypt": "^5.0.1",
     "cookie": "^0.5.0",
+    "cookies-next": "^2.0.4",
     "iron-session": "^6.1.2",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.4",

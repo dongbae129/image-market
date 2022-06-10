@@ -29,7 +29,7 @@ model User {
 
 model SocialUser {
   id       Int    @id @default(autoincrement())
-  socialId Int
+  socialId String @unique
   type     String
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int    @unique
@@ -37,7 +37,8 @@ model SocialUser {
 
 model LocalUser {
   id       Int    @id @default(autoincrement())
-  memId    Int
+  memId    String
+  email    String
   password String
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int    @unique

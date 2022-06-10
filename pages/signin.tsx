@@ -75,7 +75,7 @@ const Signin: NextPage = () => {
       dispatch(setAccessToken(res.accessToken));
       // axios.defaults.headers.common['Authorization'] = '';
 
-      axios.defaults.headers.common['Authorization'] =
+      axios.defaults.headers.common['authorization'] =
         'Bearer ' + res.accessToken;
       console.log(axios.defaults.headers, '$$$');
       router.push('/');
@@ -96,7 +96,7 @@ const Signin: NextPage = () => {
         <Input
           label="ID"
           name="userId"
-          type="email"
+          type="text"
           register={register('userId', { required: true })}
           required
         />

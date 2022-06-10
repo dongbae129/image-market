@@ -3,8 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { verify, decode } from 'jsonwebtoken';
 import cookie from 'cookie';
 import { createAccessToken } from '@libs/server/auth';
-import { getSession } from 'next-auth/react';
-import { getToken } from 'next-auth/jwt';
 
 const userAuth = async (
   req: NextApiRequest,
@@ -12,12 +10,13 @@ const userAuth = async (
 ) => {
   if (req.method === 'GET') {
     // const secret = process.env.ACCESS_TOKEN_SECRET;
-    const session = await getSession({ req });
-    // const session = await getToken({ req, secret });
-    console.log(session, 'SESESESE');
-    const clientAccessToken = req.headers['authorization']?.split(' ')[1];
-    console.log(clientAccessToken, 'api/index');
 
+    // const session = await getToken({ req, secret });
+
+    const clientAccessToken = req.headers['authorization']?.split(' ')[1];
+    // console.log(clientAccessToken, 'api/index');
+
+    // console.log(req.headers.cookie, 'CCCCCO');
     // 쿠키 있을때
     if (req.headers.cookie) {
       const clientRefreshToken = cookie.parse(req.headers.cookie).refreshToken;

@@ -22,7 +22,7 @@ const Kakao = async (
   res: NextApiResponse<ResponseType>
 ) => {
   const code = req.query.code;
-  console.log(code, 'CCCCC');
+
   const grant_type = 'authorization_code';
   const client_id = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
   const redirect_uri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
@@ -39,7 +39,6 @@ const Kakao = async (
         }
       )
       .then((res) => {
-        console.log(res.data, 'accesstoken');
         return res.data.access_token;
       })
       .catch((e) => console.log(e.response.data, 'tokenerror'));
@@ -50,65 +49,73 @@ const Kakao = async (
         }
       })
       .then((res) => {
-        console.log(res.data, 'userInfo');
         return res.data;
       });
 
+    const jwtAccessToken = createAccessToken(userInfo.id);
+    const jwtRefreshToken = createRefreshToken(userInfo.id);
+
     const exitUser = await client.user.findUnique({
       where: {
-        email: userInfo.kakao_account.email + userInfo.id
+        email: userInfo.kakao_account.email
       }
     });
     if (exitUser) {
+      const findsocialUser = await client.socialUser.findFirst({
+        where: {
+          socialId: userInfo.id.toString()
+        }
+      });
+      if (findsocialUser) {
+        // user가 있고 social이 있으니깐 그냥 로그인
+        sendRefreshToken(res, jwtRefreshToken);
+        return res.json({
+          ok: true,
+          userInfo,
+          accessToken: jwtAccessToken
+        });
+      } else {
+        // user가 있고 social이 없으니깐 local이 있는거라 해당 이메일로 연동할거냐고 물어봐야함
+
+        return res.json({
+          ok: true,
+          userId: exitUser.id,
+          message: 'have localuser and ask to need link social-login',
+          accessToken: jwtAccessToken,
+          reason: 1
+        });
+      }
     } else {
+      // user가 없어서 user create
       const user = await client.user.create({
         data: {
-          email: userInfo.kakao_account.email + userInfo.id,
+          email: userInfo.kakao_account.email,
           emailActive: true,
           image: userInfo.kakao_account.profile.thumbnail_image_url || '',
           name: userInfo.kakao_account.profile.nickname
         }
       });
-      const socialUser = await client.socialUser.create({
+      // user도 만들고 social도 만듬
+      await client.socialUser.create({
         data: {
-          socialId: userInfo.id,
+          socialId: userInfo.id.toString(),
           type: 'kakao',
           userId: user.id
         }
       });
+      sendRefreshToken(res, jwtRefreshToken);
+      return res.json({
+        ok: true,
+        userInfo: user,
+        accessToken: jwtAccessToken
+      });
     }
-    // const user = await client.user.upsert({
-    //   create: {
-    //     email: userInfo.kakao_account.email,
-    //     image: userInfo.kakao_account.profile.thumbnail_image_url,
-    //     name: userInfo.kakao_account.profile.nickname
-    //   },
-    //   where: {
-
-    //   }
-    // });
-    const jwtAccessToken = createAccessToken(userInfo.id);
-    const jwtRefreshToken = createRefreshToken(userInfo.id);
-
-    // res.setHeader('Authorization', jwtAccessToken);
-    // axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAccessToken}`;
-    sendRefreshToken(res, jwtRefreshToken);
-
-    return res.json({
-      ok: true,
-      userInfo,
-      accessToken: jwtAccessToken
-    });
   } catch (e: any) {
-    console.log(e.response.data, 'ERR');
+    console.log(e, 'ERR');
     res.json({
       ok: false,
       error: e.message
     });
   }
-  // return res.json({
-  //   ok: true,
-  //   message: 'testtt'
-  // });
 };
 export default Kakao;

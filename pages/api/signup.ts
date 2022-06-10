@@ -7,35 +7,46 @@ const Signup = async (
   res: NextApiResponse<ResponseType>
 ) => {
   if (req.method === 'POST') {
-    const { name, userId, password } = req.body;
+    const { name, userId, password, email } = req.body;
     if (userId === '' || password === '') {
       res.json({
         ok: false,
         message: 'input the signup-information'
       });
     }
-    const userExist = await client.user.findUnique({
+    const userExist = await client.localUser.findFirst({
       where: {
-        email: userId
+        memId: userId,
+        email
       }
     });
     if (userExist) {
       return res.status(409).json({
         ok: false,
-        error: 'existe duplicated userId'
+        error: 'existe duplicated userId or email'
       });
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
-      await client.user.create({
+      const user = await client.user.create({
         data: {
           name: name ? name : 'Annoymous',
-          email: userId,
-          password: hashedPassword
+          email,
+          emailActive: false
         }
       });
+      await client.localUser.create({
+        data: {
+          memId: userId,
+          password: hashedPassword,
+          userId: user.id,
+          email
+        }
+      });
+
       res.json({
         ok: true,
-        message: 'signup success'
+        message: 'signup success',
+        user
       });
     }
   }

@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
 import { getCsrfToken, signOut, useSession } from 'next-auth/react';
+import { getCookies } from 'cookies-next';
 
 const Home: NextPage = () => {
   // const { data: ddata, status } = useSession();
@@ -23,20 +24,21 @@ const Home: NextPage = () => {
   // console.log(ddata, 'ddata');
 
   // console.log(status, 'status');
+  const test = getCookies();
+  console.log(test, 'TETE');
   const { accessToken } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const header = {
-    headers: { Authorization: `Bearer ${accessToken}` }
+    headers: { authorization: `Bearer ${accessToken}` }
   };
 
-  const getUserFetcher = () =>
-    axios.get('/api/user', header).then((res) => res.data);
+  const getUserFetcher = () => axios.get('/api/user').then((res) => res.data);
   // const { data } = useQuery(['userInfo'], getUserFetcher, {
   //   onSuccess: (res) => {
   //     dispatch(setAccessToken(res.accessToken));
-  //     // axios.defaults.headers.common['Authorization'] = '';
+  //     axios.defaults.headers.common['authorization'] = '';
   //     axios.defaults.headers.common[
-  //       'Authorization'
+  //       'authorization'
   //     ] = `Bearer ${res.accessToken}`;
   //     // console.log(axios.defaults.headers.common['Authorization'], 'index');
   //   },

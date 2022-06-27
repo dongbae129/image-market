@@ -4,7 +4,7 @@ import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sendRefreshToken } from './../../../libs/server/auth';
 import client from '@libs/server/client';
-interface kakaoUserInfoResponse {
+export interface kakaoUserInfoResponse {
   id: number;
   connected_at: string;
   kakao_account: {
@@ -68,11 +68,23 @@ const Kakao = async (
       });
       if (findsocialUser) {
         // user가 있고 social이 있으니깐 그냥 로그인
+        // socialuser에 kakao_accesstoken 저장
+        await client.socialUser.update({
+          where: {
+            socialId: userInfo.id.toString()
+          },
+          data: {
+            accessToken: access_token
+          }
+        });
         sendRefreshToken(res, jwtRefreshToken);
+
         return res.json({
           ok: true,
           userInfo,
-          accessToken: jwtAccessToken
+          accessToken: access_token
+          // 바꾸기
+          // accessToken: jwtAccessToken
         });
       } else {
         // user가 있고 social이 없으니깐 local이 있는거라 해당 이메일로 연동할거냐고 물어봐야함

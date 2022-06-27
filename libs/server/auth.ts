@@ -1,5 +1,6 @@
 import axios from 'axios';
 import cookie from 'cookie';
+import { setCookies } from 'cookies-next';
 import { sign, verify, decode } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
 // interface authLinkFunc {
@@ -64,8 +65,7 @@ export const checkAuth = (req: NextApiRequest, res: NextApiResponse) => {
   console.log(req.cookies, 'Refresh');
   console.log(clientAccessToken, 'api/index');
   // 쿠키 있을때
-  // console.log(req.headers, '000');
-  // console.log(req.cookies, '111');
+
   if (req.cookies['refreshToken']) {
     // const clientRefreshToken = cookie.parse(req.cookies).refreshToken;
     const clientRefreshToken = req.cookies['refreshToken'];
@@ -105,13 +105,6 @@ export const checkAuth = (req: NextApiRequest, res: NextApiResponse) => {
                       ac: false,
                       message: 'refresh is true but, access is false'
                     };
-                    // fn(req, res, accessToken);
-                    // return res.json({
-                    //   ok: true,
-                    //   accessToken,
-                    //   message: 're: o, ac:x , new access'
-                    // });
-                    // }
                   }
                   // re: o, ac: o
                   else {
@@ -121,13 +114,6 @@ export const checkAuth = (req: NextApiRequest, res: NextApiResponse) => {
                       ac: true,
                       message: 'refreh is true, access is true'
                     };
-                    // return fn(req, res, clientAccessToken);
-                    // return res.json({
-                    //   ok: true,
-                    //   accessToken: clientAccessToken,
-                    //   message: 're:o, ac:o, old access'
-                    // });
-                    // return fn(req, res);
                   }
                 }
               );
@@ -146,10 +132,6 @@ export const checkAuth = (req: NextApiRequest, res: NextApiResponse) => {
                       ac: null,
                       message: 'refresh is false, and no author header'
                     };
-                    // return res.status(401).json({
-                    //   ok: false,
-                    //   error: 'no author, re: x'
-                    // });
                   }
                   // not author, re: o
                   if (payload) {
@@ -159,12 +141,6 @@ export const checkAuth = (req: NextApiRequest, res: NextApiResponse) => {
                       ac: null,
                       message: 'refresh is true, but no author header'
                     };
-                    // fn(req, res, accessToken);
-                    // return res.json({
-                    //   ok: true,
-                    //   accessToken,
-                    //   message: 'no author, re: o'
-                    // });
                   }
                 }
               );
@@ -182,10 +158,6 @@ export const checkAuth = (req: NextApiRequest, res: NextApiResponse) => {
       cookie: null,
       message: 'no have cookie'
     };
-    // return res.status(401).json({
-    //   ok: false,
-    //   message: 'no cookie'
-    // });
   }
 };
 export const refreshToken = () => {

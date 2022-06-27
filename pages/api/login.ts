@@ -44,6 +44,7 @@ const Login = async (
         const refreshToken = createRefreshToken(user.id);
 
         sendRefreshToken(res, refreshToken);
+        // res.setHeader('Set-Cookie', 'test=aaaTEST');
         res.json({
           ok: true,
           message: 'login success',

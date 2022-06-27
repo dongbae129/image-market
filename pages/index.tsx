@@ -8,8 +8,6 @@ import { useQuery } from 'react-query';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
-import { getCsrfToken, signOut, useSession } from 'next-auth/react';
-import { getCookies } from 'cookies-next';
 
 const Home: NextPage = () => {
   // const { data: ddata, status } = useSession();
@@ -24,8 +22,7 @@ const Home: NextPage = () => {
   // console.log(ddata, 'ddata');
 
   // console.log(status, 'status');
-  const test = getCookies();
-  console.log(test, 'TETE');
+
   const { accessToken } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const header = {
@@ -68,7 +65,11 @@ const Home: NextPage = () => {
           </a>
         </Link>
 
-        <button onClick={() => signOut()}>snsLogout</button>
+        <Link href={'/test'}>
+          <a>
+            <button>logout</button>
+          </a>
+        </Link>
 
         <Link href={'/test'}>
           <a>

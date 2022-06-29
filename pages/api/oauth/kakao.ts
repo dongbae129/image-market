@@ -29,7 +29,7 @@ const Kakao = async (
   const client_secret = process.env.NEXT_PUBLIC_KAKAO_CLIENT_SECRET;
   try {
     console.log(code, 'AS');
-    const access_token = await axios
+    const { access_token, refresh_token } = await axios
       .post(
         `https://kauth.kakao.com/oauth/token?grant_type=${grant_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&client_secret=${client_secret}&code=${code}`,
         {
@@ -39,7 +39,7 @@ const Kakao = async (
         }
       )
       .then((res) => {
-        return res.data.access_token;
+        return res.data;
       })
       .catch((e) => console.log(e.response.data, 'tokenerror'));
     const userInfo = await axios
@@ -74,7 +74,8 @@ const Kakao = async (
             socialId: userInfo.id.toString()
           },
           data: {
-            accessToken: access_token
+            accessToken: access_token,
+            refreshToken: refresh_token
           }
         });
         sendRefreshToken(res, jwtRefreshToken);

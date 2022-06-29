@@ -36,22 +36,6 @@ export const authLinkCheck = (req: NextApiRequest, res: NextApiResponse) => {
         error: 'no have accesstoken'
       });
     }
-    // ,
-    //   (err, payload) => {
-    //     if (err) {
-    //       console.log(err, 'ERERER');
-    //       return {
-    //         state: false,
-    //         message: 'urlAccessToken is not verified'
-    //       };
-    //     } else {
-    //       console.log(payload, 'papap');
-    //       return {
-    //         state: true,
-    //         payload
-    //       };
-    //     }
-    //   }
   } else {
     return res.json({
       ok: false,

@@ -71,9 +71,9 @@ const Home: NextPage = () => {
           </a>
         </Link>
 
-        <Link href={'/test'}>
+        <Link href={'/logouttest'}>
           <a>
-            <button>Test User</button>
+            <button>Logout Test</button>
           </a>
         </Link>
         <Link href={'/products'}>

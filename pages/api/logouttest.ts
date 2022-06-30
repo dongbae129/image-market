@@ -44,12 +44,34 @@ const logoutTest = async (req: NextApiRequest, res: NextApiResponse) => {
           }
         });
         console.log(renweal, '토큰 갱신');
+        return renweal;
       });
-    console.log(userInfo);
-
-    return res.json({
-      ok: true
-    });
+    console.log(userInfo, 'UUUUU');
+    if (typeof userInfo.id === 'number') {
+      return res.json({
+        ok: true,
+        message: 'success logout'
+      });
+    } else {
+      const socialUser = await client.socialUser.findUnique({
+        where: {
+          id: 1
+        }
+      });
+      await axios.post(
+        'https://kapi.kakao.com/v1/user/logout',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${socialUser?.accessToken}`
+          }
+        }
+      );
+      return res.json({
+        ok: true,
+        message: 'renweal logout'
+      });
+    }
   } catch (e) {
     console.log(e, 'api logouttest error');
     return res.json({

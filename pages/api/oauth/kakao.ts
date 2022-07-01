@@ -52,8 +52,8 @@ const Kakao = async (
         return res.data;
       });
 
-    const jwtAccessToken = createAccessToken(userInfo.id);
-    const jwtRefreshToken = createRefreshToken(userInfo.id);
+    const jwtAccessToken = createAccessToken(userInfo.id, -1);
+    const jwtRefreshToken = createRefreshToken(userInfo.id, -1);
 
     const exitUser = await client.user.findUnique({
       where: {
@@ -74,8 +74,8 @@ const Kakao = async (
             socialId: userInfo.id.toString()
           },
           data: {
-            accessToken: access_token,
-            refreshToken: refresh_token
+            accessToken: jwtAccessToken,
+            refreshToken: jwtRefreshToken
           }
         });
         sendRefreshToken(res, jwtRefreshToken);
@@ -83,7 +83,7 @@ const Kakao = async (
         return res.json({
           ok: true,
           userInfo,
-          accessToken: access_token
+          accessToken: jwtAccessToken
           // 바꾸기
           // accessToken: jwtAccessToken
         });

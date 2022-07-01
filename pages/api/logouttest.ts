@@ -3,8 +3,6 @@ import client from '@libs/server/client';
 import axios from 'axios';
 const logoutTest = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const client_secret = process.env.NEXT_PUBLIC_KAKAO_CLIENT_SECRET;
-    const client_id = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
     const socialUser = await client.socialUser.findUnique({
       where: {
         id: 1
@@ -27,6 +25,8 @@ const logoutTest = async (req: NextApiRequest, res: NextApiResponse) => {
       })
       .catch(async (e) => {
         console.error(e, 'EEEEEEEEE');
+        const client_secret = process.env.NEXT_PUBLIC_KAKAO_CLIENT_SECRET;
+        const client_id = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
         const { data: renweal } = await axios.post(
           `https://kauth.kakao.com/oauth/token?grant_type=refresh_token&client_id=${client_id}&refresh_token=${socialUser?.refreshToken}&client_secret=${client_secret}`,
           {

@@ -1,18 +1,8 @@
 import axios from 'axios';
 import cookie from 'cookie';
-import { setCookies } from 'cookies-next';
-import { sign, verify, decode } from 'jsonwebtoken';
+import { sign, verify, decode, JwtPayload } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
-// interface authLinkFunc {
-//   (req: NextApiRequest, res: NextApiResponse): {
-//     state: boolean;
-//     message: string;
-//   };
-//   (req: NextApiRequest, res: NextApiResponse): {
-//     ok: boolean;
-//     error: string;
-//   };
-// }
+
 export const authLinkCheck = (req: NextApiRequest, res: NextApiResponse) => {
   const urlask = req.url?.includes('/api/oauth/link?linkask=true');
   if (urlask) {
@@ -43,106 +33,136 @@ export const authLinkCheck = (req: NextApiRequest, res: NextApiResponse) => {
     });
   }
 };
+interface checkAuthResponse {
+  re: boolean;
+  ac: boolean | null;
+  accessToken?: string;
+  cookie?: null;
+  message: string;
+}
 
-export const checkAuth = (req: NextApiRequest, res: NextApiResponse) => {
+export const checkAuth = (
+  req: NextApiRequest,
+  res: NextApiResponse,
+  logintype: number
+): checkAuthResponse | undefined => {
+  let type = logintype;
   const clientAccessToken = req.headers['authorization']?.split(' ')[1];
   console.log(req.cookies, 'Refresh');
   console.log(clientAccessToken, 'api/index');
+  let state;
   // 쿠키 있을때
 
   if (req.cookies['refreshToken']) {
     // const clientRefreshToken = cookie.parse(req.cookies).refreshToken;
     const clientRefreshToken = req.cookies['refreshToken'];
     // 쿠키에서 refresh 있을때
-    if (clientRefreshToken) {
-      verify(
-        clientRefreshToken,
-        process.env.REFRESH_TOKEN_SECRET,
-        (err, payload) => {
-          // re: x
-          if (err) {
-            console.log(err, '11');
-            return res.status(401).json({
-              ok: false,
-              error: 'login please'
-            });
+
+    verify(
+      clientRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      (err, payload) => {
+        // re: x
+        if (err) {
+          console.log(err, '11');
+          state = {
+            re: false,
+            ac: false,
+            message: 'login please'
+          };
+
+          return res.status(401).json({
+            ok: false,
+            error: 'login please'
+          });
+        }
+        // re: 0
+        if (payload) {
+          if (clientAccessToken) {
+            verify(
+              clientAccessToken,
+              process.env.ACCESS_TOKEN_SECRET,
+              (err: any) => {
+                // re: o, ac: x
+                if (err) {
+                  console.log(err, '2222');
+                  console.log(clientAccessToken, 'bb');
+                  const decoded = decode(clientAccessToken);
+                  type = (decoded as JwtPayload).type;
+                  console.log(decoded, 'BB');
+                  // if (decoded) {
+                  const accessToken = createAccessToken(decoded?.id, type);
+                  console.log(accessToken, 'aa');
+                  console.log(decode(accessToken), 'AA');
+
+                  state = {
+                    re: true,
+                    ac: false,
+                    message: 'refresh is true but, access is false',
+                    accessToken
+                  };
+                }
+                // re: o, ac: o
+                else {
+                  console.log(decode(clientAccessToken), 'auth testtt');
+                  state = {
+                    re: true,
+                    ac: true,
+                    message: 'refreh is true, access is true',
+                    accessToken: clientAccessToken
+                  };
+                }
+              }
+            );
+
+            // return state;
           }
-          // re: 0
-          if (payload) {
-            if (clientAccessToken) {
-              verify(
-                clientAccessToken,
-                process.env.ACCESS_TOKEN_SECRET,
-                (err: any, payload: any) => {
-                  // re: o, ac: x
-                  if (err) {
-                    console.log(err, '2222');
-                    console.log(clientAccessToken, 'bb');
-                    const decoded = decode(clientAccessToken);
-                    console.log(decoded, 'BB');
-                    // if (decoded) {
-                    const accessToken = createAccessToken(decoded?.id);
-                    console.log(accessToken, 'aa');
-                    console.log(decode(accessToken), 'AA');
-                    return {
-                      re: true,
-                      ac: false,
-                      message: 'refresh is true but, access is false'
-                    };
-                  }
-                  // re: o, ac: o
-                  else {
-                    console.log(decode(clientAccessToken), 'auth testtt');
-                    return {
-                      re: true,
-                      ac: true,
-                      message: 'refreh is true, access is true'
-                    };
-                  }
+          // header 에 authorization 없을때
+          else {
+            verify(
+              clientRefreshToken,
+              process.env.REFRESH_TOKEN_SECRET,
+              (err, payload) => {
+                // no author, re: x
+                if (err) {
+                  console.log(err, '3333');
+                  state = {
+                    re: false,
+                    ac: null,
+                    message: 'refresh is false, and no author header'
+                  };
                 }
-              );
-            }
-            // header 에 authorization 없을때
-            else {
-              verify(
-                clientRefreshToken,
-                process.env.REFRESH_TOKEN_SECRET,
-                (err, payload) => {
-                  // no author, re: x
-                  if (err) {
-                    console.log(err, '3333');
-                    return {
-                      re: false,
-                      ac: null,
-                      message: 'refresh is false, and no author header'
-                    };
-                  }
-                  // not author, re: o
-                  if (payload) {
-                    const accessToken = createAccessToken(payload.id);
-                    return {
-                      re: true,
-                      ac: null,
-                      message: 'refresh is true, but no author header'
-                    };
-                  }
+                // not author, re: o
+                if (payload) {
+                  type = (payload as JwtPayload).type;
+                  const accessToken = createAccessToken(payload.id, type);
+                  state = {
+                    re: true,
+                    ac: null,
+                    message: 'refresh is true, but no author header',
+                    accessToken
+                  };
                 }
-              );
-            }
+              }
+            );
+
+            // return state;
           }
         }
-      );
-    }
+      }
+    );
   }
   // 쿠키 없을때
   else {
-    return {
+    state = {
       re: false,
       ac: null,
       cookie: null,
-      message: 'no have cookie'
+      message: 'no have cookie',
+      accessToken: ''
     };
   }
+  return state;
 };
 export const refreshToken = () => {
   return axios
@@ -155,14 +175,14 @@ export const refreshToken = () => {
     )
     .then((res) => res.data);
 };
-export const createAccessToken = (id: number) => {
-  return sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
+export const createAccessToken = (id: number, type: number) => {
+  return sign({ id, type }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: '20s'
   });
 };
 
-export const createRefreshToken = (id: number) => {
-  return sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
+export const createRefreshToken = (id: number, type: number) => {
+  return sign({ id, type }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: '20m'
   });
 };

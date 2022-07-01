@@ -1,10 +1,11 @@
 import nextConnect from 'next-connect';
 import multer from 'multer';
 import path from 'path';
-import { checkAuth } from '../../../libs/server/auth';
 import client from '@libs/server/client';
 import { decode } from 'jsonwebtoken';
 import { accessTokenPayload } from './../board/index';
+import { checkAuth } from '@libs/server/auth';
+import axios from 'axios';
 
 export const config = {
   api: {
@@ -54,25 +55,61 @@ const app = nextConnect({
 
 app.post(upload.single('file'), async (req, res) => {
   try {
-    const clientAccessToken = req.headers['authorization']?.split(' ')[1];
-    const decoded = decode(clientAccessToken!) as accessTokenPayload;
+    const auth = checkAuth(req, res, 0);
+    console.log(auth, 'auth');
+
+    if (!auth?.re)
+      return res.json({
+        ok: false,
+        message: 'need to login'
+      });
+
+    console.log(req.headers['authorization'], 'Header');
+    console.log(req.filename, 'filename');
+    console.log(req.body, ' body');
+    // checkAuth(req, res);
+    // const clientAccessToken = req.headers['authorization']?.split(' ')[1];
+    const decoded = decode(auth.accessToken!) as accessTokenPayload;
+    if (auth.accessToken!.length > 0) {
+      axios.defaults.headers.common[
+        'authorization'
+      ] = `Bearer ${auth?.accessToken}`;
+    }
+    let userId;
+    console.log(decoded, 'decoded');
+    if (decoded.type === -1) {
+      const socialUser = await client.socialUser.findUnique({
+        where: {
+          socialId: decoded.id.toString()
+        },
+        select: {
+          userId: true
+        }
+      });
+      console.log(socialUser, 'social');
+      userId = socialUser?.userId;
+    } else {
+      userId = decoded.id;
+    }
     console.log(decoded, '!!!!');
+    console.log(userId, ' userId');
     const product = await client.product.create({
       data: {
         image: req.filename,
         title: req.body.title,
         description: req.body.description,
-        userId: decoded?.id
+        userId: userId!
       }
     });
     return res.json({
       ok: true,
       message: 'create product success',
       product
+      // product
     });
   } catch (error) {
     console.log(error, 'create product error');
   }
 });
 
-export default checkAuth(app);
+export default app;

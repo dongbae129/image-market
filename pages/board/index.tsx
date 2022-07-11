@@ -1,9 +1,8 @@
 import type { NextPage } from 'next';
 import { useQuery } from 'react-query';
 import { getFetch } from '@libs/client/fetcher';
-import { Board } from '@prisma/client';
+import { Board as BoardPrisma } from '@prisma/client';
 import Link from 'next/link';
-import Upload from '@components/upload';
 import Button from '@components/button';
 
 const Board: NextPage = () => {
@@ -12,14 +11,14 @@ const Board: NextPage = () => {
   if (isLoading) return <div>Loading...</div>;
   return (
     <div>
-      {data?.boards.map((board: Board) => (
+      {data?.boards.map((board: BoardPrisma) => (
         <Link key={board.id} href={`/board/${board.id}`}>
           <a>
             <div>{board.title}</div>
           </a>
         </Link>
       ))}
-      <Link href="./upload">
+      <Link href="/board/upload">
         <a>
           <Button isLoading={false} text="Uplaod" />
         </a>

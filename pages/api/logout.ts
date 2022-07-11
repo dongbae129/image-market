@@ -19,7 +19,6 @@ const Logout = async (req: NextApiRequest, res: NextApiResponse) => {
         });
       } else if (type === 'kakao') {
       }
-      checkAuth(req, res);
     } catch (e) {}
   }
 };

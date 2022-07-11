@@ -8,26 +8,26 @@ import { useQuery } from 'react-query';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
+import { Product } from '@prisma/client';
+import Image from 'next/image';
 
+interface GetProductsResponse {
+  ok: boolean;
+  products: Product[];
+}
 const Home: NextPage = () => {
-  // const { data: ddata, status } = useSession();
-  // const csrfToekn = getCsrfToken();
-  // csrfToekn
-  //   .then((res) => {
-  //     console.log(res, 'RES');
-  //   })
-  //   .catch((err) => {
-  //     console.log(err, 'ERR');
-  //   });
-  // console.log(ddata, 'ddata');
-
-  // console.log(status, 'status');
-
   const { accessToken } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const header = {
     headers: { authorization: `Bearer ${accessToken}` }
   };
+
+  const getProducts = () => axios.get('/api/product').then((res) => res.data);
+  const { data, isLoading, error } = useQuery<GetProductsResponse>(
+    ['getProducts'],
+    getProducts
+  );
+  console.log(data, 'productsData');
 
   const getUserFetcher = () => axios.get('/api/user').then((res) => res.data);
   // const { data } = useQuery(['userInfo'], getUserFetcher, {
@@ -43,7 +43,8 @@ const Home: NextPage = () => {
   //     console.log(res, '!');
   //   }
   // });
-
+  if (isLoading) return <div>Loading Products...</div>;
+  if (error) return <div>Error...</div>;
   return (
     <>
       <div className={styles.container}>
@@ -102,8 +103,25 @@ const Home: NextPage = () => {
           </a>
         </Link>
       </div>
-      {/* <p>{ddata?.user?.name}</p> */}
-      {/* <p>{data?.message || data?.error}</p> */}
+      <div>
+        {data?.products.map((product) => (
+          <div key={product.id}>
+            <span>{product.title}</span>
+            <span>{product.description}</span>
+            <Link href={`/product/${product.id}`} passHref>
+              <div>
+                <Image
+                  src={`/uploads/${product.image}`}
+                  alt=""
+                  width={100}
+                  height={100}
+                />
+              </div>
+            </Link>
+          </div>
+        ))}
+      </div>
+      <style jsx>{``}</style>
     </>
   );
 };

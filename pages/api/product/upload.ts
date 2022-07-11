@@ -3,9 +3,9 @@ import multer from 'multer';
 import path from 'path';
 import client from '@libs/server/client';
 import { decode } from 'jsonwebtoken';
-import { accessTokenPayload } from './../board/index';
 import { checkAuth } from '@libs/server/auth';
 import axios from 'axios';
+import { TokenPayload } from '@libs/server/utils';
 
 export const config = {
   api: {
@@ -69,7 +69,7 @@ app.post(upload.single('file'), async (req, res) => {
     console.log(req.body, ' body');
     // checkAuth(req, res);
     // const clientAccessToken = req.headers['authorization']?.split(' ')[1];
-    const decoded = decode(auth.accessToken!) as accessTokenPayload;
+    const decoded = decode(auth.accessToken!) as TokenPayload;
     if (auth.accessToken!.length > 0) {
       axios.defaults.headers.common[
         'authorization'

@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 import { checkAuth } from '@libs/server/auth';
 import { decode, JwtPayload } from 'jsonwebtoken';
-import { accessTokenPayload } from 'pages/api/board';
 
 const Chat = async (
   req: NextApiRequest,
@@ -68,4 +67,4 @@ const Chat = async (
   }
 };
 
-export default checkAuth(Chat);
+export default Chat;

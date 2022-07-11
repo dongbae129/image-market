@@ -25,14 +25,15 @@ const Upload: NextPage = () => {
   const router = useRouter();
   const { register, handleSubmit, watch } = useForm<UploadProductForm>();
   const uploadPost = (data: FormData) =>
-    axios.post('/api/products/upload', data).then((res) => res.data);
+    axios.post('/api/product/upload', data).then((res) => res.data);
   const { mutate, isLoading } = useMutation<
     UploadProductResponse,
     any,
     FormData
   >(uploadPost, {
-    onSuccess: (res) => {
-      // router.push(`product/${res.product.id}`);
+    onSuccess: ({ product }) => {
+      console.log(product, 'product data');
+      router.push(`/product/${product.id}`);
     }
   });
   const imageWatch = watch('image');

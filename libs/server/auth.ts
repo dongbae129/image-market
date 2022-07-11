@@ -70,24 +70,20 @@ export const checkAuth = (
             ac: false,
             message: 'login please'
           };
-
-          return res.status(401).json({
-            ok: false,
-            error: 'login please'
-          });
+          return state;
         }
         // re: 0
-        if (payload) {
+        else if (payload) {
           if (clientAccessToken) {
             verify(
               clientAccessToken,
               process.env.ACCESS_TOKEN_SECRET,
-              (err: any) => {
+              (err: any, paylaod: any) => {
                 // re: o, ac: x
                 if (err) {
                   console.log(err, '2222');
                   console.log(clientAccessToken, 'bb');
-                  const decoded = decode(clientAccessToken);
+                  const decoded = decode(clientRefreshToken);
                   type = (decoded as JwtPayload).type;
                   console.log(decoded, 'BB');
                   // if (decoded) {
@@ -114,39 +110,17 @@ export const checkAuth = (
                 }
               }
             );
-
-            // return state;
           }
           // header 에 authorization 없을때
           else {
-            verify(
-              clientRefreshToken,
-              process.env.REFRESH_TOKEN_SECRET,
-              (err, payload) => {
-                // no author, re: x
-                if (err) {
-                  console.log(err, '3333');
-                  state = {
-                    re: false,
-                    ac: null,
-                    message: 'refresh is false, and no author header'
-                  };
-                }
-                // not author, re: o
-                if (payload) {
-                  type = (payload as JwtPayload).type;
-                  const accessToken = createAccessToken(payload.id, type);
-                  state = {
-                    re: true,
-                    ac: null,
-                    message: 'refresh is true, but no author header',
-                    accessToken
-                  };
-                }
-              }
-            );
-
-            // return state;
+            type = (payload as JwtPayload).type;
+            const accessToken = createAccessToken(payload.id, type);
+            state = {
+              re: true,
+              ac: null,
+              message: 'refresh is true, but no author header',
+              accessToken
+            };
           }
         }
       }
@@ -158,8 +132,7 @@ export const checkAuth = (
       re: false,
       ac: null,
       cookie: null,
-      message: 'no have cookie',
-      accessToken: ''
+      message: 'no have cookie'
     };
   }
   return state;

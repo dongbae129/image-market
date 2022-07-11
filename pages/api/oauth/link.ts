@@ -16,7 +16,7 @@ const Link = async (
   console.log(authState, 'authState');
   if (typeof authState === 'object') {
     try {
-      const refreshToken = createRefreshToken(authState?.id);
+      const refreshToken = createRefreshToken(authState?.id, -1);
       const socialUser = await client?.socialUser.create({
         data: {
           type: type.toString(),

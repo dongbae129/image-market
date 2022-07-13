@@ -2,7 +2,7 @@ import { ResponseType, TokenPayload } from '@libs/server/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 import { checkAuth } from '@libs/server/auth';
-import { decode, JwtPayload } from 'jsonwebtoken';
+import { decode } from 'jsonwebtoken';
 
 const Board = async (
   req: NextApiRequest,
@@ -74,7 +74,15 @@ const Board = async (
   }
   if (req.method === 'GET') {
     try {
-      const boards = await client.board.findMany();
+      const boards = await client.board.findMany({
+        include: {
+          user: {
+            select: {
+              name: true
+            }
+          }
+        }
+      });
       return res.json({
         ok: true,
         boards

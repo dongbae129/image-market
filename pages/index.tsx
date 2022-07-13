@@ -3,17 +3,24 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 
-import styles from '../styles/Home.module.scss';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import { setAccessToken } from 'reducers/user';
 import { Product } from '@prisma/client';
 import Image from 'next/image';
+import { getFetch } from '@libs/client/fetcher';
 
 interface GetProductsResponse {
   ok: boolean;
   products: Product[];
+}
+export interface userResponse {
+  ok: boolean;
+  user: {
+    email: string;
+    name: string;
+    id: number;
+  };
 }
 const Home: NextPage = () => {
   const { accessToken } = useSelector((state: any) => state.user);
@@ -29,79 +36,81 @@ const Home: NextPage = () => {
   );
   console.log(data, 'productsData');
 
-  const getUserFetcher = () => axios.get('/api/user').then((res) => res.data);
-  // const { data } = useQuery(['userInfo'], getUserFetcher, {
-  //   onSuccess: (res) => {
-  //     dispatch(setAccessToken(res.accessToken));
-  //     axios.defaults.headers.common['authorization'] = '';
-  //     axios.defaults.headers.common[
-  //       'authorization'
-  //     ] = `Bearer ${res.accessToken}`;
-  //     // console.log(axios.defaults.headers.common['Authorization'], 'index');
-  //   },
-  //   onError: (res) => {
-  //     console.log(res, '!');
-  //   }
-  // });
+  const { data: userInfo } = useQuery<userResponse>(
+    ['userInfo'],
+    getFetch('/api/user'),
+    {
+      onSuccess: (res) => {
+        console.log(res, 'res');
+      }
+    }
+  );
   if (isLoading) return <div>Loading Products...</div>;
   if (error) return <div>Error...</div>;
   return (
     <>
-      <div className={styles.container}>
-        <Head>
-          <title>이름 못정했어</title>
-          <meta name="description" content="Main Title" />
-        </Head>
-        {[1, 2, 3, 4, 5].map((v) => (
-          <ImageProduct key={v} />
-        ))}
-        <Link href={'/register'}>
-          <a>
-            <button>SIGNUP</button>
-          </a>
-        </Link>
-        <Link href={'/signin'}>
-          <a>
-            <button>SIGNIN</button>
-          </a>
-        </Link>
+      <div className="main_wrap">
+        <div>
+          <Head>
+            <title>이름 못정했어</title>
+            <meta name="description" content="Main Title" />
+          </Head>
 
-        <Link href={'/test'}>
-          <a>
-            <button>logout</button>
-          </a>
-        </Link>
+          <Link href={'/register'}>
+            <a>
+              <button>SIGNUP</button>
+            </a>
+          </Link>
+          <Link href={'/signin'}>
+            <a>
+              <button>SIGNIN</button>
+            </a>
+          </Link>
 
-        <Link href={'/logouttest'}>
-          <a>
-            <button>Logout Test</button>
-          </a>
-        </Link>
-        <Link href={'/products'}>
-          <a>
-            <button>Products</button>
-          </a>
-        </Link>
-        <Link href={'/upload'}>
-          <a>
-            <button>Product Upload</button>
-          </a>
-        </Link>
-        <Link href={'/board'}>
-          <a>
-            <button>Board</button>
-          </a>
-        </Link>
-        <Link href={'/payment'}>
-          <a>
-            <button>Pay</button>
-          </a>
-        </Link>
-        <Link href={'/certification'}>
-          <a>
-            <button>certification</button>
-          </a>
-        </Link>
+          <Link href={'/test'}>
+            <a>
+              <button>logout</button>
+            </a>
+          </Link>
+
+          <Link href={'/logouttest'}>
+            <a>
+              <button>Logout Test</button>
+            </a>
+          </Link>
+          <Link href={'/products'}>
+            <a>
+              <button>Products</button>
+            </a>
+          </Link>
+          <Link href={'/upload'}>
+            <a>
+              <button>Product Upload</button>
+            </a>
+          </Link>
+          <Link href={'/board'}>
+            <a>
+              <button>Board</button>
+            </a>
+          </Link>
+          <Link href={'/payment'}>
+            <a>
+              <button>Pay</button>
+            </a>
+          </Link>
+          <Link href={'/certification'}>
+            <a>
+              <button>certification</button>
+            </a>
+          </Link>
+        </div>
+        <div>
+          <Link href={`/profile/${userInfo?.user.id}`}>
+            {userInfo?.user.name}
+          </Link>
+          <br />
+          {userInfo?.user.email}
+        </div>
       </div>
       <div>
         {data?.products.map((product) => (
@@ -121,7 +130,11 @@ const Home: NextPage = () => {
           </div>
         ))}
       </div>
-      <style jsx>{``}</style>
+      <style jsx>{`
+        .main_wrap {
+          display: flex;
+        }
+      `}</style>
     </>
   );
 };

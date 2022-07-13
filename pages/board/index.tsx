@@ -1,20 +1,33 @@
 import type { NextPage } from 'next';
 import { useQuery } from 'react-query';
 import { getFetch } from '@libs/client/fetcher';
-import { Board as BoardPrisma } from '@prisma/client';
+import { Board, User } from '@prisma/client';
 import Link from 'next/link';
 import Button from '@components/button';
-
-const Board: NextPage = () => {
-  const { data, isLoading } = useQuery(['boards'], getFetch('/api/board'));
-  // console.log(data, 'Data');
+interface BoardWithUser extends Board {
+  user: User;
+}
+interface BoardResponse {
+  ok: boolean;
+  boards: BoardWithUser[];
+}
+const Boards: NextPage = () => {
+  const { data, isLoading, error } = useQuery<BoardResponse>(
+    ['boards'],
+    getFetch('/api/board')
+  );
   if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error...</div>;
+  console.log(data, 'Data');
   return (
     <div>
-      {data?.boards.map((board: BoardPrisma) => (
-        <Link key={board.id} href={`/board/${board.id}`}>
+      {data?.boards?.map((board, i) => (
+        <Link key={i} href={`/board/${board.id}`}>
           <a>
-            <div>{board.title}</div>
+            <div>
+              <div>{board?.title}</div>
+              <div>{board.user.name}</div>
+            </div>
           </a>
         </Link>
       ))}
@@ -23,8 +36,16 @@ const Board: NextPage = () => {
           <Button isLoading={false} text="Uplaod" />
         </a>
       </Link>
+      <style jsx>
+        {`
+          a > div {
+            display: flex;
+            justify-content: space-around;
+          }
+        `}
+      </style>
     </div>
   );
 };
 
-export default Board;
+export default Boards;

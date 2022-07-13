@@ -1,174 +1,81 @@
-import { ResponseType } from '@libs/server/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { verify, decode } from 'jsonwebtoken';
-import cookie from 'cookie';
-import { createAccessToken } from '@libs/server/auth';
-
-const userAuth = async (
+import { checkAuth } from '@libs/server/auth';
+import { ResponseType, TokenPayload } from '@libs/server/utils';
+import { decode, JwtPayload } from 'jsonwebtoken';
+import client from '@libs/server/client';
+const User = async (
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) => {
+  const auth = checkAuth(req, res, 0);
+  if (!auth?.re)
+    return res.status(401).json({
+      ok: false,
+      message: 'need to login'
+    });
   if (req.method === 'GET') {
-    // const secret = process.env.ACCESS_TOKEN_SECRET;
-
-    // const session = await getToken({ req, secret });
-
-    const clientAccessToken = req.headers['authorization']?.split(' ')[1];
-    // console.log(clientAccessToken, 'api/index');
-
-    // console.log(req.headers.cookie, 'CCCCCO');
-    // 쿠키 있을때
-    if (req.headers.cookie) {
-      const clientRefreshToken = cookie.parse(req.headers.cookie).refreshToken;
-      console.log(clientRefreshToken, 'CC');
-      // 쿠키에서 refresh 있을때
-      if (clientRefreshToken) {
-        verify(
-          clientRefreshToken,
-          process.env.REFRESH_TOKEN_SECRET,
-          (err, payload) => {
-            // re: x
-            if (err) {
-              console.log(err, '11');
-              return res.status(401).json({
-                ok: false,
-                error: 'need to login, expired refresh'
-              });
-            }
-            // re: 0
-            if (payload) {
-              if (clientAccessToken) {
-                verify(
-                  clientAccessToken,
-                  process.env.ACCESS_TOKEN_SECRET,
-                  (err, payload) => {
-                    // re: o, ac: x
-                    if (err) {
-                      console.log(err, '2222');
-                      const decoded = decode(clientAccessToken);
-                      const accessToken = createAccessToken(decoded?.id);
-                      return res.json({
-                        ok: true,
-                        accessToken,
-                        message: 're: o, ac:x , new access'
-                      });
-                    }
-                    // re: o, ac: o
-                    if (payload) {
-                      return res.json({
-                        ok: true,
-                        accessToken: clientAccessToken,
-                        message: 're:o, ac:o, old access'
-                      });
-                    }
-                  }
-                );
+    try {
+      if (auth.accessToken) {
+        const decoded = decode(auth?.accessToken) as TokenPayload;
+        if (decoded.type === 1) {
+          try {
+            const localuser = await client.localUser.findUnique({
+              where: {
+                id: decoded.id
               }
-              // header 에 authorization 없을때
-              else {
-                verify(
-                  clientRefreshToken,
-                  process.env.REFRESH_TOKEN_SECRET,
-                  (err, payload) => {
-                    // no author, re: x
-                    if (err) {
-                      console.log(err, '3333');
-                      return res.status(401).json({
-                        ok: false,
-                        error: 'no author, re: x'
-                      });
-                    }
-                    // not author, re: o
-                    if (payload) {
-                      const accessToken = createAccessToken(payload.id);
-                      return res.json({
-                        ok: true,
-                        accessToken,
-                        message: 'no author, re: o'
-                      });
-                    }
-                  }
-                );
+            });
+            const user = await client.user.findFirst({
+              where: {
+                id: localuser?.userId
+              },
+              select: {
+                email: true,
+                name: true,
+                id: true
               }
-            }
+            });
+            return res.json({
+              ok: true,
+              user
+            });
+          } catch (error) {
+            console.error(error, 'failed localuser getting');
           }
-        );
-      } else {
-        return res.status(401).json({
-          ok: false,
-          message: 'no refresh',
-          session
-        });
+        }
+        if (decoded.type === -1) {
+          try {
+            const socialuser = await client.socialUser.findUnique({
+              where: {
+                socialId: decoded.id.toString()
+              }
+            });
+            const user = await client.user.findFirst({
+              where: {
+                id: socialuser?.userId
+              },
+              select: {
+                email: true,
+                name: true,
+                id: true
+              }
+            });
+            return res.json({
+              ok: true,
+              user
+            });
+          } catch (error) {
+            console.error(error, 'failed socialuser getting');
+          }
+        }
       }
+    } catch (e) {
+      console.error(e, 'faile method GET');
     }
-    // 쿠키 없을때
-    else {
-      return res.status(401).json({
-        ok: false,
-        message: 'no cookie'
-      });
-    }
+  } else if (req.method === 'POST') {
+    return res.json({
+      ok: true,
+      meesage: '나중에'
+    });
   }
 };
-
-export default userAuth;
-
-// const accessVerified = verify(
-//   clientAccessToken,
-//   process.env.ACCESS_TOKEN_SECRET
-// );
-// if (req.headers.cookie) {
-//   const clientRefreshToken = cookie.parse(
-//     req.headers.cookie
-//   ).refreshToken;
-//   console.log(clientRefreshToken, '&&&&');
-//   if (clientRefreshToken) {
-//     const refreshVerified = verify(
-//       clientRefreshToken,
-//       process.env.REFRESH_TOKEN_SECRET
-//     );
-//     if (accessVerified) {
-//       // ac:o, re: o
-//       if (refreshVerified) {
-//         return res.json({
-//           ok: true,
-//           accessToken: clientAccessToken
-//         });
-//       }
-//       // ac:o, re: x
-//       else {
-//         return res.status(401).json({
-//           ok: false,
-//           error: 'Re Login please'
-//         });
-//       }
-//     } else {
-//       if (refreshVerified) {
-//         const refreshDecoded = decode(clientRefreshToken);
-//         const accessToken = createAccessToken(refreshDecoded?.id);
-//         return res.json({
-//           ok: true,
-//           accessToken,
-//           message: 're sent access'
-//         });
-//       }
-//       // access: not verifed, refresh: not verifed
-//       else {
-//         return res.status(401).json({
-//           ok: false,
-//           error: 'not'
-//         });
-//       }
-//     }
-//   } else {
-//     return res.status(401).json({
-//       ok: false,
-//       message: 'Re login please, not Refresh'
-//     });
-//   }
-// } else {
-//   return res.status(401).json({
-//     ok: false,
-//     message: 'Re login, not have cookie'
-//   });
-// }
+export default User;

@@ -68,7 +68,7 @@ const Upload: NextPage = () => {
                   name="image"
                   accept="image/*"
                   type="file"
-                  required
+                  // required
                   register={register('image')}
                 />
               </label>
@@ -79,7 +79,7 @@ const Upload: NextPage = () => {
             name="title"
             type="text"
             required
-            register={register('title', { required: true })}
+            register={register('title')}
           />
           <div>userInformation, get</div>
           <Input

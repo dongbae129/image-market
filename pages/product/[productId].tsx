@@ -45,11 +45,7 @@ const ProductDetail: NextPage = () => {
       </div>
       <style jsx>{`
         .test {
-          border: 10px solid red;
-          &:hover {
-            transform: scale(2);
-            transition: 2s;
-          }
+          margin-top: 20px;
         }
       `}</style>
     </div>

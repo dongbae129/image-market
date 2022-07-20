@@ -9,7 +9,7 @@ const User = async (
 ) => {
   const auth = checkAuth(req, res, 0);
   if (!auth?.re)
-    return res.status(401).json({
+    return res.json({
       ok: false,
       message: 'need to login'
     });

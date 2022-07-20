@@ -1,8 +1,15 @@
-import Upload from '@components/upload';
+import UploadImage from '@components/uploadImage';
 import { NextPage } from 'next';
 
 const boardUpload: NextPage = () => {
-  return <Upload url="board" />;
+  return (
+    <UploadImage
+      url="board"
+      component={['title', 'description']}
+      elementType={['input', 'textarea']}
+    />
+  );
+  // return <Upload url="board" />;
 };
 
 export default boardUpload;

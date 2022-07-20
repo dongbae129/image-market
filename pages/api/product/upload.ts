@@ -5,7 +5,7 @@ import client from '@libs/server/client';
 import { decode } from 'jsonwebtoken';
 import { checkAuth } from '@libs/server/auth';
 import axios from 'axios';
-import { TokenPayload } from '@libs/server/utils';
+import { nc, TokenPayload, upload } from '@libs/server/utils';
 
 export const config = {
   api: {
@@ -13,47 +13,53 @@ export const config = {
   }
 };
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './public/uploads');
-  },
-  filename: function (req: any, file, cb) {
-    const ext = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, ext);
-    const filename = basename + new Date().valueOf() + ext;
-    req.filename = filename;
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, './public/uploads');
+//   },
+//   filename: function (req: any, file, cb) {
+//     const ext = path.extname(file.originalname);
+//     const basename = path.basename(file.originalname, ext);
+//     const filename = basename + new Date().valueOf() + ext;
+//     req.filename = filename;
 
-    cb(null, filename);
-  }
-});
+//     cb(null, filename);
+//   }
+// });
 
-const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
-  const ext = path.extname(file.originalname);
-  if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
-    return cb(new Error('png, jpg만 업로드 가능합니다'));
-  }
-  cb(null, true);
-};
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 20 * 1024 * 1024
-  }
-});
-const app = nextConnect({
-  onError: (err, req, res) => {
-    console.error(err.stack);
-    res.statusCode = 500;
-    res.statusMessage = 'Something broke';
-  },
-  onNoMatch: (req, res) => {
-    res.statusCode = 404;
-    res.statusMessage = 'Page is not found';
-  }
-});
-
+// const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
+//   const ext = path.extname(file.originalname);
+//   if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
+//     return cb(new Error('png, jpg만 업로드 가능합니다'));
+//   }
+//   cb(null, true);
+// };
+// export const upload = multer({
+//   storage: storage,
+//   fileFilter: fileFilter,
+//   limits: {
+//     fileSize: 20 * 1024 * 1024
+//   }
+// });
+// export const nc = nextConnect({
+//   onError: (err, req, res) => {
+//     console.error(err.stack);
+//     res.statusCode = 500;
+//     res.statusMessage = 'Something broke';
+//   },
+//   onNoMatch: (req, res) => {
+//     res.statusCode = 404;
+//     res.statusMessage = 'Page is not found';
+//   }
+// });
+// const app = nc;
+const app = nc;
 app.post(upload.single('file'), async (req, res) => {
+  console.log(req.body, 'body');
+  console.log(req.body.email, 'email');
+  console.log(req.url, 'url');
+  console.log(req.file, 'file');
+
   try {
     const auth = checkAuth(req, res, 0);
     console.log(auth, 'auth');

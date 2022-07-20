@@ -105,16 +105,19 @@ const Home: NextPage = () => {
           </Link>
         </div>
         <div>
-          <Link href={`/profile/${userInfo?.user.id}`}>
-            {userInfo?.user.name}
-          </Link>
+          {userInfo?.user ? (
+            <Link href={`/profile/${userInfo?.user?.id}`}>
+              {userInfo?.user?.name}
+            </Link>
+          ) : null}
+
           <br />
-          {userInfo?.user.email}
+          {userInfo?.user?.email}
         </div>
       </div>
-      <div>
+      <div className="product-wrap">
         {data?.products.map((product) => (
-          <div key={product.id}>
+          <div key={product.id} className="product">
             <span>{product.title}</span>
             <span>{product.description}</span>
             <Link href={`/product/${product.id}`} passHref>
@@ -133,6 +136,21 @@ const Home: NextPage = () => {
       <style jsx>{`
         .main_wrap {
           display: flex;
+        }
+        .product-wrap {
+          width: 50vw;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          & > div {
+            border: 1px solid black;
+            cursor: pointer;
+            transition: 0.5s;
+          }
+          & > div:hover {
+            background-color: red;
+          }
         }
       `}</style>
     </>

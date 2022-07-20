@@ -1,36 +1,40 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
-import { getFetch } from './../../libs/client/fetcher';
-import { userResponse } from './../index';
+import { getFetch } from '@libs/client/fetcher';
+import { userResponse } from '../index';
+import Link from 'next/link';
 
 const UserProfile: NextPage = () => {
   const router = useRouter();
 
-  const { data: userInfo } = useQuery<userResponse>(
+  const { data } = useQuery<userResponse>(
     ['userInfo'],
-    getFetch(`/api/user/${router.query.userId}`),
+    getFetch(`/api/user/${router.query.name}`),
     {
-      onSuccess: (res) => {
-        console.log(res, 'res');
-      },
-      enabled: !!router.query.userId
+      enabled: !!router.query.name,
+      staleTime: 1000 * 60
     }
   );
   return (
     <div>
       <div>
+        <Link href="/profile/settings">
+          <a>
+            <button>설정</button>
+          </a>
+        </Link>
+      </div>
+      <div>
         <div>
+          <div>{/* <img src="" alt="" /> */}</div>
           <div>
-            <img src="" alt="" />
-          </div>
-          <div>
-            <span>Name</span>
-            <h3>{userInfo?.user.name}</h3>
+            <span>name</span>
+            <h3>{data?.user?.name}</h3>
           </div>
           <div>
             <span>email</span>
-            <h4>{userInfo?.user.email}</h4>
+            <h4>{data?.user?.email}</h4>
           </div>
         </div>
         <div>

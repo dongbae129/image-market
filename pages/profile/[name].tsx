@@ -16,6 +16,7 @@ const UserProfile: NextPage = () => {
       staleTime: 1000 * 60
     }
   );
+  // const {} =useQuery()
   return (
     <div>
       <div>

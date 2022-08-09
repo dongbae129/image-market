@@ -48,8 +48,8 @@ const Home: NextPage = () => {
   if (isLoading) return <div>Loading Products...</div>;
   if (error) return <div>Error...</div>;
   return (
-    <>
-      <div className="main_wrap">
+    <div className="main_wrap">
+      <div className="menu">
         <div>
           <Head>
             <title>이름 못정했어</title>
@@ -135,6 +135,9 @@ const Home: NextPage = () => {
       </div>
       <style jsx>{`
         .main_wrap {
+          width: 100%;
+        }
+        .menu {
           display: flex;
         }
         .product-wrap {
@@ -153,7 +156,7 @@ const Home: NextPage = () => {
           }
         }
       `}</style>
-    </>
+    </div>
   );
 };
 

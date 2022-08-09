@@ -11,6 +11,26 @@ import { decode } from 'jsonwebtoken';
 // };
 const userDetail = nc;
 
+userDetail.get(async (req, res) => {
+  const { userId } = req.query;
+  const user = await client.user.findUnique({
+    where: {
+      id: +userId
+    },
+    include: {
+      products: true
+    }
+  });
+  if (!user)
+    return res.json({
+      ok: false,
+      message: 'not user'
+    });
+  return res.json({
+    ok: true,
+    user
+  });
+});
 userDetail.post(upload.single('file'), async (req, res) => {
   const { email, name } = req.body;
   const { userId } = req.query;

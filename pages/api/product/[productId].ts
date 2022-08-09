@@ -11,6 +11,13 @@ const Product = async (
       const product = await client.product.findUnique({
         where: {
           id: +productId
+        },
+        include: {
+          user: {
+            select: {
+              email: true
+            }
+          }
         }
       });
       return res.json({

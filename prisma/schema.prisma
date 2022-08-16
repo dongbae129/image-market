@@ -44,8 +44,6 @@ model LocalUser {
   password String
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int    @unique
-
-
 }
 
 model Product {

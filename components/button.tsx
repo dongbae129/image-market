@@ -1,9 +1,16 @@
 interface buttonProps {
   isLoading: boolean;
   text: string;
+  [key: string]: any;
 }
-const Button = ({ isLoading, text }: buttonProps) => {
-  return <button>{isLoading ? 'Loading...' : text}</button>;
+const Button = ({
+  isLoading,
+  register,
+  required,
+  text,
+  ...rest
+}: buttonProps) => {
+  return <button {...rest}>{isLoading ? 'Loading...' : text}</button>;
 };
 
 export default Button;

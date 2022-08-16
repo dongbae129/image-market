@@ -27,7 +27,7 @@ const Board = async (
             error: 'input board informations'
           });
         console.log(decoded, 'dEcp');
-        if (decoded.type === 1) {
+        if (decoded.id) {
           const board = await client.board.create({
             data: {
               title,
@@ -40,32 +40,51 @@ const Board = async (
             message: 'create the board',
             board
           });
-        } else if (decoded.type === -1) {
-          const findSocialUser = await client.socialUser.findUnique({
-            where: {
-              socialId: decoded.id.toString()
-            }
+        } else
+          return res.json({
+            ok: false,
+            message: 'need to login , /api/board/index, post'
           });
-          if (findSocialUser) {
-            const board = await client.board.create({
-              data: {
-                title,
-                description,
-                userId: findSocialUser?.id
-              }
-            });
-            return res.json({
-              ok: true,
-              message: 'create the board',
-              board
-            });
-          } else {
-            return res.json({
-              ok: false,
-              message: 'nothing the board'
-            });
-          }
-        }
+        // if (decoded.type === 1) {
+        //   const board = await client.board.create({
+        //     data: {
+        //       title,
+        //       description,
+        //       userId: decoded.id
+        //     }
+        //   });
+        //   return res.json({
+        //     ok: true,
+        //     message: 'create the board',
+        //     board
+        //   });
+        // }
+        //  else if (decoded.type === -1) {
+        //   const findSocialUser = await client.socialUser.findUnique({
+        //     where: {
+        //       socialId: decoded.id.toString()
+        //     }
+        //   });
+        //   if (findSocialUser) {
+        //     const board = await client.board.create({
+        //       data: {
+        //         title,
+        //         description,
+        //         userId: findSocialUser?.id
+        //       }
+        //     });
+        //     return res.json({
+        //       ok: true,
+        //       message: 'create the board',
+        //       board
+        //     });
+        //   } else {
+        //     return res.json({
+        //       ok: false,
+        //       message: 'nothing the board'
+        //     });
+        //   }
+        // }
       }
     } catch (error) {
       console.log(error, 'board create error');

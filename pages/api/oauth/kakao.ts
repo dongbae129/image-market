@@ -52,8 +52,10 @@ const Kakao = async (
         return res.data;
       });
 
-    const jwtAccessToken = createAccessToken(userInfo.id, -1);
-    const jwtRefreshToken = createRefreshToken(userInfo.id, -1);
+    let jwtAccessToken;
+    let jwtRefreshToken;
+    // const jwtAccessToken = createAccessToken(userInfo.id, -1);
+    // const jwtRefreshToken = createRefreshToken(userInfo.id, -1);
 
     const exitUser = await client.user.findUnique({
       where: {
@@ -61,6 +63,8 @@ const Kakao = async (
       }
     });
     if (exitUser) {
+      jwtAccessToken = createAccessToken(exitUser.id, -1);
+      jwtRefreshToken = createRefreshToken(exitUser.id, -1);
       const findsocialUser = await client.socialUser.findFirst({
         where: {
           socialId: userInfo.id.toString()
@@ -99,29 +103,35 @@ const Kakao = async (
         });
       }
     } else {
-      // user가 없어서 user create
-      const user = await client.user.create({
-        data: {
-          email: userInfo.kakao_account.email,
-          emailActive: true,
-          image: userInfo.kakao_account.profile.thumbnail_image_url || '',
-          name: userInfo.kakao_account.profile.nickname
-        }
-      });
-      // user도 만들고 social도 만듬
-      await client.socialUser.create({
-        data: {
-          socialId: userInfo.id.toString(),
-          type: 'kakao',
-          userId: user.id
-        }
-      });
-      sendRefreshToken(res, jwtRefreshToken);
-      return res.json({
-        ok: true,
-        userInfo: user,
-        accessToken: jwtAccessToken
-      });
+      try {
+        // user가 없어서 user create
+        const user = await client.user.create({
+          data: {
+            email: userInfo.kakao_account.email,
+            emailActive: true,
+            image: userInfo.kakao_account.profile.thumbnail_image_url || '',
+            name: userInfo.kakao_account.profile.nickname
+          }
+        });
+        // user도 만들고 social도 만듬
+        await client.socialUser.create({
+          data: {
+            socialId: userInfo.id.toString(),
+            type: 'kakao',
+            userId: user.id
+          }
+        });
+        jwtRefreshToken = createRefreshToken(user.id, -1);
+        jwtAccessToken = createAccessToken(user.id, -1);
+        sendRefreshToken(res, jwtRefreshToken);
+        return res.json({
+          ok: true,
+          userInfo: user,
+          accessToken: jwtAccessToken
+        });
+      } catch (error) {
+        console.error(error, 'user가 없어서 user create');
+      }
     }
   } catch (e: any) {
     console.log(e, 'ERR');

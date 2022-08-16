@@ -40,8 +40,8 @@ const Login = async (
     } else {
       const comparepassw = await bcrypt.compare(password, user.password);
       if (comparepassw) {
-        const accessToken = createAccessToken(user.id, 1);
-        const refreshToken = createRefreshToken(user.id, 1);
+        const accessToken = createAccessToken(user.userId, 1);
+        const refreshToken = createRefreshToken(user.userId, 1);
 
         sendRefreshToken(res, refreshToken);
         // res.setHeader('Set-Cookie', 'test=aaaTEST');

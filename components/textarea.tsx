@@ -8,7 +8,7 @@ interface TextAreaProps {
 const TextArea = ({ name, register, ...rest }: TextAreaProps) => {
   return (
     <div>
-      <textarea id={name} cols={40} rows={40} {...register} {...rest} />
+      <textarea id={name} {...register} {...rest} />
     </div>
   );
 };

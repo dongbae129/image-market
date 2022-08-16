@@ -1,4 +1,3 @@
-import { checkAuth } from '@libs/server/auth';
 import { NextApiRequest, NextApiResponse } from 'next';
 import cookie from 'cookie';
 
@@ -19,7 +18,9 @@ const Logout = async (req: NextApiRequest, res: NextApiResponse) => {
         });
       } else if (type === 'kakao') {
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error(e, ' logout error');
+    }
   }
 };
 export default Logout;

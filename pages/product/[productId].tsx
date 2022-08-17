@@ -2,21 +2,28 @@ import type { NextPage } from 'next';
 // import styles from '@styles/ProductDetail.module.scss';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import Image from 'next/image';
-import { Chat, Product } from '@prisma/client';
+import { Chat, Product, User } from '@prisma/client';
 import { getFetch, postFetch } from '@libs/client/fetcher';
 import { useForm } from 'react-hook-form';
+
 import TextArea from '@components/textarea';
 import Button from '@components/button';
 interface OnlyemailUser {
   user: {
     email: string;
+    name: string;
   };
 }
 interface ChatForm {
   chat: string;
   chatErrors?: string;
+}
+interface ChatMutate {
+  ok: boolean;
+  message: string;
+  chat: CommentWithUser;
 }
 interface CommentWithUser extends Chat {
   user: {
@@ -32,13 +39,16 @@ interface ProductDetail {
 }
 const ProductDetail: NextPage = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const {
     handleSubmit,
     register,
     setError,
     reset,
-    formState: { errors }
+    formState: { errors },
+    watch
   } = useForm<ChatForm>();
+  const watchFiled = watch('chat');
   const { productId } = router.query;
 
   const getProduct = () =>
@@ -52,9 +62,50 @@ const ProductDetail: NextPage = () => {
   );
   const chatSend = (chat: ChatForm) =>
     axios.post(`/api/chat/${data?.product.id}`, chat).then((res) => res.data);
-  const { mutate, isLoading: mutateLoading } = useMutation(chatSend, {
-    onSuccess: (res) => {
+  const { mutate, isLoading: mutateLoading } = useMutation<
+    ChatMutate,
+    any,
+    ChatForm
+  >(chatSend, {
+    onSuccess: async (res, chat) => {
+      if (!res.ok && res.message === 'need to any chat') {
+        alert('빈글을 작성할수 없습니다');
+        return;
+      }
+      if (!res.ok && res.message === 'need to login for chat') {
+        alert('로그인이 필요합니다');
+        return;
+      }
       reset({ chat: '' });
+      await queryClient.cancelQueries(['getChats', data?.product.id]);
+      const prevChats = queryClient.getQueryData<ChatResponse>([
+        'getChats',
+        data?.product.id
+      ]);
+      await queryClient.setQueryData(
+        ['getChats', data?.product.id],
+        (prev: any) => {
+          console.log(prev, 'prev');
+          console.log(res.chat, 'res.chat');
+          return {
+            ...prev,
+            comments: prev.comments.concat({
+              description: res.chat.description,
+              id: res.chat.id,
+              user: {
+                name: res.chat.user.name
+              }
+            })
+          };
+        }
+      );
+      console.log(
+        queryClient.getQueryData<ChatResponse>(['getChats', data?.product.id]),
+        'test'
+      );
+      return {
+        prevChats
+      };
     }
   });
   const { data: chats, isLoading: chatLoading } = useQuery<ChatResponse>(
@@ -64,12 +115,14 @@ const ProductDetail: NextPage = () => {
       enabled: !!data?.product.id
     }
   );
-  console.log(chats, 'chats');
 
+  if (watchFiled) {
+    errors.chatErrors?.message ? reset({ chatErrors: '' }) : null;
+  }
   const onValid = ({ chat }: ChatForm) => {
     if (mutateLoading) return;
-    if (chat === '')
-      return setError('chatErrors', { message: 'input anything' });
+    console.log(chat, 'ccc');
+    if (!chat) return setError('chatErrors', { message: 'input anything' });
     mutate({ chat });
   };
   const autoResizeTextarea = () => {
@@ -124,13 +177,13 @@ const ProductDetail: NextPage = () => {
             </ul>
           </div>
           {chats?.comments.map((comment) => (
-            <div key={comment.id} className="chatWrap">
+            <div key={comment?.id} className="chatWrap">
               <div className="chatInfo">
                 <div>
                   <div className="chatuserimage"></div>
                   <div className="chatuserInfo">
-                    <div className="chatusername">{comment.user?.name}</div>
-                    <div className="userchat">{comment.description}</div>
+                    <div className="chatusername">{comment?.user?.name}</div>
+                    <div className="userchat">{comment?.description}</div>
                   </div>
                 </div>
               </div>
@@ -145,13 +198,14 @@ const ProductDetail: NextPage = () => {
                 onKeyDown={autoResizeTextarea}
                 onKeyUp={autoResizeTextarea}
                 name="chat"
-                register={register('chat', { required: true })}
+                register={register('chat')}
               ></TextArea>
               <Button
                 className="registerbtn"
                 isLoading={mutateLoading}
                 text="작성"
               />
+              <div className="errormsg">{errors.chatErrors?.message}</div>
             </form>
           </div>
         </div>
@@ -315,6 +369,9 @@ const ProductDetail: NextPage = () => {
               border-bottom-right-radius: 14px;
               border: none;
             }
+          }
+          .errormsg {
+            color: red;
           }
         `}</style>
       </div>

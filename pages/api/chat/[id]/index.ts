@@ -58,6 +58,13 @@ const Chat = async (
           description: req.body.chat,
           userId: userId.id,
           productId: +id.toString()
+        },
+        include: {
+          user: {
+            select: {
+              name: true
+            }
+          }
         }
       });
       return res.json({

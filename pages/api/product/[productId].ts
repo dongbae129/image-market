@@ -15,7 +15,8 @@ const Product = async (
         include: {
           user: {
             select: {
-              email: true
+              email: true,
+              name: true
             }
           }
         }

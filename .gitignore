@@ -14,8 +14,9 @@
 
 # production
 /build
-#image fime
+#image file
 /public/uploads
+/public/localimages
 # misc
 .DS_Store
 *.pem

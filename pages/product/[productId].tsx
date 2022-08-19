@@ -167,7 +167,11 @@ const ProductDetail: NextPage = () => {
           <div>
             <div className="userimage">{/* <img src="" alt="" /> */}</div>
             <div className="useremail">{data?.product?.user?.email}</div>
-            <button>다운로드</button>
+            <button>
+              <a href={`/uploads/${data?.product.image}`} download>
+                다운로드
+              </a>
+            </button>
           </div>
           <div>
             <ul>

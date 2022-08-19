@@ -5,7 +5,8 @@ import client from '@libs/server/client';
 import { decode } from 'jsonwebtoken';
 import { checkAuth } from '@libs/server/auth';
 import axios from 'axios';
-import { nc, TokenPayload, upload } from '@libs/server/utils';
+import { isLogedIn, nc, TokenPayload, upload } from '@libs/server/utils';
+import sharp from 'sharp';
 
 export const config = {
   api: {
@@ -54,7 +55,7 @@ export const config = {
 // });
 // const app = nc;
 const app = nc;
-app.post(upload.single('file'), async (req, res) => {
+app.post(isLogedIn, upload.single('file'), async (req, res) => {
   console.log(req.body, 'body');
   console.log(req.body.email, 'email');
   console.log(req.url, 'url');
@@ -71,8 +72,10 @@ app.post(upload.single('file'), async (req, res) => {
       });
 
     console.log(req.headers['authorization'], 'Header');
-    console.log(req.filename, 'filename');
+    console.log(req.file, 'file');
+    console.log(req.file?.filename, 'filename');
     console.log(req.body, ' body');
+
     // checkAuth(req, res);
     // const clientAccessToken = req.headers['authorization']?.split(' ')[1];
     const decoded = decode(auth.accessToken!) as TokenPayload;
@@ -81,27 +84,39 @@ app.post(upload.single('file'), async (req, res) => {
         'authorization'
       ] = `Bearer ${auth?.accessToken}`;
     }
-    let userId;
-    console.log(decoded, 'decoded');
-    if (decoded.type === -1) {
-      const socialUser = await client.socialUser.findUnique({
-        where: {
-          socialId: decoded.id.toString()
-        },
-        select: {
-          userId: true
+    const userId = decoded.id;
+
+    const watermark = await sharp(
+      './public/localimages/spring_remove.png'
+    ).toBuffer();
+
+    type test = sharp.Sharp & {
+      options: {
+        fileOut: string;
+      };
+    };
+    const image = await sharp(req.file?.path)
+      .composite([
+        {
+          input: watermark,
+          gravity: 'center',
+          tile: true
         }
-      });
-      console.log(socialUser, 'social');
-      userId = socialUser?.userId;
-    } else {
-      userId = decoded.id;
-    }
-    console.log(decoded, '!!!!');
-    console.log(userId, ' userId');
+      ])
+      .toFile(
+        `./public/localimages/watermark_${req.file?.filename}`,
+        (err, info) => {
+          if (err) console.error(err, 'water Error');
+          console.log(info, 'Info');
+        }
+      );
+
+    const imgname: string = image.options.fileOut.slice(21);
+    console.log(imgname, 'name');
+
     const product = await client.product.create({
       data: {
-        image: req.filename,
+        image: imgname,
         title: req.body.title,
         description: req.body.description,
         userId: userId!

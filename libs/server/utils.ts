@@ -3,6 +3,7 @@ import multer from 'multer';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import path from 'path';
+import { checkAuth } from '@libs/server/auth';
 export interface ResponseType {
   ok: boolean;
   [key: string]: any;
@@ -50,3 +51,13 @@ export const nc = nextConnect({
     res.statusMessage = 'Page is not found';
   }
 });
+export const isLogedIn = (req: NextApiRequest, res: any, next: () => void) => {
+  const auth = checkAuth(req, res, 0);
+
+  if (!auth?.re) {
+    res.status(401).json({
+      ok: false,
+      message: 'login middleware test false'
+    });
+  } else next();
+};

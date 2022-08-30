@@ -168,7 +168,7 @@ const ProductDetail: NextPage = () => {
             <div className="userimage">{/* <img src="" alt="" /> */}</div>
             <div className="useremail">{data?.product?.user?.email}</div>
             <button>
-              <a href={`/uploads/${data?.product.image}`} download>
+              <a href={`/api/product/download?productId=${productId}`} download>
                 다운로드
               </a>
             </button>

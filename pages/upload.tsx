@@ -8,10 +8,12 @@ import { Product } from '@prisma/client';
 import style from '@styles/Upload.module.scss';
 import axios from 'axios';
 import Button from '@components/button';
+import Image from 'next/image';
 interface UploadProductForm {
   image: FileList;
   title: string;
   description?: string;
+  productAuth: boolean;
 }
 
 interface UploadProductResponse {
@@ -22,6 +24,7 @@ interface UploadProductResponse {
 }
 const Upload: NextPage = () => {
   const [imagePreview, setImagePreview] = useState('');
+
   const router = useRouter();
   const { register, handleSubmit, watch } = useForm<UploadProductForm>();
   const uploadPost = (data: FormData) =>
@@ -37,14 +40,19 @@ const Upload: NextPage = () => {
     }
   });
   const imageWatch = watch('image');
-  const onValid = ({ image, title, description }: UploadProductForm) => {
+  const onValid = ({
+    image,
+    title,
+    description,
+    productAuth
+  }: UploadProductForm) => {
     if (isLoading) return;
     // console.log(imageWatch[0], '@@');
     const form = new FormData();
     form.append('file', image[0]);
     form.append('title', title);
     form.append('description', description!);
-
+    form.append('productAuth', JSON.stringify({ productBool: productAuth }));
     mutate(form);
   };
 
@@ -60,8 +68,9 @@ const Upload: NextPage = () => {
         <div>
           <div className={style.imageInput}>
             {imagePreview ? (
-              <img src={imagePreview} alt="" />
+              <Image src={imagePreview} alt="" layout="fill" />
             ) : (
+              // <img src={imagePreview} alt="" />
               <label>
                 <Input
                   label="image"
@@ -89,7 +98,14 @@ const Upload: NextPage = () => {
             required
             register={register('description', { required: true })}
           />
+          <Input
+            label="productAuth"
+            name="productAuth"
+            type="checkbox"
+            register={register('productAuth')}
+          />
         </div>
+
         <Button isLoading={isLoading} text="저장" />
       </form>
     </>

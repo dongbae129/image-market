@@ -60,6 +60,7 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
   console.log(req.body.email, 'email');
   console.log(req.url, 'url');
   console.log(req.file, 'file');
+  console.log(JSON.parse(req.body.productAuth).productBool, 'bb');
 
   try {
     const auth = checkAuth(req, res, 0);
@@ -76,6 +77,7 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
     console.log(req.file?.filename, 'filename');
     console.log(req.body, ' body');
 
+    const productAuth = JSON.parse(req.body.productAuth).productBool;
     // checkAuth(req, res);
     // const clientAccessToken = req.headers['authorization']?.split(' ')[1];
     const decoded = decode(auth.accessToken!) as TokenPayload;
@@ -90,12 +92,12 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
       './public/localimages/spring_remove.png'
     ).toBuffer();
 
-    type test = sharp.Sharp & {
+    type SharpWithOptions = sharp.Sharp & {
       options: {
         fileOut: string;
       };
     };
-    const image = await sharp(req.file?.path)
+    const image = await (<SharpWithOptions>sharp(req.file?.path)
       .composite([
         {
           input: watermark,
@@ -109,7 +111,7 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
           if (err) console.error(err, 'water Error');
           console.log(info, 'Info');
         }
-      );
+      ));
 
     const imgname: string = image.options.fileOut.slice(21);
     console.log(imgname, 'name');
@@ -119,7 +121,8 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
         image: imgname,
         title: req.body.title,
         description: req.body.description,
-        userId: userId!
+        userId: userId!,
+        auth: productAuth
       }
     });
     return res.json({

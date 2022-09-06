@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 
 import TextArea from '@components/textarea';
 import Button from '@components/button';
+import Input from '@components/input';
 interface OnlyemailUser {
   user: {
     email: string;
@@ -19,6 +20,7 @@ interface OnlyemailUser {
 interface ChatForm {
   chat: string;
   chatErrors?: string;
+  checkAuth?: boolean;
 }
 interface ChatMutate {
   ok: boolean;
@@ -49,6 +51,7 @@ const ProductDetail: NextPage = () => {
     watch
   } = useForm<ChatForm>();
   const watchFiled = watch('chat');
+  const watchAuth = watch('checkAuth');
   const { productId } = router.query;
 
   const getProduct = () =>
@@ -144,7 +147,11 @@ const ProductDetail: NextPage = () => {
           <div className="imagewrap">
             {data?.product && (
               <Image
-                src={`/uploads/${data?.product.image}`}
+                src={
+                  data.product.auth
+                    ? `/watermark/watermark_${data?.product.image}`
+                    : `/uploads/${data?.product.image}`
+                }
                 width={400}
                 height={400}
                 layout="responsive"
@@ -168,10 +175,19 @@ const ProductDetail: NextPage = () => {
             <div className="userimage">{/* <img src="" alt="" /> */}</div>
             <div className="useremail">{data?.product?.user?.email}</div>
             <button>
-              <a href={`/api/product/download?productId=${productId}`} download>
+              <a
+                href={`/api/product/download?productId=${productId}&imgAuth=${watchAuth}`}
+                download
+              >
                 다운로드
               </a>
             </button>
+            <Input
+              label="checkAuth"
+              name="checkAuth"
+              type="checkbox"
+              register={register('checkAuth')}
+            />
           </div>
           <div>
             <ul>

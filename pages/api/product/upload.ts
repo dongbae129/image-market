@@ -88,32 +88,47 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
     }
     const userId = decoded.id;
 
-    const watermark = await sharp(
-      './public/localimages/spring_remove.png'
-    ).toBuffer();
+    let imgname: string;
+    if (!req.file?.filename)
+      return res.status(401).json({
+        ok: false,
+        message: 'faile to upload image file'
+      });
+    if (productAuth) {
+      const watermark = await sharp(
+        `./public/localimages/spring_remove.png`
+      ).toBuffer();
 
-    type SharpWithOptions = sharp.Sharp & {
-      options: {
-        fileOut: string;
+      type SharpWithOptions = sharp.Sharp & {
+        options: {
+          fileOut: string;
+        };
       };
-    };
-    const image = await (<SharpWithOptions>sharp(req.file?.path)
-      .composite([
-        {
-          input: watermark,
-          gravity: 'center',
-          tile: true
-        }
-      ])
-      .toFile(
-        `./public/localimages/watermark_${req.file?.filename}`,
-        (err, info) => {
-          if (err) console.error(err, 'water Error');
-          console.log(info, 'Info');
-        }
-      ));
+      const image = await (<SharpWithOptions>sharp(req.file?.path)
+        .composite([
+          {
+            input: watermark,
+            gravity: 'center',
+            tile: true
+          }
+        ])
+        .toFile(
+          `./public/watermark/watermark_${req.file?.filename}`,
+          (err, info) => {
+            if (err) console.error(err, 'water Error');
+            console.log(info, 'Info');
+          }
+        ));
+      console.log(image, 'IMAGE');
+      imgname = image.options.fileOut.replace(
+        './public/watermark/watermark_',
+        ''
+      );
+    } else {
+      imgname = req.file.filename;
+    }
 
-    const imgname: string = image.options.fileOut.slice(21);
+    // const imgname: string = image.options.fileOut.slice(21);
     console.log(imgname, 'name');
 
     const product = await client.product.create({

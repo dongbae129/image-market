@@ -17,6 +17,7 @@
 #image file
 /public/uploads
 /public/localimages
+/public/watermark
 # misc
 .DS_Store
 *.pem

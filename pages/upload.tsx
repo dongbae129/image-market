@@ -24,6 +24,7 @@ interface UploadProductResponse {
 }
 const Upload: NextPage = () => {
   const [imagePreview, setImagePreview] = useState('');
+  const [hashtag, setHashtag] = useState<string[]>([]);
 
   const router = useRouter();
   const { register, handleSubmit, watch } = useForm<UploadProductForm>();
@@ -51,7 +52,9 @@ const Upload: NextPage = () => {
     const form = new FormData();
     form.append('file', image[0]);
     form.append('title', title);
+    form.append('hashtag', hashtag.join());
     form.append('description', description!);
+
     form.append('productAuth', JSON.stringify({ productBool: productAuth }));
     mutate(form);
   };
@@ -62,6 +65,24 @@ const Upload: NextPage = () => {
       setImagePreview(URL.createObjectURL(file));
     }
   }, [imageWatch]);
+  const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const target = e.target as HTMLInputElement;
+      if (hashtag.includes(target.value)) {
+        alert('중복태그 불가능합니다');
+        return;
+      }
+      if (hashtag.length > 4) {
+        alert('해쉬태그는 5개까지 가능합니다');
+        return;
+      }
+      setHashtag(hashtag.concat(target.value));
+      target.value = '';
+    }
+  };
+  const deleteHashtag = (index: number) => () => {
+    setHashtag((prev) => prev.filter((v, i) => i !== index));
+  };
   return (
     <>
       <form onSubmit={handleSubmit(onValid)}>
@@ -108,6 +129,48 @@ const Upload: NextPage = () => {
 
         <Button isLoading={isLoading} text="저장" />
       </form>
+      <input
+        className="hashinput"
+        type="text"
+        onKeyUp={onKeyUp}
+        placeholder="태그 입력후 엔터"
+      />
+      <div>
+        {hashtag.map((v, i) => (
+          <span className="hashwrap" key={i} onClick={deleteHashtag(i)}>
+            <span className="hash">#</span>
+            <span>{v}</span>
+          </span>
+        ))}
+      </div>
+      <style jsx>{`
+        .hashinput {
+          margin-bottom: 1rem;
+        }
+        .hashwrap {
+          background-color: #f8f9fa;
+          display: inline-block;
+          border-radius: 1rem;
+          height: 2rem;
+          line-height: 2rem;
+          padding-left: 1rem;
+          padding-right: 1rem;
+          margin-right: 0.75rem;
+          &:hover {
+            cursor: pointer;
+            background-color: darkgray;
+          }
+          span {
+            font-weight: bold;
+          }
+
+          span:nth-child(1) {
+            color: #12b886;
+            font-weight: bold;
+            padding-right: 0.2rem;
+          }
+        }
+      `}</style>
     </>
   );
 };

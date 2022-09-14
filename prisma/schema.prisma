@@ -52,6 +52,7 @@ model Product {
   image       String
   title       String
   description String?
+  tag         String        @default("")
   auth        Boolean       @default(false)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -59,6 +60,8 @@ model Product {
   userId      Int
   chats       Chat[]
   productAuth ProductAuth[]
+  productHit  ProductHit[]
+  hashtag     HashTag[]
 }
 
 model Board {
@@ -88,4 +91,18 @@ model ProductAuth {
   productId Int
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
+}
+
+model ProductHit {
+  id        Int     @id @default(autoincrement())
+  hit       Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+}
+
+model HashTag {
+  id        Int     @id @default(autoincrement())
+  hashtag   String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
 }

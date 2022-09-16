@@ -18,13 +18,42 @@ const Product = async (
               email: true,
               name: true
             }
+          },
+          productHit: {
+            select: {
+              hit: true
+            }
+          },
+          hashtag: {
+            select: {
+              hashtag: true
+            }
           }
         }
       });
-      return res.json({
-        ok: true,
-        product
-      });
+      if (product) {
+        await client.productHit.update({
+          where: {
+            productId: product.id
+          },
+          data: {
+            hit: {
+              increment: 1
+            }
+          }
+        });
+
+        product.productHit[0].hit++;
+        return res.json({
+          ok: true,
+          product
+        });
+      } else {
+        return res.json({
+          ok: false,
+          message: 'fail to find the product'
+        });
+      }
     } catch (error) {
       console.error(error, 'getProductError');
     }

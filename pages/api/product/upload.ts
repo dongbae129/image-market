@@ -116,7 +116,7 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
           `./public/watermark/watermark_${req.file?.filename}`,
           (err, info) => {
             if (err) console.error(err, 'water Error');
-            console.log(info, 'Info');
+            // console.log(info, 'Info');
           }
         ));
       console.log(image, 'IMAGE');
@@ -138,6 +138,18 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
         description: req.body.description,
         userId: userId!,
         auth: productAuth
+      }
+    });
+    await client.productHit.create({
+      data: {
+        hit: 0,
+        productId: product.id
+      }
+    });
+    await client.hashTag.create({
+      data: {
+        hashtag: req.body.hashtag,
+        productId: product.id
       }
     });
     return res.json({

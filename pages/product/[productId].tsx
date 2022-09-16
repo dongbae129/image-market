@@ -4,8 +4,8 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import Image from 'next/image';
-import { Chat, Product, User } from '@prisma/client';
-import { getFetch, postFetch } from '@libs/client/fetcher';
+import { Chat, Product } from '@prisma/client';
+import { getFetch } from '@libs/client/fetcher';
 import { useForm } from 'react-hook-form';
 
 import TextArea from '@components/textarea';
@@ -16,6 +16,14 @@ interface OnlyemailUser {
     email: string;
     name: string;
   };
+}
+interface HitProductWithHashtag {
+  productHit: {
+    hit: number;
+  }[];
+  hashtag: {
+    hashtag: string;
+  }[];
 }
 interface ChatForm {
   chat: string;
@@ -37,8 +45,9 @@ interface ChatResponse {
   comments: CommentWithUser[];
 }
 interface ProductDetail {
-  product: Product & OnlyemailUser;
+  product: Product & OnlyemailUser & HitProductWithHashtag;
 }
+
 const ProductDetail: NextPage = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -63,6 +72,7 @@ const ProductDetail: NextPage = () => {
       enabled: !!productId
     }
   );
+
   const chatSend = (chat: ChatForm) =>
     axios.post(`/api/chat/${data?.product.id}`, chat).then((res) => res.data);
   const { mutate, isLoading: mutateLoading } = useMutation<
@@ -196,6 +206,13 @@ const ProductDetail: NextPage = () => {
               <li>화소 free, pay</li>
             </ul>
           </div>
+          <div>
+            {data?.product.hashtag[0].hashtag.split(',').map((hash, i) => (
+              <span key={i}>#{hash}</span>
+            ))}
+          </div>
+
+          <span>{data?.product.productHit[0]?.hit}</span>
           {chats?.comments.map((comment) => (
             <div key={comment?.id} className="chatWrap">
               <div className="chatInfo">

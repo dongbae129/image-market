@@ -17,56 +17,23 @@ const User = async (
     try {
       if (auth.accessToken) {
         const decoded = decode(auth?.accessToken) as TokenPayload;
-        if (decoded.type === 1) {
-          try {
-            const localuser = await client.localUser.findUnique({
-              where: {
-                id: decoded.id
-              }
-            });
-            const user = await client.user.findFirst({
-              where: {
-                id: localuser?.userId
-              },
-              select: {
-                email: true,
-                name: true,
-                id: true
-              }
-            });
-            return res.json({
-              ok: true,
-              user
-            });
-          } catch (error) {
-            console.error(error, 'failed localuser getting');
+        console.log(decoded, 'DD');
+        const user = await client.user.findUnique({
+          where: {
+            id: decoded.id
+          },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true
           }
-        }
-        if (decoded.type === -1) {
-          try {
-            const socialuser = await client.socialUser.findUnique({
-              where: {
-                socialId: decoded.id.toString()
-              }
-            });
-            const user = await client.user.findFirst({
-              where: {
-                id: socialuser?.userId
-              },
-              select: {
-                email: true,
-                name: true,
-                id: true
-              }
-            });
-            return res.json({
-              ok: true,
-              user
-            });
-          } catch (error) {
-            console.error(error, 'failed socialuser getting');
-          }
-        }
+        });
+
+        return res.json({
+          ok: true,
+          user
+        });
       }
     } catch (e) {
       console.error(e, 'faile method GET');

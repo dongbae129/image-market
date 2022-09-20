@@ -7,7 +7,7 @@ import UploadImage from '@components/uploadImage';
 
 const EditProfile: NextPage = () => {
   const { data } = useQuery<userResponse>(['userInfo'], getFetch('/api/user'), {
-    staleTime: 1000 * 60
+    // staleTime: 1000 * 60
   });
   return (
     <div>

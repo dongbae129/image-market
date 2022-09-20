@@ -4,27 +4,22 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import Image from 'next/image';
-import { Chat, Product } from '@prisma/client';
+import { Chat, HashTag, Product, ProductHit } from '@prisma/client';
 import { getFetch } from '@libs/client/fetcher';
 import { useForm } from 'react-hook-form';
 
 import TextArea from '@components/textarea';
 import Button from '@components/button';
 import Input from '@components/input';
-interface OnlyemailUser {
+interface UserHashtagHit {
   user: {
     email: string;
     name: string;
   };
+  hashtag: HashTag;
+  productHit: ProductHit;
 }
-interface HitProductWithHashtag {
-  productHit: {
-    hit: number;
-  }[];
-  hashtag: {
-    hashtag: string;
-  }[];
-}
+
 interface ChatForm {
   chat: string;
   chatErrors?: string;
@@ -45,7 +40,7 @@ interface ChatResponse {
   comments: CommentWithUser[];
 }
 interface ProductDetail {
-  product: Product & OnlyemailUser & HitProductWithHashtag;
+  product: Product & UserHashtagHit;
 }
 
 const ProductDetail: NextPage = () => {
@@ -207,12 +202,12 @@ const ProductDetail: NextPage = () => {
             </ul>
           </div>
           <div>
-            {data?.product.hashtag[0].hashtag.split(',').map((hash, i) => (
+            {data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
               <span key={i}>#{hash}</span>
             ))}
           </div>
 
-          <span>{data?.product.productHit[0]?.hit}</span>
+          <span>{data?.product.productHit?.hit}</span>
           {chats?.comments.map((comment) => (
             <div key={comment?.id} className="chatWrap">
               <div className="chatInfo">

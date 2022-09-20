@@ -42,8 +42,8 @@ const Product = async (
             }
           }
         });
+        if (product.productHit) product.productHit.hit++;
 
-        product.productHit[0].hit++;
         return res.json({
           ok: true,
           product

@@ -60,8 +60,8 @@ model Product {
   userId      Int
   chats       Chat[]
   productAuth ProductAuth[]
-  productHit  ProductHit[]
-  hashtag     HashTag[]
+  productHit  ProductHit?
+  hashtag     HashTag?
 }
 
 model Board {

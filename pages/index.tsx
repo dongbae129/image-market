@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import { Product } from '@prisma/client';
+import { Product, User } from '@prisma/client';
 import Image from 'next/image';
 import { getFetch } from '@libs/client/fetcher';
 
@@ -16,11 +16,7 @@ interface GetProductsResponse {
 }
 export interface userResponse {
   ok: boolean;
-  user: {
-    email: string;
-    name: string;
-    id: number;
-  };
+  user: User;
 }
 const Home: NextPage = () => {
   const { accessToken } = useSelector((state: any) => state.user);

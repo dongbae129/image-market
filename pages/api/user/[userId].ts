@@ -15,10 +15,7 @@ userDetail.get(async (req, res) => {
   const { userId } = req.query;
   const user = await client.user.findUnique({
     where: {
-      id: +userId
-    },
-    include: {
-      products: true
+      id: +userId.toString()
     }
   });
   if (!user)
@@ -26,9 +23,34 @@ userDetail.get(async (req, res) => {
       ok: false,
       message: 'not user'
     });
+  const products = await client.product.findMany({
+    where: {
+      userId: user.id
+    },
+    include: {
+      hashtag: {
+        select: {
+          hashtag: true
+        }
+      },
+      productHit: {
+        select: {
+          hit: true
+        }
+      }
+    },
+
+    orderBy: {
+      productHit: {
+        hit: 'desc'
+      }
+    },
+    take: 10
+  });
   return res.json({
     ok: true,
-    user
+    user,
+    products
   });
 });
 userDetail.post(upload.single('file'), async (req, res) => {

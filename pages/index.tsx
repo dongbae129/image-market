@@ -99,6 +99,16 @@ const Home: NextPage = () => {
               <button>certification</button>
             </a>
           </Link>
+          <Link href={'/threetest'}>
+            <a>
+              <button>threejs</button>
+            </a>
+          </Link>
+          <Link href={'/thtest'}>
+            <a>
+              <button>fiber</button>
+            </a>
+          </Link>
         </div>
         <div>
           {userInfo?.user ? (

@@ -26,7 +26,7 @@ const UserProfile: NextPage = () => {
       enabled: !!router.query.name,
       onSuccess: (res) => {
         res.products.forEach((tag) => {
-          tag.hashtag.hashtag
+          tag.hashtag?.hashtag
             .split(',')
             .forEach((v) => setHashtag((prev) => prev.add(v)));
         });

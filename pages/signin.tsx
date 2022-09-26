@@ -2,7 +2,7 @@ import Button from '@components/button';
 import Input from '@components/input';
 import axios from 'axios';
 import type { NextPage } from 'next';
-import { signIn } from 'next-auth/react';
+// import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
@@ -74,8 +74,8 @@ const Signin: NextPage = () => {
         <Button isLoading={isLoading} text="LOGIN" />
       </form>
       {/* <button onClick={() => signIn('kakao')}>kakaoLogin</button> */}
-      <button onClick={() => signIn('naver')}>naverLogin</button>
-      <button onClick={() => signIn('credentials')}>credential</button>
+      {/* <button onClick={() => signIn('naver')}>naverLogin</button>
+      <button onClick={() => signIn('credentials')}>credential</button> */}
       {/* <button onClick={kakaoLogin}>kakaoLogin</button> */}
       <a href={KAKAO_AUTH_URL}>
         <button>kakaoLogin</button>

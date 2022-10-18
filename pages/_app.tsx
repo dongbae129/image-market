@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { useEffect, useState } from 'react';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Provider } from 'react-redux';
-import { SessionProvider } from 'next-auth/react';
+
 import store from 'reducers/store';
 import Layout from '@components/layout';
 function MyApp({ Component, pageProps }: AppProps) {

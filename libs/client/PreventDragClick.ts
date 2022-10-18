@@ -5,12 +5,12 @@ export class PreventDragClick {
     let clickStartX: number;
     let clickStartY: number;
     let clickStartTime: number;
-    elem.addEventListener('mousedown', (e) => {
+    elem?.addEventListener('mousedown', (e) => {
       clickStartX = e.clientX;
       clickStartY = e.clientY;
       clickStartTime = Date.now();
     });
-    elem.addEventListener('mouseup', (e) => {
+    elem?.addEventListener('mouseup', (e) => {
       // const client
       const xGap = Math.abs(e.clientX - clickStartX);
       const yGap = Math.abs(e.clientY - clickStartY);

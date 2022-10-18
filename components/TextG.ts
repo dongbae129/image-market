@@ -30,7 +30,7 @@ export class TextG {
       textGeoLocal.geometry = new TextGeometry(info.text, {
         font,
         size: 0.3,
-        height: 0.05,
+        height: 0.1,
         curveSegments: 12
       });
       textGeoLocal.geometry.center();

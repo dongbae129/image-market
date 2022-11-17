@@ -24,7 +24,7 @@ export class ImagePanel {
       });
     } else {
       material = new MeshBasicMaterial({
-        color: '#212529',
+        color: '#c5f6fa',
         side: DoubleSide,
         // wireframe: true,
         transparent: true,
@@ -33,8 +33,9 @@ export class ImagePanel {
     }
 
     this.mesh = new Mesh(info.geometry, material);
-    this.mesh.position.set(info.x, info.y, info.z);
-    this.mesh.lookAt(0, 0, 0);
+    this.mesh.position.set(info.x + 1.2, info.y + 1.3, info.z + 2.6);
+    this.mesh.scale.set(0.2, 0.2, 0.2);
+    this.mesh.lookAt(1.2, 1.3, 2.6);
 
     // Sphere 상태의 회전각을 저장해 둠
     this.sphereRotationX = this.mesh.rotation.x;

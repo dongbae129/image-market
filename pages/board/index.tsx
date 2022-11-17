@@ -38,9 +38,19 @@ const Boards: NextPage = () => {
       </Link>
       <style jsx>
         {`
+          .board {
+            margin-bottom: 5px;
+          }
+          a {
+            line-height: 2rem;
+          }
           a > div {
             display: flex;
             justify-content: space-around;
+            width: 70%;
+            margin: 0 auto;
+            border-bottom: 1px solid black;
+            margin-bottom: 10px;
           }
         `}
       </style>

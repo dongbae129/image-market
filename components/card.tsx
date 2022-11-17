@@ -16,7 +16,7 @@ const Card = ({ product, index }: CardProduct) => {
   return (
     <>
       <div ref={divRef} className="product-card">
-        {product.id}
+        <img src={`/uploads/${product.image}`} alt="" />
       </div>
       <style jsx>{`
         .productcard-wrap {
@@ -29,6 +29,7 @@ const Card = ({ product, index }: CardProduct) => {
           height: 150px;
           border: 2px solid black;
           border-radius: 10px;
+          overflow: hidden;
           background-color: lightblue;
           position: absolute;
           top: 50%;
@@ -38,6 +39,16 @@ const Card = ({ product, index }: CardProduct) => {
             calc(-50% + (-10px * ${index})),
             calc(-50% + (-10px * ${index}))
           );
+          cursor: pointer;
+
+          &:hover {
+            filter: brightness(60%);
+          }
+
+          img {
+            width: 100%;
+            height: 100%;
+          }
         }
       `}</style>
     </>

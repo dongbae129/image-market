@@ -222,8 +222,8 @@ const Threetest: NextPage = () => {
       const delta = clock.getDelta();
 
       let cannonStepTime = 1 / 60;
-      cannonWorld.step(cannonStepTime, delta, 3);
       if (delta < 0.01) cannonStepTime = 1 / 120;
+      cannonWorld.step(cannonStepTime, delta, 3);
 
       spheres.forEach((item) => {
         item.mesh && item.mesh.position.copy(item.cannonBody.position);

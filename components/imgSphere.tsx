@@ -3,14 +3,20 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
-import { DoubleSide } from 'three';
 
 import { ImagePanel } from './ImagePanel';
-import gsap from 'gsap';
 import { MouseEvent, useRef, useEffect, useMemo, useCallback } from 'react';
+import { Product, User } from '@prisma/client';
+import { PreventDragClick } from '@libs/client/PreventDragClick';
+import { useRouter } from 'next/router';
+import gsap from 'gsap';
 
-const ImgSphere = ({ user }: any) => {
-  // Renderer
+type ImgSphereType = {
+  user: User;
+  products: Product[];
+};
+const ImgSphere = ({ user, products }: ImgSphereType) => {
+  const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const randomPositionArray: number[] = [];
   const imagePanels: ImagePanel[] = [];
@@ -20,12 +26,14 @@ const ImgSphere = ({ user }: any) => {
   sphereGeometry.scale(0.2, 0.2, 0.2);
   const sphereRef = useRef<any>();
 
+  const preventDragClick = useRef<PreventDragClick>();
   //   let canvas = canvasRef.current;
 
   // Points
 
   const scene = useMemo(() => new THREE.Scene(), []);
-
+  const rayRouter: THREE.Object3D<THREE.Event>[] = [];
+  const camera = useRef<THREE.PerspectiveCamera>();
   const gltfLoader = new GLTFLoader();
   const fontLoader = new FontLoader();
 
@@ -108,63 +116,67 @@ const ImgSphere = ({ user }: any) => {
       set: (color: string) => void;
     };
   };
-  const setBook = useCallback((gltf: GLTF, order: OrderType) => {
-    const bookOuter = gltf.scene.children[0] as THREE.Mesh;
-    const bookInner = gltf.scene.children[1] as THREE.Mesh;
-    bookOuter.position.set(...bookInformation[order].outerPosition);
-    bookInformation[order].outerRotation.forEach((v, i) => {
-      i === 0
-        ? (bookOuter.rotation.x = v)
-        : i === 1
-        ? (bookOuter.rotation.y = v)
-        : (bookOuter.rotation.z = v);
-    });
-    bookOuter.scale.set(...outerScale);
-    (bookOuter.material as MaterialWithColor).color.set(
-      bookInformation[order].color
-    );
-    bookInner.material = newMaterial('#f8f9fa');
-    bookInner.position.copy(bookOuter.position);
-    bookInner.scale.copy(bookOuter.scale);
-    bookInner.rotation.copy(bookOuter.rotation);
-
-    const imgMesh = getImageMesh(bookInformation[order].imgName);
-    imgMesh.position.set(...bookInformation[order].imgPosition);
-    bookInformation[order].imgRotation.forEach((v, i) => {
-      i === 0
-        ? (imgMesh.rotation.x = v)
-        : i === 1
-        ? (imgMesh.rotation.y = v)
-        : (imgMesh.rotation.z = v);
-    });
-    scene.add(imgMesh);
-
-    fontLoader.load('/jsons/Do_Hyeon_Regular.json', (font) => {
-      // 글자 최대 수 13
-      const textgeo = new TextGeometry('img test 11e3', {
-        font,
-        size: 0.05,
-        height: 0
-        // curveSegments: 5,
+  const setBook = useCallback(
+    (gltf: GLTF, order: OrderType, imgLoc: number) => {
+      const bookOuter = gltf.scene.children[0] as THREE.Mesh;
+      const bookInner = gltf.scene.children[1] as THREE.Mesh;
+      bookOuter.position.set(...bookInformation[order].outerPosition);
+      bookInformation[order].outerRotation.forEach((v, i) => {
+        i === 0
+          ? (bookOuter.rotation.x = v)
+          : i === 1
+          ? (bookOuter.rotation.y = v)
+          : (bookOuter.rotation.z = v);
       });
-      const textmat = new THREE.MeshStandardMaterial({
-        color: 'black'
-      });
-      const textmesh = new THREE.Mesh(textgeo, textmat);
-      textmesh.position.set(...bookInformation[order].textPosition);
+      bookOuter.scale.set(...outerScale);
+      (bookOuter.material as MaterialWithColor).color.set(
+        bookInformation[order].color
+      );
+      bookInner.material = newMaterial('#f8f9fa');
+      bookInner.position.copy(bookOuter.position);
+      bookInner.scale.copy(bookOuter.scale);
+      bookInner.rotation.copy(bookOuter.rotation);
+
+      // const imgMesh = getImageMesh(bookInformation[order].imgName);
+      const imgMesh = getImageMesh(products[imgLoc].image);
+      imgMesh.position.set(...bookInformation[order].imgPosition);
       bookInformation[order].imgRotation.forEach((v, i) => {
         i === 0
-          ? (textmesh.rotation.x = v)
+          ? (imgMesh.rotation.x = v)
           : i === 1
-          ? (textmesh.rotation.y = v)
-          : (textmesh.rotation.z = v);
+          ? (imgMesh.rotation.y = v)
+          : (imgMesh.rotation.z = v);
       });
-      scene.add(textmesh);
-    });
+      scene.add(imgMesh);
 
-    scene.add(bookOuter);
-    scene.add(bookInner);
-  }, []);
+      fontLoader.load('/jsons/Do_Hyeon_Regular.json', (font) => {
+        // 글자 최대 수 13
+        const textgeo = new TextGeometry(products[imgLoc].title, {
+          font,
+          size: 0.05,
+          height: 0
+          // curveSegments: 5,
+        });
+        const textmat = new THREE.MeshStandardMaterial({
+          color: 'black'
+        });
+        const textmesh = new THREE.Mesh(textgeo, textmat);
+        textmesh.position.set(...bookInformation[order].textPosition);
+        bookInformation[order].imgRotation.forEach((v, i) => {
+          i === 0
+            ? (textmesh.rotation.x = v)
+            : i === 1
+            ? (textmesh.rotation.y = v)
+            : (textmesh.rotation.z = v);
+        });
+        scene.add(textmesh);
+      });
+
+      scene.add(bookOuter);
+      scene.add(bookInner);
+    },
+    []
+  );
 
   scene.background = new THREE.Color('gray');
 
@@ -200,6 +212,9 @@ const ImgSphere = ({ user }: any) => {
   };
   const spherePositionArray: number[] = getSphereArr(sphereRef.current);
 
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  const clock = new THREE.Clock();
   useEffect(() => {
     const canvas = canvasRef.current;
 
@@ -208,6 +223,7 @@ const ImgSphere = ({ user }: any) => {
         canvasRef.current?.clientWidth,
         canvasRef.current?.clientHeight
       ];
+      preventDragClick.current = new PreventDragClick(canvas);
       const planeGeometry = new THREE.PlaneGeometry(0.3, 0.3);
 
       const textureLoader = new THREE.TextureLoader();
@@ -221,15 +237,16 @@ const ImgSphere = ({ user }: any) => {
       renderer.setSize(canvasSize.current[0], canvasSize.current[1]);
       renderer.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
       // Camera
-      const camera = new THREE.PerspectiveCamera(
+      camera.current = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
       );
-      camera.position.y = 1.4;
-      camera.position.z = 4;
-      scene.add(camera);
+
+      camera.current.position.y = 1.4;
+      camera.current.position.z = 4;
+      scene.add(camera.current);
 
       // const testMesh = new THREE.Mesh(
       //   sphereGeometry,
@@ -237,27 +254,29 @@ const ImgSphere = ({ user }: any) => {
       // );
       // testMesh.position.set(0, 1, 2);
       // scene.add(testMesh);
-      const controls = new OrbitControls(camera, renderer.domElement);
+      const controls = new OrbitControls(camera.current, renderer.domElement);
       controls.enableDamping = true;
 
       const draw = () => {
-        // const clock = new THREE.Clock();
         // const delta = clock.getDelta();
 
         controls.update();
 
-        renderer.render(scene, camera);
+        if (camera.current) renderer.render(scene, camera.current);
+
         renderer.setAnimationLoop(draw);
       };
 
       const setSize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
+        if (camera.current) {
+          camera.current.aspect = window.innerWidth / window.innerHeight;
 
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        // renderer.setSize(canvasSize.current[0], canvasSize.current[1]);
+          camera.current.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          // renderer.setSize(canvasSize.current[0], canvasSize.current[1]);
 
-        renderer.render(scene, camera);
+          renderer.render(scene, camera.current);
+        }
       };
       //   window.addEventListener('resize', setSize);
       draw();
@@ -301,24 +320,26 @@ const ImgSphere = ({ user }: any) => {
 
         scene.add(bdesk);
       });
-      gltfLoader.load('/models/book.glb', (gltf) => {
-        setBook(gltf, 'first');
-      });
-      gltfLoader.load('/models/book.glb', (gltf) => {
-        setBook(gltf, 'second');
-      });
-      gltfLoader.load('/models/book.glb', (gltf) => {
-        setBook(gltf, 'third');
-      });
-      gltfLoader.load('/models/book.glb', (gltf) => {
-        setBook(gltf, 'four');
-      });
-      gltfLoader.load('/models/book.glb', (gltf) => {
-        setBook(gltf, 'five');
-      });
+
+      const gltfOrder: OrderType[] = [
+        'first',
+        'second',
+        'third',
+        'four',
+        'five'
+      ];
+
+      for (let i = 0; i < products.length; i++) {
+        if (i > 4) break;
+        gltfLoader.load('/models/book.glb', (gltf) => {
+          setBook(gltf, gltfOrder[i], i);
+        });
+      }
+
       /**명패 */
       gltfLoader.load('/models/nameplate.glb', (gltf) => {
         const nameplate = gltf.scene.children[0];
+        rayRouter.push(nameplate);
         nameplate.scale.set(0.5, 0.5, 1);
         nameplate.position.set(0.42, 1.228, 2.8);
         nameplate.rotation.y = (Math.PI * 90) / 180;
@@ -327,7 +348,7 @@ const ImgSphere = ({ user }: any) => {
         fontLoader.load('/jsons/Do_Hyeon_Regular.json', (font) => {
           // 글자 최대 수 13
           // 영어 대문자 8개(0.125),소문자 10개(0.1),숫자 8개(0.125),한글 6개(0.16)
-          const textgeo = new TextGeometry('비서실장   김인자', {
+          const textgeo = new TextGeometry(`비서실장   ${user.name}`, {
             font,
             size: 0.1,
             height: 0
@@ -357,7 +378,7 @@ const ImgSphere = ({ user }: any) => {
         const planegeo = new THREE.PlaneGeometry(0.5, 0.5);
         const planemat = new THREE.MeshStandardMaterial({
           map: new THREE.TextureLoader().load('/uploads/mother.png'),
-          side: DoubleSide
+          side: THREE.DoubleSide
           // color: "red",
         });
         const planemesh = new THREE.Mesh(planegeo, planemat);
@@ -386,7 +407,7 @@ const ImgSphere = ({ user }: any) => {
 
       // 여러개의 Plane Mesh 생성
       for (let i = 0; i < spherePositionArray.length; i += 3) {
-        if (i < user.length) {
+        if (i < products.length) {
         }
         const imagePanel = new ImagePanel({
           textureLoader,
@@ -394,7 +415,9 @@ const ImgSphere = ({ user }: any) => {
           geometry: planeGeometry,
           imageSrc:
             // i < 213 ? `/uploads/0${Math.ceil(Math.random() * 5)}.jpg` : null,
-            i / 3 < user.length ? `/uploads/${user[i / 3].image}` : null,
+            i / 3 < products.length
+              ? `/uploads/${products[i / 3].image}`
+              : null,
           x: spherePositionArray[i],
           y: spherePositionArray[i + 1],
           z: spherePositionArray[i + 2]
@@ -403,7 +426,7 @@ const ImgSphere = ({ user }: any) => {
         imagePanels.push(imagePanel);
       }
     }
-  }, [scene, user]);
+  }, [scene, products]);
 
   const setShape = (e: MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLButtonElement;
@@ -458,6 +481,23 @@ const ImgSphere = ({ user }: any) => {
     }
   };
 
+  const checkIntersects = () => {
+    console.log(preventDragClick, 'drag');
+    if (preventDragClick.current?.mouseMoved) return;
+    if (camera.current) raycaster.setFromCamera(mouse, camera.current);
+
+    const intersects = raycaster.intersectObjects(rayRouter);
+    if (intersects[0]) {
+      router.push('/');
+    }
+  };
+  const canvasClickEvent = (e: MouseEvent<HTMLCanvasElement>) => {
+    const target = e.target as HTMLCanvasElement;
+    mouse.x = (e.clientX / target.clientWidth) * 2 - 1;
+    mouse.y = -((e.clientY / target.clientHeight) * 2 - 1);
+    console.log(mouse, 'Mouse');
+    checkIntersects();
+  };
   return (
     <div className="imgsspherewrap">
       <div className="btnwrap" onClick={setShape}>
@@ -469,7 +509,11 @@ const ImgSphere = ({ user }: any) => {
         </button>
       </div>
 
-      <canvas id="three-canvas" ref={canvasRef}></canvas>
+      <canvas
+        id="three-canvas"
+        ref={canvasRef}
+        onClick={canvasClickEvent}
+      ></canvas>
       <style jsx>{`
         .imgsspherewrap {
           position: relative;

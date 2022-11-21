@@ -42,7 +42,9 @@ const UserProfile: NextPage = () => {
   return (
     <div className="profile-wrap">
       <div className="product-3d">
-        {data?.products ? <ImgSphere user={data.products} /> : null}
+        {data?.products ? (
+          <ImgSphere user={data.user} products={data.products} />
+        ) : null}
         {/* <Threetest /> */}
       </div>
     </div>

@@ -17,8 +17,14 @@ export const storage = multer.diskStorage({
     cb(null, './public/uploads');
   },
   filename: function (req: any, file, cb) {
-    const ext = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, ext);
+    file.originalname = Buffer.from(file.originalname, 'latin1').toString(
+      'utf8'
+    );
+    console.log(file, 'File TEST!!!!!!!');
+    // const encodedName = encodeURIComponent(file.originalname);
+    const encodedName = file.originalname;
+    const ext = path.extname(encodedName);
+    const basename = path.basename(encodedName, ext);
     const filename = basename + new Date().valueOf() + ext;
     req.filename = filename;
 

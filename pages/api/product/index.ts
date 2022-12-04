@@ -5,11 +5,19 @@ const Product = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'GET') {
     try {
       console.log(req.query, '@@');
+      if (!req.query.id)
+        return res.json({
+          ok: false,
+          message: 'not have lastId'
+        });
+      const lastId = +req.query.id.toString();
       const products = await client.product.findMany({
         take: 6,
-        cursor: {
-          id: +req.query.id!
-        }
+        // skip: lastId ? 1 : 0,
+        ...(lastId && { cursor: { id: lastId } })
+        // cursor: {
+        //   id: +req.query.id!
+        // }
       });
       return res.json({
         products

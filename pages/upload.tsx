@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
@@ -8,12 +8,13 @@ import { Product } from '@prisma/client';
 import style from '@styles/Upload.module.scss';
 import axios from 'axios';
 import Button from '@components/button';
-import Image from 'next/image';
+import NextImage from 'next/image';
 interface UploadProductForm {
   image: FileList;
   title: string;
   description?: string;
   productAuth: boolean;
+  ratio: number;
 }
 
 interface UploadProductResponse {
@@ -25,6 +26,11 @@ interface UploadProductResponse {
 const Upload: NextPage = () => {
   const [imagePreview, setImagePreview] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
+  const ratioRef = useRef('');
+  const imgref = useRef<HTMLImageElement>(null);
+  if (imgref) {
+    console.log(imgref.current, 'imgref');
+  }
 
   const router = useRouter();
   const { register, handleSubmit, watch } = useForm<UploadProductForm>();
@@ -45,26 +51,51 @@ const Upload: NextPage = () => {
     image,
     title,
     description,
-    productAuth
+    productAuth,
+    ratio
   }: UploadProductForm) => {
     if (isLoading) return;
     // console.log(imageWatch[0], '@@');
     const form = new FormData();
+
+    // const imgtest = new Image()
+    console.log(image, 'Image');
+
     form.append('file', image[0]);
     form.append('title', title);
     form.append('hashtag', hashtag.join());
     form.append('description', description!);
-
+    form.append('ratio', ratioRef.current);
     form.append('productAuth', JSON.stringify({ productBool: productAuth }));
     mutate(form);
   };
 
   useEffect(() => {
     if (imageWatch && imageWatch.length > 0) {
+      console.log(imageWatch, 'watchbefore');
       const file = imageWatch[0];
+      if (file) {
+        const ratioImage = new Image();
+        ratioImage.src = URL.createObjectURL(file);
+
+        ratioImage.onload = () => {
+          ratioRef.current = (ratioImage.width / ratioImage.height).toFixed(2);
+          console.log(ratioImage.width, ratioImage.height, '?!');
+        };
+
+        // testimage.onload(() => {
+        //   console.log(testimage.width, testimage.height, 'onload');
+        // });
+        // console.log(testimage, '11');
+        // console.log(testimage.width, testimage.height, '22');
+      }
+      console.log(file, 'imagewatch');
+      console.log(imgref.current?.width, 'imgref22');
       setImagePreview(URL.createObjectURL(file));
     }
   }, [imageWatch]);
+
+  console.log(imagePreview, 'imagePreview');
   const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const target = e.target as HTMLInputElement;
@@ -89,8 +120,10 @@ const Upload: NextPage = () => {
         <div>
           <div className={style.imageInput}>
             {imagePreview ? (
-              <Image src={imagePreview} alt="" layout="fill" />
+              <NextImage src={imagePreview} alt="" layout="fill" />
             ) : (
+              // <img src={imagePreview} ref={imgref} />
+              // <img src={imagePreview} />
               // <img src={imagePreview} alt="" />
               <label>
                 <Input

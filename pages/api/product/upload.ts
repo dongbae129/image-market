@@ -56,11 +56,11 @@ export const config = {
 // const app = nc;
 const app = nc;
 app.post(isLogedIn, upload.single('file'), async (req, res) => {
-  console.log(req.body, 'body');
-  console.log(req.body.email, 'email');
-  console.log(req.url, 'url');
-  console.log(req.file, 'file');
-  console.log(JSON.parse(req.body.productAuth).productBool, 'bb');
+  // console.log(req.body, 'body');
+  // console.log(req.body.email, 'email');
+  // console.log(req.url, 'url');
+  // console.log(req.file, 'file');
+  // console.log(JSON.parse(req.body.productAuth).productBool, 'bb');
 
   try {
     const auth = checkAuth(req, res, 0);
@@ -72,10 +72,10 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
         message: 'need to login'
       });
 
-    console.log(req.headers['authorization'], 'Header');
-    console.log(req.file, 'file');
-    console.log(req.file?.filename, 'filename');
-    console.log(req.body, ' body');
+    // console.log(req.headers['authorization'], 'Header');
+    // console.log(req.file, 'file');
+    // console.log(req.file?.filename, 'filename');
+    // console.log(req.body, ' body');
 
     const productAuth = JSON.parse(req.body.productAuth).productBool;
     // checkAuth(req, res);
@@ -104,7 +104,10 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
           fileOut: string;
         };
       };
-      const image = await (<SharpWithOptions>sharp(req.file?.path)
+      const image = await (<SharpWithOptions>sharp(
+        // encodeURIComponent(req.file?.path)
+        req.file?.path
+      )
         .composite([
           {
             input: watermark,
@@ -119,7 +122,7 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
             // console.log(info, 'Info');
           }
         ));
-      console.log(image, 'IMAGE');
+
       imgname = image.options.fileOut.replace(
         './public/watermark/watermark_',
         ''
@@ -137,7 +140,8 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
         title: req.body.title,
         description: req.body.description,
         userId: userId!,
-        auth: productAuth
+        auth: productAuth,
+        ratio: req.body.ratio
       }
     });
     await client.productHit.create({

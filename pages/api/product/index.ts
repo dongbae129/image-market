@@ -4,17 +4,24 @@ import client from '@libs/server/client';
 const Product = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'GET') {
     try {
-      console.log(req.query, '@@');
+      // console.log(req.query, '@@');
       if (!req.query.id)
         return res.json({
           ok: false,
           message: 'not have lastId'
         });
       const lastId = +req.query.id.toString();
+      console.log(lastId, 'lastId');
       const products = await client.product.findMany({
         take: 6,
-        // skip: lastId ? 1 : 0,
+        // skip: 1
+        // cursor: {
+        //   id: lastId
+        // }
+        skip: lastId ? 1 : 0,
         ...(lastId && { cursor: { id: lastId } })
+        // skip: lastId ? 1 : 0,
+        // ...(lastId && { cursor: { id: lastId } })
         // cursor: {
         //   id: +req.query.id!
         // }

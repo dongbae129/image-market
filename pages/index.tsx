@@ -11,7 +11,7 @@ import { getFetch } from '@libs/client/fetcher';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-import Masonry from 'react-responsive-masonry';
+import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 
 // const keyStr =
 //   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -58,9 +58,8 @@ const Home: NextPage = () => {
     threshold: 0.3
   });
   const [divWidth, setDivWidth] = useState(0);
-  console.log(divWidth, '11');
 
-  const getProducts = ({ pageParam = 1 }) =>
+  const getProducts = ({ pageParam = 0 }) =>
     axios.get(`/api/product?id=${pageParam}`).then((res) => res.data);
 
   // const getProducts = async ({ pageParam = 1 }) => {
@@ -97,16 +96,13 @@ const Home: NextPage = () => {
 
   // const { data } = useQuery(['getProducts'], getProducts);
   // console.log(data, 'Data');
-  const { data, hasNextPage, fetchNextPage, isLoading } = useInfiniteQuery<any>(
-    ['getProducts'],
-    getProducts,
-    {
+  const { data, hasNextPage, fetchNextPage, isLoading, isFetchingNextPage } =
+    useInfiniteQuery<any>(['getProducts'], getProducts, {
       getNextPageParam: (lastPage, allPage) => {
         if (lastPage.products.length === 0) return false;
-        return lastPage.products[lastPage.products.length - 1].id + 1;
+        return lastPage.products[lastPage.products.length - 1].id;
       }
-    }
-  );
+    });
 
   // const { data } = useQuery(['getProducts'], getProducts);
 
@@ -122,11 +118,12 @@ const Home: NextPage = () => {
           .getComputedStyle(countRef.current)
           .getPropertyValue('font-size')
           .slice(0, -2) * 3;
-      console.log(test, size, 'Size');
-      console.log((test - size) / 4, 'Size');
+      // console.log(test, size, 'Size');
+      // console.log((test - size) / 4, 'Size');
       setDivWidth((test - size) / 4);
     }
   }, []);
+  console.log(inView, 'AA');
   useEffect(() => {
     if (inView && hasNextPage) fetchNextPage();
   }, [inView, hasNextPage, fetchNextPage]);
@@ -135,7 +132,6 @@ const Home: NextPage = () => {
     ['userInfo'],
     getFetch('/api/user')
   );
-  console.log(imgRef, 'current');
 
   return (
     <div className="main_wrap">
@@ -225,38 +221,50 @@ const Home: NextPage = () => {
       </div>
 
       <div className="product-wrap" ref={countRef}>
-        <Masonry columnsCount={masonryColumn} gutter="1em" className="mas">
-          {data ? (
-            data.pages.map((products) =>
-              products.products.map((product: Product) => (
-                <div key={product.id} className="product" ref={imgRef}>
-                  {divWidth ? (
-                    <Link href={`/product/${product.id}`} passHref>
-                      <div className="imgwrap" ref={ref}>
-                        <NextImage
-                          alt=""
-                          src={`/uploads/${product.image}`}
-                          // layout="fill"
-                          // fill={true}
-                          width={divWidth}
-                          height={divWidth * Number(product.ratio)}
-                          sizes="33vw"
-                          style={{ width: '100%', height: '100%' }}
-                          priority
-                        />
-                      </div>
-                    </Link>
-                  ) : (
-                    <></>
-                  )}
-                  <span className="product-title">{product.title}</span>
-                </div>
-              ))
-            )
-          ) : (
-            <></>
-          )}
-        </Masonry>
+        <ResponsiveMasonry
+          columnsCountBreakPoints={{ 350: 2, 750: 3, 900: 5, 1200: 6 }}
+        >
+          <Masonry
+            /*columnsCount={masonryColumn}*/ gutter="1em"
+            className="mas"
+          >
+            {data ? (
+              data.pages.map((products) =>
+                products.products.map((product: Product) => (
+                  <div key={product.id} className="product" ref={ref}>
+                    {divWidth ? (
+                      <Link href={`/product/${product.id}`} passHref>
+                        <div className="imgwrap">
+                          <NextImage
+                            alt=""
+                            src={`/uploads/${product.image}`}
+                            // layout="fill"
+                            // fill={true}
+                            width={divWidth}
+                            height={divWidth * Number(product.ratio)}
+                            sizes="33vw"
+                            style={{ width: '100%', height: '100%' }}
+                            priority
+                          />
+                        </div>
+                      </Link>
+                    ) : (
+                      <></>
+                    )}
+                    <span className="product-title">{product.title}</span>
+                  </div>
+                ))
+              )
+            ) : (
+              <></>
+            )}
+          </Masonry>
+        </ResponsiveMasonry>
+        {isFetchingNextPage ? (
+          <div>Loading...</div>
+        ) : (
+          <div ref={ref} style={{ height: '100px' }}></div>
+        )}
       </div>
       <style jsx>{`
         .product-wrap {

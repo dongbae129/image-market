@@ -1,7 +1,7 @@
 import { UseFormRegisterReturn } from 'react-hook-form';
 
 interface InputProps {
-  label: string;
+  label?: string;
   name: string;
   required?: boolean;
   register: UseFormRegisterReturn;
@@ -13,14 +13,33 @@ export default function Input({
   name,
   required,
   register,
+  paddingleft,
   ...rest
 }: InputProps) {
   return (
-    <div>
+    <>
       <label htmlFor={name}>{label}</label>
-      <div>
+      <div className="inputwrap">
         <input id={name} required={required} {...register} {...rest} />
       </div>
-    </div>
+      <style jsx>{`
+        .inputwrap {
+          height: 100%;
+        }
+        input {
+          width: 100%;
+          height: 100%;
+          border-radius: 15px;
+          border: none;
+          padding: 2px;
+          padding-left: ${paddingleft ? paddingleft : 0};
+          font-size: 1rem;
+          background-color: rgb(233, 233, 233);
+          &:focus {
+            outline: 3px solid rgb(127, 193, 255);
+          }
+        }
+      `}</style>
+    </>
   );
 }

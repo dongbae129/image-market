@@ -1,14 +1,13 @@
 import styles from '@styles/Layout.module.scss';
 import Link from 'next/link';
+import HeadMenu from '@components/headmenu';
 interface LayoutProps {
   children: React.ReactNode;
 }
 const Layout = ({ children }: LayoutProps) => {
   return (
     <div>
-      <Link href={'/'}>
-        <a>HOME</a>
-      </Link>
+      <HeadMenu />
 
       {children}
     </div>

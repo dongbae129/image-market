@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import Head from 'next/head';
+
 import Link from 'next/link';
 
 import { useInfiniteQuery, useQuery } from 'react-query';
@@ -12,6 +12,9 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
+
+import Sidebar from '@components/sidebar';
+import HeadMenu from '@components/headmenu';
 
 // const keyStr =
 //   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -43,16 +46,15 @@ interface IndexProductImageType {
   description: string;
 }
 const Home: NextPage = () => {
-  const [mousehover, setMouseHover] = useState(false);
-  const masonryColumn = 4;
+  // const [mousehover, setMouseHover] = useState(false);
+  // const masonryColumn = 4;
   const divRef = useRef<number[]>([]);
   const countRef = useRef<HTMLDivElement>(null);
   const { accessToken } = useSelector((state: any) => state.user);
-  const dispatch = useDispatch();
-  const header = {
-    headers: { authorization: `Bearer ${accessToken}` }
-  };
-  const imgRef = useRef<HTMLDivElement>(null);
+  // const dispatch = useDispatch();
+  // const header = {
+  //   headers: { authorization: `Bearer ${accessToken}` }
+  // };
 
   const { ref, inView } = useInView({
     threshold: 0.3
@@ -123,7 +125,6 @@ const Home: NextPage = () => {
       setDivWidth((test - size) / 4);
     }
   }, []);
-  console.log(inView, 'AA');
   useEffect(() => {
     if (inView && hasNextPage) fetchNextPage();
   }, [inView, hasNextPage, fetchNextPage]);
@@ -135,7 +136,7 @@ const Home: NextPage = () => {
 
   return (
     <div className="main_wrap">
-      <div className="menu">
+      {/* <div className="menu">
         <div>
           <Head>
             <title>이름 못정했어</title>
@@ -209,17 +210,9 @@ const Home: NextPage = () => {
           <Link href={`/profile/${userInfo?.user?.id}`}>
             <button>User</button>
           </Link>
-          {/* {userInfo?.user ? (
-            <Link href={`/profile/${userInfo?.user?.id}`}>
-              {userInfo?.user?.name}
-            </Link>
-          ) : null}
-
-          <br />
-          {userInfo?.user?.email} */}
+       
         </div>
-      </div>
-
+      </div> */}
       <div className="product-wrap" ref={countRef}>
         <ResponsiveMasonry
           columnsCountBreakPoints={{ 350: 2, 750: 3, 900: 5, 1200: 6 }}
@@ -266,7 +259,11 @@ const Home: NextPage = () => {
           <div ref={ref} style={{ height: '100px' }}></div>
         )}
       </div>
+      {/* <Sidebar /> */}
       <style jsx>{`
+        .main_wrap {
+          position: relative;
+        }
         .product-wrap {
           width: 93vw;
           margin: 0 auto;

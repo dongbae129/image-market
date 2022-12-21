@@ -50,6 +50,7 @@ const Home: NextPage = () => {
   // const masonryColumn = 4;
   const divRef = useRef<number[]>([]);
   const countRef = useRef<HTMLDivElement>(null);
+
   const { accessToken } = useSelector((state: any) => state.user);
   // const dispatch = useDispatch();
   // const header = {
@@ -101,12 +102,11 @@ const Home: NextPage = () => {
   const { data, hasNextPage, fetchNextPage, isLoading, isFetchingNextPage } =
     useInfiniteQuery<any>(['getProducts'], getProducts, {
       getNextPageParam: (lastPage, allPage) => {
-        if (lastPage.products.length === 0) return false;
-        return lastPage.products[lastPage.products.length - 1].id;
+        const lastPageLength = lastPage.products.length;
+        if (lastPageLength === 0 || lastPageLength < 6) return false;
+        return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
       }
     });
-
-  // const { data } = useQuery(['getProducts'], getProducts);
 
   useEffect(() => {
     if (countRef.current) {
@@ -120,8 +120,6 @@ const Home: NextPage = () => {
           .getComputedStyle(countRef.current)
           .getPropertyValue('font-size')
           .slice(0, -2) * 3;
-      // console.log(test, size, 'Size');
-      // console.log((test - size) / 4, 'Size');
       setDivWidth((test - size) / 4);
     }
   }, []);
@@ -134,6 +132,7 @@ const Home: NextPage = () => {
     getFetch('/api/user')
   );
 
+  console.log(data, 'count');
   return (
     <div className="main_wrap">
       {/* <div className="menu">

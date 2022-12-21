@@ -3,8 +3,8 @@ import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
 import { IoIosSearch } from 'react-icons/io';
+import { useRouter } from 'next/router';
 
 interface HeadSearch {
   search: string;
@@ -17,19 +17,20 @@ interface UploadProductForm {
   ratio: number;
 }
 const HeadMenu: NextPage = () => {
+  const router = useRouter();
   const { register, handleSubmit } = useForm<HeadSearch>();
 
-  const { mutate } = useMutation(() =>
-    axios.get('test').then((res) => res.data)
-  );
+  // const getSearchData = (search: string) =>
+  //   axios.get(`/api/product?search=${search}`).then((res) => res.data);
 
   const onValid = ({ search }: HeadSearch) => {
-    console.log(search);
+    // searchElementRef.current?.click();
+    router.push({
+      pathname: '/product/search',
+      query: { find: search }
+    });
   };
-  //   const onValid = ({ search }: HeadSearch) => {
-  //     console.log(search, 'menu');
-  //     // mutate(search);
-  //   };
+
   return (
     <div className="headmenuwrap">
       <div className="golinkwrap">
@@ -125,6 +126,7 @@ const HeadMenu: NextPage = () => {
           height: 80%;
           border-top-right-radius: 15px;
           border-bottom-right-radius: 15px;
+          cursor: pointer;
           left: 0;
           top: 50%;
           transform: translateY(-50%);

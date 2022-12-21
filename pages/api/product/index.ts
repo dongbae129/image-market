@@ -1,36 +1,43 @@
-import { ResponseType } from '@libs/server/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 const Product = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'GET') {
+    const searchQuery = req.query.search;
+    console.log(searchQuery, 'searchQuery');
     try {
       // console.log(req.query, '@@');
-      if (!req.query.id)
-        return res.json({
-          ok: false,
-          message: 'not have lastId'
-        });
-      const lastId = +req.query.id.toString();
+      // if (!req.query.id)
+      //   return res.json({
+      //     ok: false,
+      //     message: 'not have lastId'
+      //   });
+      let lastId = 0;
+      if (req.query.id) lastId = +req.query.id.toString();
+
       console.log(lastId, 'lastId');
       const products = await client.product.findMany({
         take: 6,
-        // skip: 1
-        // cursor: {
-        //   id: lastId
-        // }
         skip: lastId ? 1 : 0,
-        ...(lastId && { cursor: { id: lastId } })
-        // skip: lastId ? 1 : 0,
-        // ...(lastId && { cursor: { id: lastId } })
-        // cursor: {
-        //   id: +req.query.id!
-        // }
+        ...(lastId && { cursor: { id: lastId } }),
+        where: {
+          ...(searchQuery
+            ? {
+                title: {
+                  contains: searchQuery.toString()
+                }
+              }
+            : {})
+        }
       });
       return res.json({
         products
       });
     } catch (e) {
       console.error(e);
+      return res.json({
+        ok: false,
+        error: e
+      });
     }
   }
 };

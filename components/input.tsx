@@ -14,16 +14,20 @@ export default function Input({
   required,
   register,
   paddingleft,
+  classname,
   ...rest
 }: InputProps) {
   return (
-    <>
-      <label htmlFor={name}>{label}</label>
-      <div className="inputwrap">
+    <div className={classname ? classname : 'inputwrap'}>
+      {/* <label htmlFor={name}>{label}</label> */}
+      <div className="input-div">
         <input id={name} required={required} {...register} {...rest} />
       </div>
       <style jsx>{`
         .inputwrap {
+          height: 100%;
+        }
+        .input-div {
           height: 100%;
         }
         input {
@@ -40,6 +44,6 @@ export default function Input({
           }
         }
       `}</style>
-    </>
+    </div>
   );
 }

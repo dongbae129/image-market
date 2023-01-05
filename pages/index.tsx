@@ -33,10 +33,7 @@ export interface GetProductsResponse {
   // ok: boolean;
   products: Product[];
 }
-export interface userResponse {
-  ok: boolean;
-  user: User;
-}
+
 interface IndexProductImageType {
   width: number;
   height: number;
@@ -53,9 +50,9 @@ const Home: NextPage = () => {
 
   const { accessToken } = useSelector((state: any) => state.user);
   // const dispatch = useDispatch();
-  // const header = {
-  //   headers: { authorization: `Bearer ${accessToken}` }
-  // };
+  const header = {
+    headers: { authorization: `Bearer ${accessToken}` }
+  };
 
   const { ref, inView } = useInView({
     threshold: 0.3
@@ -127,10 +124,10 @@ const Home: NextPage = () => {
     if (inView && hasNextPage) fetchNextPage();
   }, [inView, hasNextPage, fetchNextPage]);
 
-  const { data: userInfo } = useQuery<userResponse>(
-    ['userInfo'],
-    getFetch('/api/user')
-  );
+  // const { data: userInfo } = useQuery<userResponse>(
+  //   ['userInfo'],
+  //   getFetch('/api/user', header)
+  // );
 
   console.log(data, 'count');
   return (
@@ -269,6 +266,7 @@ const Home: NextPage = () => {
 
           .imgwrap {
             position: relative;
+            cursor: pointer;
             display: block;
             width: 100%;
             height: 90%;

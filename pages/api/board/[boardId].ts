@@ -24,6 +24,16 @@ const BoardDetail = async (
               email: true,
               name: true
             }
+          },
+          boardChat: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  image: true
+                }
+              }
+            }
           }
         }
       });

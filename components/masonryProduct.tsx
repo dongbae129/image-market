@@ -88,13 +88,12 @@ const MasonryProduct = ({
 
           .imgwrap {
             position: relative;
+            cursor: pointer;
             display: block;
             width: 100%;
             height: 90%;
             border-radius: 20px;
             overflow: hidden;
-          }
-          .product {
           }
 
           .product-title {

@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-// import styles from '@styles/ProductDetail.module.scss';
+import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Chat, HashTag, Product, ProductHit } from '@prisma/client';
 import { getFetch } from '@libs/client/fetcher';
 import { useForm } from 'react-hook-form';
+import { useState, useRef } from 'react';
 
 import TextArea from '@components/textarea';
 import Button from '@components/button';
@@ -44,7 +45,9 @@ interface ProductDetail {
 }
 
 const ProductDetail: NextPage = () => {
+  const [chatOpen, setChatOpen] = useState(false);
   const router = useRouter();
+  const arrowRef = useRef<HTMLSpanElement>(null);
   const queryClient = useQueryClient();
   const {
     handleSubmit,
@@ -68,8 +71,11 @@ const ProductDetail: NextPage = () => {
     }
   );
 
+  console.log(data, 'Data');
   const chatSend = (chat: ChatForm) =>
-    axios.post(`/api/chat/${data?.product.id}`, chat).then((res) => res.data);
+    axios
+      .post(`/api/chat/product/${data?.product.id}`, chat)
+      .then((res) => res.data);
   const { mutate, isLoading: mutateLoading } = useMutation<
     ChatMutate,
     any,
@@ -118,7 +124,7 @@ const ProductDetail: NextPage = () => {
   });
   const { data: chats, isLoading: chatLoading } = useQuery<ChatResponse>(
     ['getChats', data?.product.id],
-    getFetch(`/api/chat/${data?.product.id}`),
+    getFetch(`/api/chat/product/${data?.product.id}`),
     {
       enabled: !!data?.product.id
     }
@@ -147,170 +153,213 @@ const ProductDetail: NextPage = () => {
   if (isLoading) return <div>Loading Data....</div>;
   return (
     <div>
-      <div className="productWrap">
-        <div className="productInfo">
-          <div className="imagewrap">
-            {data?.product && (
-              <Image
-                src={
-                  data.product.auth
-                    ? `/watermark/watermark_${data?.product.image}`
-                    : `/uploads/${data?.product.image}`
-                }
-                width={400}
-                height={400}
-                layout="responsive"
-                alt=""
-              />
-            )}
-          </div>
-        </div>
-        <div className="spring-wrap">
-          {Array(7)
-            .fill(0)
-            .map((v, i) => (
-              <div key={i} className="spring">
-                <div></div>
-                <div></div>
-              </div>
-            ))}
-        </div>
-        <div className="userInfo">
-          <div>
-            <div className="userimage">{/* <img src="" alt="" /> */}</div>
-            <div className="useremail">{data?.product?.user?.email}</div>
-            <button>
-              <a
-                href={`/api/product/download?productId=${productId}&imgAuth=${watchAuth}`}
-                download
-              >
-                다운로드
-              </a>
-            </button>
-            <Input
-              label="checkAuth"
-              name="checkAuth"
-              type="checkbox"
-              register={register('checkAuth')}
-            />
-          </div>
-          <div>
-            <ul>
-              <li>화소 free, pay</li>
-              <li>화소 free, pay</li>
-              <li>화소 free, pay</li>
-            </ul>
-          </div>
-          <div>
-            {data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
-              <span key={i}>#{hash}</span>
-            ))}
+      <div className="productwrapout">
+        <div className="productwrapin">
+          <div className="productInfo">
+            <div className="imagewrap">
+              {data?.product && (
+                <Image
+                  src={
+                    data.product.auth
+                      ? `/watermark/watermark_${data?.product.image}`
+                      : `/uploads/${data?.product.image}`
+                  }
+                  priority
+                  // width={400}
+                  // height={400}
+                  // sizes="30vw"
+                  // layout="responsive"
+                  layout="fill"
+                  alt=""
+                />
+              )}
+            </div>
           </div>
 
-          <span>{data?.product.productHit?.hit}</span>
-          {chats?.comments.map((comment) => (
-            <div key={comment?.id} className="chatWrap">
-              <div className="chatInfo">
-                <div>
-                  <div className="chatuserimage"></div>
-                  <div className="chatuserInfo">
-                    <div className="chatusername">{comment?.user?.name}</div>
-                    <div className="userchat">{comment?.description}</div>
+          <div className="userInfo">
+            <div>
+              <div className="useraccountinfo">
+                <div className="userimage">
+                  <Image
+                    src="/localimages/emptyuser.png"
+                    layout="fill"
+                    alt="userImage"
+                  />
+                </div>
+                <div className="useremail">{data?.product?.user?.email}</div>
+              </div>
+              <div>
+                <button>
+                  <a
+                    href={`/api/product/download?productId=${productId}&imgAuth=${watchAuth}`}
+                    download
+                  >
+                    저장
+                  </a>
+                </button>
+              </div>
+              {/* <Input
+                label="checkAuth"
+                name="checkAuth"
+                type="checkbox"
+                register={register('checkAuth')}
+              /> */}
+            </div>
+            <div>
+              <ul>
+                <li>화소 free, pay</li>
+                <li>화소 free, pay</li>
+                <li>화소 free, pay</li>
+              </ul>
+            </div>
+            <div>
+              {data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
+                <span key={i}>#{hash}</span>
+              ))}
+            </div>
+            <div className="arrowopen">
+              <span>댓글: {chats?.comments.length || 0}개</span>
+              <span
+                ref={arrowRef}
+                onMouseDown={(e) =>
+                  (e.currentTarget.style.transform = 'scale(0.9)')
+                }
+                onMouseUp={(e) =>
+                  (e.currentTarget.style.transform = 'scale(1)')
+                }
+                onClick={() => setChatOpen((prev) => !prev)}
+              >
+                {chatOpen ? (
+                  <RiArrowDownSLine size={40} />
+                ) : (
+                  <RiArrowRightSLine size={40} />
+                )}
+              </span>
+            </div>
+
+            {/* <span>{data?.product.productHit?.hit}</span> */}
+            <div className="chatwrap">
+              {chats?.comments.map((comment) => (
+                <div key={comment?.id}>
+                  <div className="chatInfo">
+                    <div>
+                      <div className="chatuserimage"></div>
+                      <div className="chatuserInfo">
+                        <div className="chatusername">
+                          {comment?.user?.name}
+                        </div>
+                        <div className="userchat">{comment?.description}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
 
-          <div className="chatregister">
-            <form onSubmit={handleSubmit(onValid)}>
-              <div className="chatuserimage"></div>
-              <TextArea
-                className="autoTextarea"
-                onKeyDown={autoResizeTextarea}
-                onKeyUp={autoResizeTextarea}
-                name="chat"
-                register={register('chat')}
-              ></TextArea>
-              <Button
-                className="registerbtn"
-                isLoading={mutateLoading}
-                text="작성"
-              />
-              <div className="errormsg">{errors.chatErrors?.message}</div>
-            </form>
+            <div className="chatregister">
+              <form onSubmit={handleSubmit(onValid)}>
+                <div className="chatuserimage"></div>
+                <TextArea
+                  className="autoTextarea"
+                  onKeyDown={autoResizeTextarea}
+                  onKeyUp={autoResizeTextarea}
+                  name="chat"
+                  register={register('chat')}
+                ></TextArea>
+                <Button
+                  className="registerbtn"
+                  isLoading={mutateLoading}
+                  text="작성"
+                />
+                <div className="errormsg">{errors.chatErrors?.message}</div>
+              </form>
+            </div>
           </div>
         </div>
 
         <style jsx>{`
-          @mixin spring {
-            content: '';
-            width: 210%;
-            height: 40%;
-            border-radius: 50%;
-
-            border: 0.3rem solid black;
-            border-left-width: 0.2rem;
-            border-right-width: 0.2rem;
-            border-bottom: none;
-            position: absolute;
-            transform: rotateX(45deg);
-          }
-
-          .productWrap {
+          .productwrapout {
             position: relative;
-            margin: 0 auto;
             margin-top: 30px;
-
+            margin-bottom: 30px;
             display: flex;
-            width: 60%;
-            height: 90vh;
-
-            > div:nth-child(odd) {
-              border: 1px solid black;
-              border-radius: 5px;
-              padding: 5%;
-            }
-            > div:nth-child(3) {
-              padding-left: 7%;
+            width: 100%;
+            justify-content: center;
+          }
+          .productwrapin {
+            width: 100%;
+            min-height: 80vh;
+            max-width: 1050px;
+            display: flex;
+            justify-content: center;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px,
+              rgba(0, 0, 0, 0.23) 0px 3px 6px;
+            > div:last-child {
+              padding: 3rem;
             }
           }
+
           .productInfo {
             position: relative;
-            width: 49%;
-
+            width: 50%;
+            padding: 1rem;
+            max-height: 80vh;
             .imagewrap {
               position: relative;
-
+              border-top-left-radius: 20px;
+              border-bottom-left-radius: 20px;
+              overflow: hidden;
               width: 100%;
               height: 100%;
             }
           }
 
           .userInfo {
-            width: 49%;
+            position: relative;
+            width: 50%;
             > div:nth-child(1) {
               width: 100%;
               display: flex;
+              justify-content: space-between;
+              position: relative;
 
-              > button {
+              .useraccountinfo {
+                width: 80%;
+                word-break: break-all;
+              }
+
+              button {
                 border-radius: 24px;
                 background-color: red;
                 color: white;
                 border: 0;
+                min-width: 60px;
                 font-size: 16px;
                 font-weight: bold;
+                height: 100%;
               }
             }
 
             .userimage {
-              background-color: gray;
               width: 50px;
+              min-width: 50px;
               height: 50px;
               border-radius: 50%;
               margin-right: 5px;
+              overflow: hidden;
               position: relative;
             }
+            .useremail {
+              margin-right: 16px;
+              padding: 5px;
+              font-size: 16px;
+              font-weight: 600;
+            }
+          }
+          .useraccountinfo {
+            display: flex;
           }
           .spring-wrap {
             position: relative;
@@ -338,68 +387,72 @@ const ProductDetail: NextPage = () => {
               &:nth-child(2) {
                 left: 170%;
               }
-
-              &:nth-child(1)::after {
-                @include spring;
-                top: 5%;
-                left: 40%;
-              }
-              &:nth-child(1)::before {
-                @include spring;
-                top: 30%;
-                left: 40%;
-              }
             }
           }
-          .useremail {
-            margin-right: 16px;
-          }
-          .chatuserimage {
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            background-color: gray;
-            margin-right: 5px;
-          }
-          .chatInfo {
-            > div {
+
+          .arrowopen {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            > span:first-child {
+              font-size: 1.5rem;
+              font-weight: 600;
+            }
+            > span:last-child {
               display: flex;
+              cursor: pointer;
+              border-radius: 50%;
 
-              .chatuserInfo {
-                width: 100%;
-              }
-              .chatusername {
-                font-size: 16px;
-                font-weight: bold;
-              }
-              .userchat {
-                padding-left: 7px;
-                width: 100%;
-                border: 1px solid black;
-                word-break: break-all;
+              :hover {
+                background-color: rgba(0, 0, 0, 0.06);
               }
             }
           }
+          .chatwrap {
+            display: ${chatOpen ? 'block' : 'none'};
+            width: 100%;
+
+            .chatInfo {
+              > div {
+                display: flex;
+
+                .chatuserimage {
+                  border-radius: 50%;
+                  width: 20px;
+                  height: 20px;
+                  background-color: gray;
+                  margin-right: 5px;
+                }
+                .chatuserInfo {
+                  width: 100%;
+                }
+
+                .chatusername {
+                  font-size: 16px;
+                  font-weight: bold;
+                }
+                .userchat {
+                  padding-left: 7px;
+                  width: 100%;
+                  border: 1px solid black;
+                  word-break: break-all;
+                }
+              }
+            }
+          }
+
           .chatregister {
-            position: absolute;
-            width: 37%;
-            min-height: 5%;
+            position: relative;
+            width: 100%;
+            min-height: 60px;
             border: 1px solid rgb(226, 203, 203);
             display: flex;
-            bottom: 10px;
-            left: 57%;
             border-radius: 14px;
+            margin-top: 15px;
 
-            textarea {
-              height: 90%;
-              border: none;
-            }
-            > button {
-              position: relative;
-              right: 0;
-              border-top-right-radius: 14px;
-              border-bottom-right-radius: 14px;
-              border: none;
+            form {
+              width: 100%;
+              height: 100%;
             }
           }
           .errormsg {

@@ -1,14 +1,21 @@
 import { IoMdSettings } from 'react-icons/io';
 import { FaUserAlt } from 'react-icons/fa';
 import { GrClose, GrMenu, GrLogout } from 'react-icons/gr';
-import { MouseEventHandler, useRef, useState } from 'react';
-const Sidebar = () => {
+import { useRef, useState } from 'react';
+import Link from 'next/link';
+import { User } from '@prisma/client';
+
+interface SidebarUser {
+  userInfo: User;
+}
+const Sidebar = ({ userInfo }: SidebarUser) => {
   const [menuState, setMenuState] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const menuClick = () => {
     setMenuState((prev) => !prev);
     // sidebarRef.current?.classList.toggle('open');
   };
+
   return (
     <div className="sidebarwrap">
       <header className="header">
@@ -47,29 +54,35 @@ const Sidebar = () => {
           <div className="middle-sidebar">
             <ul className="sidebar-list">
               <li className="sidebar-list-item" data-icon="setting">
-                <a href="#" className="sidebar-link">
-                  <span className="sideiconwrap">
-                    <IoMdSettings className="sidebar-icon" size="25" />
-                  </span>
-                  <div className="hidden-sidebar">Settings</div>
-                </a>
+                <Link href={'#'}>
+                  <a className="sidebar-link">
+                    <span className="sideiconwrap">
+                      <IoMdSettings className="sidebar-icon" size="25" />
+                    </span>
+                    <div className="hidden-sidebar">Settings</div>
+                  </a>
+                </Link>
               </li>
               <li className="sidebar-list-item" data-icon="user">
-                <a href="#" className="sidebar-link">
-                  <span className="sideiconwrap">
-                    <FaUserAlt className="sidebar-icon" size="25" />
-                  </span>
+                <Link href={`/profile/${userInfo.id}`}>
+                  <a className="sidebar-link">
+                    <span className="sideiconwrap">
+                      <FaUserAlt className="sidebar-icon" size="25" />
+                    </span>
 
-                  <div className="hidden-sidebar">User</div>
-                </a>
+                    <div className="hidden-sidebar">User</div>
+                  </a>
+                </Link>
               </li>
               <li className="sidebar-list-item" data-icon="logout">
-                <a href="#" className="sidebar-link">
-                  <span className="sideiconwrap">
-                    <GrLogout className="sidebar-icon" size="25" />
-                  </span>
-                  <div className="hidden-sidebar">Logout</div>
-                </a>
+                <Link href={'/logout'}>
+                  <a className="sidebar-link">
+                    <span className="sideiconwrap">
+                      <GrLogout className="sidebar-icon" size="25" />
+                    </span>
+                    <div className="hidden-sidebar">Logout</div>
+                  </a>
+                </Link>
               </li>
               {/* <li className="sidebar-list-item">
                 <a href="#" className="sidebar-link">
@@ -222,6 +235,7 @@ const Sidebar = () => {
           right: 0;
           top: 0;
           border-radius: 4px;
+          z-index: 10;
         }
 
         .header {

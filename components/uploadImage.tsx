@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { NextPage } from 'next';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
@@ -21,12 +22,15 @@ interface UploadImageProps {
   elementType: string[];
 }
 const UploadImage = (info: UploadImageProps) => {
+  const router = useRouter();
   const [imagePreview, setImagePreview] = useState('');
   const { register, handleSubmit, watch } = useForm<UploadForm>();
   const postUploadForm = (data: FormData) =>
     axios.post(`/api/${info.url}`, data).then((res) => res.data);
 
-  const { mutate, isLoading } = useMutation(postUploadForm);
+  const { mutate, isLoading } = useMutation(postUploadForm, {
+    onSuccess: () => router.push('/board')
+  });
 
   const imageWatch = watch('image');
   const onValid = (v) => {

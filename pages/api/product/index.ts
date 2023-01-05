@@ -5,7 +5,6 @@ const Product = async (req: NextApiRequest, res: NextApiResponse) => {
     const searchQuery = req.query.search;
     console.log(searchQuery, 'searchQuery');
     try {
-      // console.log(req.query, '@@');
       // if (!req.query.id)
       //   return res.json({
       //     ok: false,
@@ -14,7 +13,6 @@ const Product = async (req: NextApiRequest, res: NextApiResponse) => {
       let lastId = 0;
       if (req.query.id) lastId = +req.query.id.toString();
 
-      console.log(lastId, 'lastId');
       const products = await client.product.findMany({
         take: 6,
         skip: lastId ? 1 : 0,
@@ -34,7 +32,7 @@ const Product = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     } catch (e) {
       console.error(e);
-      return res.json({
+      return res.status(500).json({
         ok: false,
         error: e
       });

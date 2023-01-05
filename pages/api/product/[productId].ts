@@ -7,6 +7,11 @@ const Product = async (
 ) => {
   if (req.method === 'GET') {
     const { productId } = req.query;
+    if (!productId)
+      return res.status(401).json({
+        ok: false,
+        message: "dont't have productId"
+      });
     try {
       const product = await client.product.findUnique({
         where: {

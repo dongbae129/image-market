@@ -38,13 +38,13 @@ const Search: NextPage = () => {
   // );
   const {
     data,
-    refetch,
+
     hasNextPage,
     fetchNextPage,
     isLoading,
     isFetchingNextPage
   } = useInfiniteQuery<any, any, InfinteProducts>(
-    ['getSearchProducts'],
+    ['getSearchProducts', search],
     getSearchData,
     {
       getNextPageParam: (lastPage, allPage) => {
@@ -59,10 +59,6 @@ const Search: NextPage = () => {
     threshold: 0.3
   });
 
-  useEffect(() => {
-    if (!search) return;
-    refetch();
-  }, [refetch, search]);
   useEffect(() => {
     if (inView && hasNextPage) fetchNextPage();
   }, [inView, hasNextPage, fetchNextPage]);

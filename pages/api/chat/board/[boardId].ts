@@ -1,37 +1,43 @@
-import { ResponseType, TokenPayload } from '@libs/server/utils';
+import { ResponseType, TokenPayload, dbNow } from '@libs/server/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 import { checkAuth } from '@libs/server/auth';
-import { decode, JwtPayload } from 'jsonwebtoken';
+import { decode } from 'jsonwebtoken';
 
-const Chat = async (
+const BoardChat = async (
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) => {
   const {
-    query: { id }
+    query: { boardId }
   } = req;
-  if (!id)
+  if (!boardId)
     return res.json({
       ok: false,
       message: 'not comments'
     });
   if (req.method === 'GET') {
-    console.log(id, '$%$');
-    const comments = await client.chat.findMany({
+    console.log(boardId, '$%$');
+    const comments = await client.boardChat.findMany({
       where: {
-        productId: +id.toString()
+        boardId: +boardId.toString()
       },
-      select: {
-        description: true,
-        createdAt: true,
-        id: true,
+      include: {
         user: {
           select: {
-            name: true
+            name: true,
+            image: true
           }
         }
       }
+      // select: {
+      //   user: {
+      //     select: {
+      //       name: true,
+      //       image: true
+      //     }
+      //   }
+      // }
     });
     return res.json({
       ok: true,
@@ -43,7 +49,7 @@ const Chat = async (
         ok: false,
         message: 'need to any chat'
       });
-    console.log(id, req.body, 'id');
+    console.log(boardId, req.body, 'boardId');
     const authResponse = checkAuth(req, res, 0);
     if (!authResponse || !authResponse.accessToken)
       return res.json({
@@ -53,29 +59,32 @@ const Chat = async (
     const userId = decode(authResponse.accessToken) as TokenPayload;
 
     try {
-      const chat = await client.chat.create({
+      const now = dbNow();
+      const chat = await client.boardChat.create({
         data: {
           description: req.body.chat,
           userId: userId.id,
-          productId: +id.toString()
-        },
-        include: {
-          user: {
-            select: {
-              name: true
-            }
-          }
+          boardId: +boardId.toString(),
+          createdAt: now,
+          updatedAt: now
         }
+        // include: {
+        //   user: {
+        //     select: {
+        //       name: true
+        //     }
+        //   }
+        // }
       });
       return res.json({
         ok: true,
         chat
       });
     } catch (error) {
-      console.error(error, `/api/chat/${id}, post, create chat error`);
+      console.error(error, `/api/chat/[${boardId}], post, create chat error`);
       return res.json({
         ok: false,
-        meesage: `/api/chat/${id}, post, create chat error`
+        meesage: `/api/chat/[${boardId}], post, create chat error`
       });
     }
 
@@ -92,8 +101,8 @@ const Chat = async (
     // const comment = await client.chat.create({
     //   data: {
     //     description: chat,
-    //     productId: +id.toString(),
-    //     userId: decoded?.id
+    //     productId: +boardId.toString(),
+    //     userId: decoded?.boardId
     //   },
     //   select: {
     //     user: true
@@ -107,4 +116,4 @@ const Chat = async (
   }
 };
 
-export default Chat;
+export default BoardChat;

@@ -48,13 +48,13 @@ const BoardDetail: NextPage = () => {
   );
   const { data, refetch } = useQuery<UploadChatResponse>(
     ['getChats'],
-    getFetch(`/api/chat/${boardId}`),
+    getFetch(`/api/chat/board/${boardId}`),
     {
       enabled: !!boardId
     }
   );
   const chatting = (data: boardChat) =>
-    axios.post(`/api/chat/${boardId}`, data).then((res) => res.data);
+    axios.post(`/api/chat/board/${boardId}`, data).then((res) => res.data);
   const { mutate, isLoading } = useMutation<UploadChatResponse, any, boardChat>(
     chatting,
     {

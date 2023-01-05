@@ -5,7 +5,7 @@ import client from '@libs/server/client';
 import { decode } from 'jsonwebtoken';
 import { checkAuth } from '@libs/server/auth';
 import axios from 'axios';
-import { isLogedIn, nc, TokenPayload, upload } from '@libs/server/utils';
+import { isLogedIn, nc, TokenPayload, upload, dbNow } from '@libs/server/utils';
 import sharp from 'sharp';
 
 export const config = {
@@ -134,6 +134,7 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
     // const imgname: string = image.options.fileOut.slice(21);
     console.log(imgname, 'name');
 
+    const now = dbNow();
     const product = await client.product.create({
       data: {
         image: imgname,
@@ -141,7 +142,9 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
         description: req.body.description,
         userId: userId!,
         auth: productAuth,
-        ratio: req.body.ratio
+        ratio: req.body.ratio,
+        createdAt: now,
+        updatedAt: now
       }
     });
     await client.productHit.create({

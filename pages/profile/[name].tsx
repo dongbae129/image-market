@@ -23,13 +23,15 @@ const UserProfile: NextPage = () => {
   const [hashtag, setHashtag] = useState(new Set<string>());
 
   const hashtags: string[] = Array.from(hashtag);
+  console.log(router, 'router');
   const { data } = useQuery<ProfileResponse>(
-    ['userInfo'],
+    ['userInfo', router.query.name],
     getFetch(`/api/user/${router.query.name}`),
     {
       enabled: !!router.query.name,
       onSuccess: (res) => {
-        res.products.forEach((tag) => {
+        console.log(res, 'Res');
+        res.products?.forEach((tag) => {
           tag.hashtag?.hashtag
             .split(',')
             .forEach((v) => setHashtag((prev) => prev.add(v)));

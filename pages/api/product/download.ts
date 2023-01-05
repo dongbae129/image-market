@@ -10,6 +10,11 @@ const Download = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'GET') {
     const { productId, imgAuth } = req.query;
     console.log(req.query, '@@@');
+    if (!productId)
+      return res.json({
+        ok: false,
+        message: "doent' have productId"
+      });
     // 사진 권한 관리 어떻게할까...
     try {
       const auth = checkAuth(req, res, 0);

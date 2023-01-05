@@ -5,9 +5,19 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { IoIosSearch } from 'react-icons/io';
 import { useRouter } from 'next/router';
+import { useQuery } from 'react-query';
+import { getFetch } from '@libs/client/fetcher';
+import { useSelector } from 'react-redux';
+import { User } from '@prisma/client';
+import Sidebar from './sidebar';
+import { useState } from 'react';
 
 interface HeadSearch {
   search: string;
+}
+export interface userResponse {
+  ok: boolean;
+  user: User;
 }
 interface UploadProductForm {
   image: FileList;
@@ -19,10 +29,15 @@ interface UploadProductForm {
 const HeadMenu: NextPage = () => {
   const router = useRouter();
   const { register, handleSubmit } = useForm<HeadSearch>();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const { accessToken } = useSelector((state: any) => state.user);
   // const getSearchData = (search: string) =>
   //   axios.get(`/api/product?search=${search}`).then((res) => res.data);
 
+  const header = {
+    headers: { authorization: `Bearer ${accessToken}` }
+  };
   const onValid = ({ search }: HeadSearch) => {
     // searchElementRef.current?.click();
     router.push({
@@ -30,7 +45,14 @@ const HeadMenu: NextPage = () => {
       query: { find: search }
     });
   };
-
+  const { data: userInfo } = useQuery<userResponse>(
+    ['userInfo'],
+    getFetch('/api/user', header),
+    {
+      onSuccess: () => setSidebarOpen(true)
+    }
+  );
+  console.log(sidebarOpen, 'side');
   return (
     <div className="headmenuwrap">
       <div className="golinkwrap">
@@ -40,6 +62,9 @@ const HeadMenu: NextPage = () => {
 
         <Link href={'/upload'}>
           <span className="golinkinhead">UPLOAD</span>
+        </Link>
+        <Link href={'/board'}>
+          <span className="golinkinhead">BOARD</span>
         </Link>
       </div>
       <div className="searchform">
@@ -58,14 +83,21 @@ const HeadMenu: NextPage = () => {
           </div>
         </form>
       </div>
-      <div className="golinkwrap">
-        <Link href={'/signin'}>
-          <span className="golinkinhead">SIGNIN</span>
-        </Link>
-        <Link href={'/register'}>
-          <span className="golinkinhead">SIGNUP</span>
-        </Link>
-      </div>
+      {sidebarOpen && userInfo?.ok ? (
+        <div className="golinkwrap">
+          <Sidebar userInfo={userInfo.user} />
+        </div>
+      ) : (
+        <div className="golinkwrap">
+          <Link href={'/signin'}>
+            <span className="golinkinhead">SIGNIN</span>
+          </Link>
+          <Link href={'/register'}>
+            <span className="golinkinhead">SIGNUP</span>
+          </Link>
+        </div>
+      )}
+
       <style jsx>{`
         .headmenuwrap {
           display: flex;
@@ -81,12 +113,13 @@ const HeadMenu: NextPage = () => {
             display: flex;
             align-items: center;
             height: 100%;
+            width: 15%;
             span {
               font-weight: 700;
               font-size: 1.3rem;
             }
 
-            > span:first-child {
+            > span {
               margin-right: 1rem;
             }
           }

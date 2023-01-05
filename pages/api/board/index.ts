@@ -1,8 +1,10 @@
-import { ResponseType, TokenPayload } from '@libs/server/utils';
+import { dbNow, ResponseType, TokenPayload } from '@libs/server/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 import { checkAuth } from '@libs/server/auth';
 import { decode } from 'jsonwebtoken';
+import { formatISO } from 'date-fns';
+import dayjs from 'dayjs';
 
 const Board = async (
   req: NextApiRequest,
@@ -28,11 +30,14 @@ const Board = async (
           });
         console.log(decoded, 'dEcp');
         if (decoded.id) {
+          const now = dbNow();
           const board = await client.board.create({
             data: {
               title,
               description,
-              userId: decoded.id
+              userId: decoded.id,
+              createdAt: now,
+              updatedAt: now
             }
           });
           return res.json({
@@ -92,8 +97,19 @@ const Board = async (
     }
   }
   if (req.method === 'GET') {
+    const searchQuery = req.query.search;
+    console.log(req.query, 'board query');
     try {
       const boards = await client.board.findMany({
+        where: {
+          ...(searchQuery
+            ? {
+                title: {
+                  contains: searchQuery.toString()
+                }
+              }
+            : {})
+        },
         include: {
           user: {
             select: {
@@ -108,6 +124,10 @@ const Board = async (
       });
     } catch (error) {
       console.log(error, 'boards get error');
+      return res.status(500).json({
+        ok: false,
+        message: error
+      });
     }
   }
 };

@@ -49,8 +49,8 @@ const Register: NextPage = () => {
   };
 
   return (
-    <div>
-      <h3>Login Page</h3>
+    <div className="registerwrap">
+      <h2>회원가입</h2>
       <form onSubmit={handleSubmit(onValid)}>
         <Input
           label="이름"
@@ -83,6 +83,15 @@ const Register: NextPage = () => {
         {errors.formErrors ? <span>{errors.formErrors.message}</span> : null}
         <Button isLoading={signupMutate.isLoading} text="회원가입" />
       </form>
+      <style jsx>{`
+        .registerwrap {
+          max-width: 28rem;
+          margin: auto;
+        }
+        h2 {
+          text-align: center;
+        }
+      `}</style>
     </div>
   );
 };

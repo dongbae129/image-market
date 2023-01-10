@@ -2,13 +2,10 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
 import { getFetch } from '@libs/client/fetcher';
-import { userResponse } from '../index';
-import Link from 'next/link';
+
 import { useState } from 'react';
 import { HashTag, Product, ProductHit, User } from '@prisma/client';
-import Image from 'next/image';
-import Threetest from 'pages/threetest';
-import Card from '@components/card';
+
 import ImgSphere from '@components/imgSphere';
 interface ProfileResponse {
   ok: boolean;

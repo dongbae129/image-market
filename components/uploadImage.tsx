@@ -6,13 +6,14 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import Button from './button';
+import InputHashtag from './hashtag';
 import Input from './input';
 import TextArea from './textarea';
 
 interface UploadForm {
-  imm: FileList;
-  title?: string;
-  description?: string;
+  imm?: FileList;
+  // title?: string;
+  // description?: string;
   [key: string]: any;
 }
 interface UploadImageProps {
@@ -23,31 +24,40 @@ interface UploadImageProps {
 }
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
+  const boardId = router.query.boardId;
   const [imagePreview, setImagePreview] = useState('');
+  const [hashtag, setHashtag] = useState<string[]>([]);
+
   const { register, handleSubmit, watch } = useForm<UploadForm>();
+  console.log(info.url, 'url');
   const postUploadForm = (data: FormData) =>
     axios.post(`/api/${info.url}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
-    onSuccess: () => router.push('/board')
+    onSuccess: () => {
+      router.push(`/board/${boardId ? boardId : ''}`);
+    }
   });
 
   const imageWatch = watch('image');
-  const onValid = (v) => {
-    console.log(v, 'test');
+  const onValid = (v: UploadForm) => {
+    console.log(v, 'v');
     if (isLoading) return;
     const form = new FormData();
-    const test = [];
+    const info: { [key: string]: string } = {};
 
     for (const key in v) {
       if (key === 'image') {
         form.append('file', v[key][0]);
       } else {
         form.append(key, v[key]);
-        test.push(v[key]);
+        info[key] = v[key];
+        // info{ [key]: v[key] };
       }
     }
-    mutate(v);
+    info['boardtag'] = hashtag.join(',');
+    // info.push({ boardtag: hashtag.join(',') });
+    mutate({ form, info });
   };
   console.log(imageWatch, 'watch');
   useEffect(() => {
@@ -93,6 +103,7 @@ const UploadImage = (info: UploadImageProps) => {
         })}
         <Button isLoading={isLoading} text="수정" />
       </form>
+      <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
     </>
   );
 };

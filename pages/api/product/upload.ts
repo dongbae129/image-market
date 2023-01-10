@@ -88,6 +88,7 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
     }
     const userId = decoded.id;
 
+    console.log(req.body, 'BBB');
     let imgname: string;
     if (!req.file?.filename)
       return res.status(401).json({

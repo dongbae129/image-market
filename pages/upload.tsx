@@ -9,6 +9,8 @@ import style from '@styles/Upload.module.scss';
 import axios from 'axios';
 import Button from '@components/button';
 import NextImage from 'next/image';
+import InputHashtag from '@components/hashtag';
+import TextArea from '@components/textarea';
 interface UploadProductForm {
   image: FileList;
   title: string;
@@ -61,13 +63,14 @@ const Upload: NextPage = () => {
     // const imgtest = new Image()
     console.log(image, 'Image');
 
+    console.log(hashtag, 'hash');
     form.append('file', image[0]);
     form.append('title', title);
     form.append('hashtag', hashtag.join());
     form.append('description', description!);
     form.append('ratio', ratioRef.current);
     form.append('productAuth', JSON.stringify({ productBool: productAuth }));
-    mutate(form);
+    // mutate(form);
   };
 
   useEffect(() => {
@@ -115,96 +118,85 @@ const Upload: NextPage = () => {
     setHashtag((prev) => prev.filter((v, i) => i !== index));
   };
   return (
-    <>
-      <form onSubmit={handleSubmit(onValid)}>
-        <div>
-          <div className={style.imageInput}>
-            {imagePreview ? (
-              <NextImage src={imagePreview} alt="" layout="fill" />
-            ) : (
-              // <img src={imagePreview} ref={imgref} />
-              // <img src={imagePreview} />
-              // <img src={imagePreview} alt="" />
-              <label>
-                <Input
-                  label="image"
-                  name="image"
-                  accept="image/*"
-                  type="file"
-                  // required
-                  register={register('image')}
-                />
-              </label>
-            )}
-          </div>
-          <Input
-            label="title"
-            name="title"
-            type="text"
-            required
-            register={register('title')}
-          />
-          <div>userInformation, get</div>
-          <Input
-            label="description"
-            name="description"
-            type="text"
-            required
-            register={register('description', { required: true })}
-          />
-          <Input
-            label="productAuth"
-            name="productAuth"
-            type="checkbox"
-            register={register('productAuth')}
-          />
-        </div>
-
-        <Button isLoading={isLoading} text="저장" />
-      </form>
-      <input
-        className="hashinput"
-        type="text"
-        onKeyUp={onKeyUp}
-        placeholder="태그 입력후 엔터"
-      />
+    <div className="uploadwrap">
       <div>
-        {hashtag.map((v, i) => (
-          <span className="hashwrap" key={i} onClick={deleteHashtag(i)}>
-            <span className="hash">#</span>
-            <span>{v}</span>
-          </span>
-        ))}
+        <form onSubmit={handleSubmit(onValid)}>
+          <div>
+            <div className="upload_image">
+              {imagePreview ? (
+                <NextImage src={imagePreview} alt="" layout="fill" />
+              ) : (
+                // <img src={imagePreview} ref={imgref} />
+                // <img src={imagePreview} />
+                // <img src={imagePreview} alt="" />
+                <label>
+                  <Input
+                    label="image"
+                    name="image"
+                    accept="image/*"
+                    type="file"
+                    // required
+                    register={register('image')}
+                  />
+                </label>
+              )}
+            </div>
+
+            <div className="upload_input">
+              <Input
+                label="제목"
+                name="title"
+                type="text"
+                required
+                register={register('title')}
+              />
+
+              <TextArea
+                label="내용"
+                name="description"
+                type="text"
+                required
+                register={register('description', { required: true })}
+              />
+              <Input
+                label="유료"
+                name="productAuth"
+                type="checkbox"
+                register={register('productAuth')}
+              />
+            </div>
+          </div>
+
+          <Button isLoading={isLoading} text="저장" />
+        </form>
+        <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
       </div>
       <style jsx>{`
-        .hashinput {
-          margin-bottom: 1rem;
-        }
-        .hashwrap {
-          background-color: #f8f9fa;
-          display: inline-block;
-          border-radius: 1rem;
-          height: 2rem;
-          line-height: 2rem;
-          padding-left: 1rem;
-          padding-right: 1rem;
-          margin-right: 0.75rem;
-          &:hover {
-            cursor: pointer;
-            background-color: darkgray;
-          }
-          span {
-            font-weight: bold;
-          }
+        .uploadwrap {
+          display: flex;
+          justify-content: center;
 
-          span:nth-child(1) {
-            color: #12b886;
-            font-weight: bold;
-            padding-right: 0.2rem;
+          > div {
+            max-width: 30rem;
           }
+        }
+        .upload_image-wrap {
+          display: flex;
+        }
+        .upload_image {
+          width: 400px;
+          height: 400px;
+          & img {
+            width: 100%;
+            height: 100%;
+          }
+          position: relative;
+        }
+        .upload_input {
+          margin-top: 3rem;
         }
       `}</style>
-    </>
+    </div>
   );
 };
 

@@ -19,7 +19,7 @@ export default function Input({
 }: InputProps) {
   return (
     <div className={classname ? classname : 'inputwrap'}>
-      {/* <label htmlFor={name}>{label}</label> */}
+      <label htmlFor={name}>{label}</label>
       <div className="input-div">
         <input id={name} required={required} {...register} {...rest} />
       </div>
@@ -29,16 +29,24 @@ export default function Input({
         }
         .input-div {
           height: 100%;
+          margin-top: 0.25rem;
+          margin-bottom: 1rem;
+        }
+        label {
+          font-weight: 500;
+          font-size: 0.875rem;
+          line-height: 1.25rem;
         }
         input {
           width: 100%;
           height: 100%;
-          border-radius: 15px;
+          border-radius: 4px;
           border: none;
-          padding: 2px;
-          padding-left: ${paddingleft ? paddingleft : 0};
+          padding: 0.5rem;
+          padding-left: ${paddingleft ? paddingleft : '0.5rem'};
           font-size: 1rem;
-          background-color: rgb(233, 233, 233);
+          outline: 1px solid rgba(0, 0, 0, 0.16);
+
           &:focus {
             outline: 3px solid rgb(127, 193, 255);
           }

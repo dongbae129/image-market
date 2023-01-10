@@ -78,6 +78,8 @@ model Board {
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   boardChat   BoardChat[]
+  boardHit    BoardHit?
+  boardTag    BoardTag[]
 
   @@index([userId])
 }
@@ -128,9 +130,23 @@ model ProductHit {
   productId Int     @unique
 }
 
+model BoardHit {
+  id      Int   @id @default(autoincrement())
+  hit     Int   @default(0)
+  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId Int   @unique
+}
+
 model HashTag {
   id        Int     @id @default(autoincrement())
   hashtag   String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int     @unique
+}
+
+model BoardTag {
+  id      Int    @id @default(autoincrement())
+  hashtag String
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId Int    @unique
 }

@@ -15,20 +15,18 @@ const Button = ({
       <button {...rest}>{isLoading ? 'Loading...' : text}</button>
       <style jsx>{`
         button {
-          position: absolute;
           cursor: pointer;
-          top: 0;
-          margin-top: 7px;
-          right: 0.5rem;
+          background-color: #228be6;
+          color: white;
           border: none;
-          border-radius: 50%;
-          width: 45px;
-          height: 45px;
-          font-weight: 600;
-          font-size: 1rem;
-
+          padding: 0.5rem;
+          width: 100%;
+          font-weight: 500;
+          font-size: 1.25rem;
+          border-radius: 4px;
+          letter-spacing: 2px;
           :hover {
-            background-color: #868e96;
+            background-color: #1c7ed6;
           }
         }
       `}</style>

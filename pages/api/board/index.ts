@@ -5,6 +5,7 @@ import { checkAuth } from '@libs/server/auth';
 import { decode } from 'jsonwebtoken';
 import { formatISO } from 'date-fns';
 import dayjs from 'dayjs';
+import { PostBoardInfo } from './[boardId]';
 
 const Board = async (
   req: NextApiRequest,
@@ -22,22 +23,37 @@ const Board = async (
       if (authResponse.accessToken) {
         const decoded = decode(authResponse.accessToken) as TokenPayload;
 
-        const { title, description } = req.body;
+        console.log(req.body, 'Body');
+        const { title, description, boardtag }: PostBoardInfo = req.body.info;
         if (title === '' || description === '')
           return res.json({
             ok: false,
             error: 'input board informations'
           });
-        console.log(decoded, 'dEcp');
         if (decoded.id) {
+          const userId = +decoded.id;
+          console.log(title, description, userId, 'asa');
+
           const now = dbNow();
           const board = await client.board.create({
             data: {
               title,
               description,
-              userId: decoded.id,
+              userId,
               createdAt: now,
               updatedAt: now
+            }
+          });
+          await client.boardHit.create({
+            data: {
+              hit: 0,
+              boardId: board.id
+            }
+          });
+          await client.boardTag.create({
+            data: {
+              boardId: board.id,
+              hashtag: boardtag
             }
           });
           return res.json({
@@ -93,7 +109,10 @@ const Board = async (
       }
     } catch (error) {
       console.log(error, 'board create error');
-      return res.status(401);
+      return res.status(401).json({
+        ok: false,
+        message: error
+      });
     }
   }
   if (req.method === 'GET') {
@@ -114,6 +133,16 @@ const Board = async (
           user: {
             select: {
               name: true
+            }
+          },
+          boardHit: {
+            select: {
+              hit: true
+            }
+          },
+          _count: {
+            select: {
+              boardChat: true
             }
           }
         }

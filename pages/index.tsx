@@ -129,7 +129,6 @@ const Home: NextPage = () => {
   //   getFetch('/api/user', header)
   // );
 
-  console.log(data, 'count');
   return (
     <div className="main_wrap">
       {/* <div className="menu">

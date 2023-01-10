@@ -143,7 +143,7 @@ const HeadMenu: NextPage = () => {
           position: relative;
           border-radius: 10px;
           > form {
-            position: absolute;
+            position: relative;
             height: 100%;
             width: 100%;
           }

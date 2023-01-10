@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import axios from 'axios';
 import { getFetch } from '@libs/client/fetcher';
 import { Board, Chat, User } from '@prisma/client';
+import Link from 'next/link';
 
 interface boardChat {
   chat: string;
@@ -26,6 +27,12 @@ interface boardDetailResponse {
   ok: boolean;
   board: Board & {
     user: User;
+    boardHit: {
+      hit: number;
+    };
+    boardTag: {
+      hashtag: string;
+    }[];
   };
 }
 const BoardDetail: NextPage = () => {
@@ -82,6 +89,7 @@ const BoardDetail: NextPage = () => {
       <main>
         <div>내용: {boardDetail?.board.description}</div>
       </main>
+      <div>{boardDetail?.board.boardTag[0].hashtag}</div>
 
       <form onSubmit={handleSubmit(onValid)}>
         <Input
@@ -93,6 +101,11 @@ const BoardDetail: NextPage = () => {
         />
         <Button isLoading={isLoading} text="등록" />
       </form>
+      <Link href={`/board/${boardDetail?.board.id}/setting`}>
+        <a>
+          <Button isLoading={false} text="수정" />
+        </a>
+      </Link>
       <div
         style={{
           width: '500px',

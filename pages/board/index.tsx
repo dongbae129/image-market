@@ -1,17 +1,24 @@
 import type { NextPage } from 'next';
-import { useQuery, useMutation } from 'react-query';
+import { useQuery } from 'react-query';
 import { getFetch } from '@libs/client/fetcher';
-import { Board, User } from '@prisma/client';
+import { Board, BoardHit, User } from '@prisma/client';
 import Link from 'next/link';
-import Button from '@components/button';
 import Input from '@components/input';
 import { useForm } from 'react-hook-form';
 import { IoIosSearch } from 'react-icons/io';
 import { useState } from 'react';
 import { timeForToday } from '@libs/client/timeForToday';
-
+import Button from '@components/button';
+import { BiCommentDetail } from 'react-icons/bi';
+import { GrView } from 'react-icons/gr';
 interface BoardWithUser extends Board {
   user: User;
+  boardHit: {
+    hit: number;
+  };
+  _count: {
+    boardChat: number;
+  };
 }
 interface BoardResponse {
   ok: boolean;
@@ -67,6 +74,11 @@ const Boards: NextPage = () => {
     <div className="board">
       <div className="board-head">
         <div className="board__refresh"></div>
+        <Link href={'/board/upload'}>
+          <a>
+            <Button isLoading={false} text="Uplaod" />
+          </a>
+        </Link>
         <div className="search">
           <form onSubmit={handleSubmit(onValid)}>
             <Input
@@ -87,7 +99,7 @@ const Boards: NextPage = () => {
       <div className="board-list">
         <ul>
           {data?.boards.map((board) => (
-            <li key={board.id}>
+            <li key={board.id} className="board-list_li">
               <div className="board-list__main">
                 <div className="board-list__user">
                   <Link href={'#'}>
@@ -106,8 +118,22 @@ const Boards: NextPage = () => {
                     <a>{board.title}</a>
                   </Link>
                 </div>
-                <div className="board-list__tag">
+                {/* <div className="board-list__tag">
                   <span>{board.createdAt.toString()}</span>
+                </div> */}
+              </div>
+              <div className="board-list__subinfo">
+                <div>
+                  <span>
+                    <GrView size={20} />
+                  </span>
+                  <span>{board.boardHit.hit}</span>
+                </div>
+                <div>
+                  <span>
+                    <BiCommentDetail size={20} />
+                  </span>
+                  <span>{board._count.boardChat}</span>
                 </div>
               </div>
             </li>
@@ -116,11 +142,12 @@ const Boards: NextPage = () => {
       </div>
       <style jsx>{`
         .board {
-          width: 90%;
+          width: 60%;
           margin: auto;
         }
 
         .board-head {
+          position: relative;
           min-height: 65px;
           height: 65px;
           display: flex;
@@ -168,7 +195,8 @@ const Boards: NextPage = () => {
             li {
               padding-top: 1rem;
               padding-bottom: 1rem;
-
+              display: flex;
+              justify-content: space-between;
               :not(:last-child) {
                 border-bottom: 1px solid rgb(107, 114, 128);
               }
@@ -195,45 +223,26 @@ const Boards: NextPage = () => {
                 }
               }
             }
+            .board-list__subinfo {
+              display: flex;
+              align-items: center;
+
+              div {
+                display: flex;
+                align-items: center;
+
+                > span:first-child {
+                  margin-right: 4px;
+                }
+              }
+              > div:first-child {
+                margin-right: 10px;
+              }
+            }
           }
         }
       `}</style>
     </div>
-    // <div>
-    //   {data?.boards?.map((board, i) => (
-    //     <Link key={i} href={`/board/${board.id}`}>
-    //       <a>
-    //         <div>
-    //           <div>{board?.title}</div>
-    //           <div>{board.user.name}</div>
-    //         </div>
-    //       </a>
-    //     </Link>
-    //   ))}
-    //   <Link href="/board/upload">
-    //     <a>
-    //       <Button isLoading={false} text="Uplaod" />
-    //     </a>
-    //   </Link>
-    //   <style jsx>
-    //     {`
-    //       .board {
-    //         margin-bottom: 5px;
-    //       }
-    //       a {
-    //         line-height: 2rem;
-    //       }
-    //       a > div {
-    //         display: flex;
-    //         justify-content: space-around;
-    //         width: 70%;
-    //         margin: 0 auto;
-    //         border-bottom: 1px solid black;
-    //         margin-bottom: 10px;
-    //       }
-    //     `}
-    //   </style>
-    // </div>
   );
 };
 

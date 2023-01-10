@@ -178,7 +178,7 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
     []
   );
 
-  scene.background = new THREE.Color('gray');
+  scene.background = new THREE.Color('#dee2e6');
 
   // scene.background = new THREE.Color('white');
   sphereRef.current = Array.from(sphereGeometry.attributes.position.array);

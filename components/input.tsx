@@ -1,31 +1,43 @@
 import { UseFormRegisterReturn } from 'react-hook-form';
-
+import { useState } from 'react';
 interface InputProps {
   label?: string;
   name: string;
   required?: boolean;
-  register: UseFormRegisterReturn;
+  register?: UseFormRegisterReturn;
+  imgbool?: string;
   [key: string]: any;
 }
 
-export default function Input({
+const Input = ({
   label,
   name,
   required,
   register,
   paddingleft,
   classname,
+  imgbool,
+  type,
   ...rest
-}: InputProps) {
+}: InputProps) => {
   return (
     <div className={classname ? classname : 'inputwrap'}>
-      <label htmlFor={name}>{label}</label>
+      {label ? <label htmlFor={name}>{label}</label> : null}
       <div className="input-div">
-        <input id={name} required={required} {...register} {...rest} />
+        <input
+          id={name}
+          required={required}
+          type={type}
+          {...register}
+          {...rest}
+        />
       </div>
+
       <style jsx>{`
         .inputwrap {
+          display: ${imgbool === 'false' ? 'none' : 'block'};
           height: 100%;
+          position: relative;
         }
         .input-div {
           height: 100%;
@@ -37,9 +49,10 @@ export default function Input({
           font-size: 0.875rem;
           line-height: 1.25rem;
         }
+
         input {
-          width: 100%;
-          height: 100%;
+          width: ${type === 'checkbox' ? '2rem' : '100%'};
+          height: ${type === 'checkbox' ? '2rem' : '100%'};
           border-radius: 4px;
           border: none;
           padding: 0.5rem;
@@ -54,4 +67,5 @@ export default function Input({
       `}</style>
     </div>
   );
-}
+};
+export default Input;

@@ -11,6 +11,7 @@ import Button from '@components/button';
 import NextImage from 'next/image';
 import InputHashtag from '@components/hashtag';
 import TextArea from '@components/textarea';
+
 interface UploadProductForm {
   image: FileList;
   title: string;
@@ -29,6 +30,7 @@ const Upload: NextPage = () => {
   const [imagePreview, setImagePreview] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
   const ratioRef = useRef('');
+  const imgInputRef = useRef<JSX.Element>(null);
   const imgref = useRef<HTMLImageElement>(null);
   if (imgref) {
     console.log(imgref.current, 'imgref');
@@ -117,6 +119,8 @@ const Upload: NextPage = () => {
   const deleteHashtag = (index: number) => () => {
     setHashtag((prev) => prev.filter((v, i) => i !== index));
   };
+  console.log(imagePreview, 'qwed');
+  console.log(imgInputRef.current, 'imginput');
   return (
     <div className="uploadwrap">
       <div>
@@ -130,11 +134,30 @@ const Upload: NextPage = () => {
                 // <img src={imagePreview} />
                 // <img src={imagePreview} alt="" />
                 <label>
+                  <svg
+                    stroke="currentColor"
+                    fill="none"
+                    viewBox="0 0 48 48"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {/* <input
+                    {...register('image')}
+                    accept="image/*"
+                    type="file"
+                    style={{ display: 'none' }}
+                  /> */}
                   <Input
-                    label="image"
                     name="image"
                     accept="image/*"
                     type="file"
+                    imgbool="false"
                     // required
                     register={register('image')}
                   />
@@ -184,13 +207,34 @@ const Upload: NextPage = () => {
           display: flex;
         }
         .upload_image {
+          position: relative;
+          display: flex;
+          border: 2px dashed gray;
+          border-radius: 0.375rem;
           width: 400px;
           height: 400px;
-          & img {
+
+          svg {
+            width: 50%;
+            height: 50%;
+          }
+
+          img {
+            width: 50%;
+            height: 50%;
+          }
+
+          label {
             width: 100%;
             height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
           }
-          position: relative;
+          :hover {
+            color: orange;
+            border-color: orange;
+          }
         }
         .upload_input {
           margin-top: 3rem;

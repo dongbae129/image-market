@@ -19,8 +19,13 @@ interface UploadForm {
 interface UploadImageProps {
   image?: string;
   url: string;
+  buttontext: string;
   component: string[];
   elementType: string[];
+}
+interface UploadFormData {
+  form: FormData;
+  info: object;
 }
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
@@ -30,7 +35,7 @@ const UploadImage = (info: UploadImageProps) => {
 
   const { register, handleSubmit, watch } = useForm<UploadForm>();
   console.log(info.url, 'url');
-  const postUploadForm = (data: FormData) =>
+  const postUploadForm = (data: UploadFormData) =>
     axios.post(`/api/${info.url}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
@@ -101,9 +106,14 @@ const UploadImage = (info: UploadImageProps) => {
               <TextArea key={v} label={v} name={v} register={register(v)} />
             );
         })}
-        <Button isLoading={isLoading} text="수정" />
+        <Button isLoading={isLoading} text={info.buttontext} />
       </form>
       <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
+      <style jsx>{`
+        form {
+          width: 100%;
+        }
+      `}</style>
     </>
   );
 };

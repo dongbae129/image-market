@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
+import Input from '@components/input';
 
 interface HashtagProps {
   hashtag: string[];
@@ -24,26 +25,32 @@ const InputHashtag = ({ hashtag, setHashtag }: HashtagProps) => {
     setHashtag((prev) => prev.filter((v, i) => i !== index));
   };
   return (
-    <div>
-      <input
+    <div className="hashtagwrap">
+      <Input
         className="hashinput"
         type="text"
         onKeyUp={onKeyUp}
         placeholder="태그 입력후 엔터"
+        name="hash"
       />
+
       <div>
         {hashtag.map((v, i) => (
-          <span className="hashwrap" key={i} onClick={deleteHashtag(i)}>
-            <span className="hash">#</span>
+          <span className="hashtag" key={i} onClick={deleteHashtag(i)}>
+            <span>#</span>
             <span>{v}</span>
           </span>
         ))}
       </div>
       <style jsx>{`
+        .hashtagwrap {
+          width: 100%;
+          margin-top: 2rem;
+        }
         .hashinput {
           margin-bottom: 1rem;
         }
-        .hashwrap {
+        .hashtag {
           background-color: #f8f9fa;
           display: inline-block;
           border-radius: 1rem;
@@ -52,6 +59,7 @@ const InputHashtag = ({ hashtag, setHashtag }: HashtagProps) => {
           padding-left: 1rem;
           padding-right: 1rem;
           margin-right: 0.75rem;
+          margin-bottom: 1rem;
           &:hover {
             cursor: pointer;
             background-color: darkgray;

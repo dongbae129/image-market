@@ -2,9 +2,11 @@ import axios from 'axios';
 import type { NextPage } from 'next';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useQueryClient } from 'react-query';
 
 const Logout: NextPage = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const logout = async () => {
     await axios
@@ -12,6 +14,7 @@ const Logout: NextPage = () => {
       .then(({ data }) => {
         if (data.ok) {
           delete axios.defaults.headers.common['authorization'];
+          queryClient.invalidateQueries(['userInfo']);
           router.push('/');
         }
       })

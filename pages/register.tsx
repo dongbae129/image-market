@@ -5,8 +5,9 @@ import axios from 'axios';
 import type { NextPage } from 'next';
 
 import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { useRouter } from 'next/router';
+import { userResponse } from '@components/headmenu';
 
 interface RegisterForm {
   name: string;
@@ -29,6 +30,8 @@ const Register: NextPage = () => {
     setError,
     formState: { errors }
   } = useForm<RegisterForm>();
+  const { data } = useQuery<userResponse>(['userInfo']);
+  if (data?.ok && data.user.id) router.push('/');
   const signupUser = (data: RegisterForm) =>
     axios.post('/api/signup', data).then((res) => res.data);
 
@@ -53,28 +56,28 @@ const Register: NextPage = () => {
       <h2>회원가입</h2>
       <form onSubmit={handleSubmit(onValid)}>
         <Input
-          label="이름"
+          label="name"
           name="name"
           type="text"
           register={register('name', { required: true })}
           required
         />
         <Input
-          label="아이디"
+          label="id"
           name="userId"
           type="text"
           register={register('userId', { required: true })}
           required
         />
         <Input
-          label="비밀번호"
+          label="password"
           name="password"
           type="password"
           register={register('password', { required: true })}
           required
         />
         <Input
-          label="이메일"
+          label="email"
           name="email"
           type="email"
           register={register('email', { required: true })}
@@ -87,6 +90,7 @@ const Register: NextPage = () => {
         .registerwrap {
           max-width: 28rem;
           margin: auto;
+          margin-top: 8rem;
         }
         h2 {
           text-align: center;

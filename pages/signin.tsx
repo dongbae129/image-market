@@ -6,12 +6,15 @@ import Link from 'next/link';
 // import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { SiNaver } from 'react-icons/si';
 import { FcGoogle } from 'react-icons/fc';
+import { useEffect } from 'react';
+import { getFetch } from '@libs/client/fetcher';
+import { userResponse } from '@components/headmenu';
 
 interface SingInForm {
   userId: string;
@@ -22,6 +25,23 @@ interface SingInForm {
 const Signin: NextPage = () => {
   const redirect_uri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
   const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&redirect_uri=${redirect_uri}&response_type=code`;
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data } = useQuery<userResponse>(['userInfo']);
+
+  if (data?.ok && data.user.id) router.push('/');
+
+  // useEffect(() => {
+  //   const geta = async () => {
+  //     const a = await queryClient.getQueryCache().get('["userInfo"]')?.state;
+  //     return a;
+  //   };
+  //   const A = geta().then((v) => {
+  //     console.log(v, 'V');
+  //     return v;
+  //   });
+  //   console.log(A, 'AAA');
+  // }, []);
 
   const dispatch = useDispatch();
   const {
@@ -31,7 +51,6 @@ const Signin: NextPage = () => {
     formState: { errors }
   } = useForm<SingInForm>();
 
-  const router = useRouter();
   const signInUser = (data: SingInForm) =>
     axios.post('/api/login', data).then((res) => res.data);
   const { mutate, isLoading } = useMutation(signInUser, {
@@ -46,11 +65,13 @@ const Signin: NextPage = () => {
       axios.defaults.headers.common['authorization'] =
         'Bearer ' + res.accessToken;
       console.log(axios.defaults.headers, '$$$');
+      queryClient.invalidateQueries(['userInfo']);
       router.push('/');
     }
   });
 
   const onValid = ({ userId, password }: SingInForm) => {
+    console.log(userId, 'user');
     if (isLoading) return;
     if (userId === '' || password === '') {
       return setError('formErrors', { message: 'id and password is required' });
@@ -94,14 +115,14 @@ const Signin: NextPage = () => {
 
           <form onSubmit={handleSubmit(onValid)}>
             <Input
-              label="아이디"
+              label="id"
               name="userId"
               type="text"
               register={register('userId', { required: true })}
               required
             />
             <Input
-              label="비밀번호"
+              label="password"
               name="password"
               type="password"
               register={register('password', { required: true })}

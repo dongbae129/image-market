@@ -47,12 +47,8 @@ const HeadMenu: NextPage = () => {
   };
   const { data: userInfo } = useQuery<userResponse>(
     ['userInfo'],
-    getFetch('/api/user', header),
-    {
-      onSuccess: () => setSidebarOpen(true)
-    }
+    getFetch('/api/user', header)
   );
-  console.log(sidebarOpen, 'side');
   return (
     <div className="headmenuwrap">
       <div className="golinkwrap">
@@ -83,7 +79,7 @@ const HeadMenu: NextPage = () => {
           </div>
         </form>
       </div>
-      {sidebarOpen && userInfo?.ok ? (
+      {userInfo?.ok ? (
         <div className="golinkwrap">
           <Sidebar userInfo={userInfo.user} />
         </div>

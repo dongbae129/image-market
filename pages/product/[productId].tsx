@@ -214,7 +214,11 @@ const ProductDetail: NextPage = () => {
             </div>
             <div>
               {data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
-                <span key={i}>#{hash}</span>
+                <span className="hashtag" key={i}>
+                  <span>#</span>
+                  <span>{hash}</span>
+                </span>
+                // <span key={i}>#{hash}</span>
               ))}
             </div>
             <div className="arrowopen">
@@ -387,6 +391,30 @@ const ProductDetail: NextPage = () => {
               &:nth-child(2) {
                 left: 170%;
               }
+            }
+          }
+          .hashtag {
+            background-color: #f8f9fa;
+            display: inline-block;
+            border-radius: 1rem;
+            height: 2rem;
+            line-height: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            margin-right: 0.75rem;
+            margin-bottom: 1rem;
+            &:hover {
+              cursor: pointer;
+              background-color: darkgray;
+            }
+            span {
+              font-weight: bold;
+            }
+
+            span:nth-child(1) {
+              color: #12b886;
+              font-weight: bold;
+              padding-right: 0.2rem;
             }
           }
 

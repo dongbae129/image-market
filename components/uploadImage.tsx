@@ -1,14 +1,13 @@
 import axios from 'axios';
-import { NextPage } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import Button from './button';
+import Editor from './editor';
 import InputHashtag from './hashtag';
 import Input from './input';
-import TextArea from './textarea';
 
 interface UploadForm {
   imm?: FileList;
@@ -17,36 +16,40 @@ interface UploadForm {
   [key: string]: any;
 }
 interface UploadImageProps {
-  image?: string;
+  image?: string | null;
   url: string;
   buttontext: string;
   component: string[];
   elementType: string[];
+  hashtrue: boolean;
+  elementValue?: {
+    [key: string]: string | null;
+  };
 }
 interface UploadFormData {
   form: FormData;
   info: object;
+  editorValue: string;
 }
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
-  const boardId = router.query.boardId;
+  const routerId = router.query.boardId;
   const [imagePreview, setImagePreview] = useState('');
+  const [editorValue, setEditorValue] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
 
   const { register, handleSubmit, watch } = useForm<UploadForm>();
-  console.log(info.url, 'url');
   const postUploadForm = (data: UploadFormData) =>
     axios.post(`/api/${info.url}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
     onSuccess: () => {
-      router.push(`/board/${boardId ? boardId : ''}`);
+      router.push(`/${info.url}/${routerId ? routerId : ''}`);
     }
   });
 
   const imageWatch = watch('image');
   const onValid = (v: UploadForm) => {
-    console.log(v, 'v');
     if (isLoading) return;
     const form = new FormData();
     const info: { [key: string]: string } = {};
@@ -62,9 +65,8 @@ const UploadImage = (info: UploadImageProps) => {
     }
     info['boardtag'] = hashtag.join(',');
     // info.push({ boardtag: hashtag.join(',') });
-    mutate({ form, info });
+    mutate({ form, info, editorValue });
   };
-  console.log(imageWatch, 'watch');
   useEffect(() => {
     if (imageWatch && imageWatch.length > 0) {
       const file = imageWatch[0];
@@ -74,17 +76,31 @@ const UploadImage = (info: UploadImageProps) => {
 
   return (
     <>
-      <form onSubmit={handleSubmit(onValid)}>
-        <div>
+      <div className="uploadimagewrap">
+        <div className="upload_image">
           {!info.image ? null : info?.image && imagePreview ? (
-            <Image src={imagePreview} alt="" width={100} height={100} />
+            <Image src={imagePreview} alt="" layout="fill" />
           ) : (
             <label>
+              <svg
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               <Input
-                label="image"
                 name="image"
                 accept="image/*"
                 type="file"
+                imgbool="false"
+                // required
                 register={register('image')}
               />
             </label>
@@ -98,20 +114,94 @@ const UploadImage = (info: UploadImageProps) => {
                 label={v}
                 name={v}
                 type="text"
-                register={register(v)}
+                // value={info.elementValue && info.elementValue[v]}
+                inputValue={info.elementValue && info.elementValue[v]}
+                required
+                register={register(v, { required: true })}
               />
             );
           } else if (info.elementType[i] === 'textarea')
             return (
-              <TextArea key={v} label={v} name={v} register={register(v)} />
+              <div className="editorwrap" key={v}>
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute'
+                  }}
+                >
+                  <Editor
+                    mutate={mutate}
+                    isLoading={false}
+                    btntrue={!info.buttontext}
+                    setter={setEditorValue}
+                  />
+                </div>
+              </div>
+              // <TextArea
+              //   key={v}
+              //   label={v}
+              //   name={v}
+              //   required
+              //   register={register(v, { required: true })}
+              // />
             );
         })}
-        <Button isLoading={isLoading} text={info.buttontext} />
-      </form>
-      <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
+        {info.hashtrue && (
+          <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
+        )}
+        {info.buttontext && (
+          <Button
+            isLoading={isLoading}
+            text={info.buttontext}
+            onClick={handleSubmit(onValid)}
+          />
+        )}
+      </div>
+
       <style jsx>{`
-        form {
+        .uploadimagewrap {
+          max-width: 100%;
           width: 100%;
+        }
+        .upload_image {
+          display: ${info.image ? 'block' : 'none'};
+          position: relative;
+          border: 2px dashed gray;
+          border-radius: 0.375rem;
+          width: 200px;
+          height: 200px;
+          border-radius: 50%;
+          margin: auto;
+          margin-bottom: 1rem;
+          overflow: hidden;
+
+          svg {
+            width: 50%;
+            height: 50%;
+          }
+
+          img {
+            width: 50%;
+            height: 50%;
+          }
+
+          label {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          :hover {
+            color: orange;
+            border-color: orange;
+          }
+        }
+        .editorwrap {
+          min-height: 300px;
+          height: 300px;
+          position: relative;
         }
       `}</style>
     </>

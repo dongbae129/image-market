@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { QueryClient, useQueryClient } from 'react-query';
 
 interface LoginResponse {
   ok: boolean;
@@ -13,11 +14,10 @@ interface LoginResponse {
 }
 const KakaoHandler: NextPage = () => {
   const router = useRouter();
-
+  const queryClient = useQueryClient();
   useEffect(() => {
     const params = new URL(window.location.toString()).searchParams;
     const code = params.get('code'); // 인가코드 받는 부분
-    console.log(code, 'Cde');
     axios
       .get<LoginResponse>(`/api/oauth/kakao?code=${code}`)
       .then(async (res) => {
@@ -30,6 +30,7 @@ const KakaoHandler: NextPage = () => {
             const lintResponse = await axios.get(
               `/api/oauth/link?linkask=true&type=kakao&user=${res.data.userId}`
             );
+            // console.log(queryClient, 'query');
 
             router.replace('/');
           } else {
@@ -39,6 +40,7 @@ const KakaoHandler: NextPage = () => {
         axios.defaults.headers.common[
           'authorization'
         ] = `Bearer ${res.data.accessToken}`;
+        queryClient.invalidateQueries(['userInfo']);
         res.data.userInfo ? router.replace('/') : null;
       });
   }, []);

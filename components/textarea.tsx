@@ -1,15 +1,17 @@
 import { UseFormRegisterReturn } from 'react-hook-form';
+import { labelOb } from '@libs/client/data/data';
 
 interface TextAreaProps {
   name?: string;
   register: UseFormRegisterReturn;
-  [key: string]: any;
   label?: string;
+  [key: string]: any;
 }
 const TextArea = ({ name, label, register, ...rest }: TextAreaProps) => {
   return (
     <>
-      <label htmlFor={name}>{label}</label>
+      {label && <label htmlFor={name}>{labelOb[label]}</label>}
+
       <textarea id={name} {...register} {...rest} placeholder="설명" />
       <style jsx>{`
         textarea {

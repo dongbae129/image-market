@@ -1,15 +1,16 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import Input from '@components/input';
-import { useForm } from 'react-hook-form';
 import Button from '@components/button';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import axios from 'axios';
 import { getFetch } from '@libs/client/fetcher';
 import { Board, Chat, User } from '@prisma/client';
 import Link from 'next/link';
-
-interface boardChat {
+import NextImage from 'next/image';
+import { timeForToday } from '@libs/client/timeForToday';
+import Editor from '@components/editor';
+import Dompurify from 'dompurify';
+export interface boardChat {
   chat: string;
 }
 interface chatWithUser extends Chat {
@@ -17,7 +18,7 @@ interface chatWithUser extends Chat {
     name: string;
   };
 }
-interface UploadChatResponse {
+export interface UploadChatResponse {
   ok: boolean;
   comments: chatWithUser[];
   error?: string;
@@ -36,14 +37,13 @@ interface boardDetailResponse {
   };
 }
 const BoardDetail: NextPage = () => {
-  const queryClient = useQueryClient();
   const router = useRouter();
-  const { register, handleSubmit } = useForm<boardChat>();
-  const onValid = ({ chat }: boardChat) => {
-    if (isLoading) return;
-    console.log(chat, '!!@@');
-    mutate({ chat });
-  };
+  // const { register, handleSubmit } = useForm<boardChat>();
+  // const onValid = ({ chat }: boardChat) => {
+  //   if (isLoading) return;
+  //   console.log(chat, 'CCC');
+  //   // mutate({ chat });
+  // };
   const { boardId } = router.query;
 
   const { data: boardDetail } = useQuery<boardDetailResponse>(
@@ -71,57 +71,242 @@ const BoardDetail: NextPage = () => {
       onSuccess: (res) => {
         console.log(res, 'RES');
         refetch();
-        // queryClient.setQueryData(['getChats'], (prev: any) => ({
-        //   ...prev,
-        //   comments: res.comments
-        // }));
       }
     }
   );
   return (
-    <div>
-      <h2>제목: {boardDetail?.board.title}</h2>
-      <h3>
-        <span>email: {boardDetail?.board.user.email}</span>
-        <br />
-        <span>name: {boardDetail?.board.user.name}</span>
-      </h3>
-      <main>
-        <div>내용: {boardDetail?.board.description}</div>
-      </main>
-      <div>{boardDetail?.board.boardTag[0].hashtag}</div>
-
-      <form onSubmit={handleSubmit(onValid)}>
-        <Input
-          name="chat"
-          label="chat"
-          type="text"
-          required
-          register={register('chat', { required: true })}
-        />
-        <Button isLoading={isLoading} text="등록" />
-      </form>
-      <Link href={`/board/${boardDetail?.board.id}/setting`}>
-        <a>
-          <Button isLoading={false} text="수정" />
-        </a>
-      </Link>
-      <div
-        style={{
-          width: '500px',
-          margin: '0 auto'
-        }}
-      >
-        {data?.comments.map((comment) => (
-          <div key={comment.id} style={{ borderBottom: '1px solid black' }}>
-            <div style={{ display: 'flex' }}>
-              <div style={{ marginRight: '20px' }}>img</div>
-              <span>{comment.user.name}</span>
-            </div>
-            {comment.description}
-          </div>
-        ))}
+    <div className="articlewrap">
+      <div className="infoline">
+        <span>게시판</span>
       </div>
+      <div>
+        <h1>제목: {boardDetail?.board.title}</h1>
+        <div className="userwrap">
+          <div className="useraccountinfo">
+            <div className="userimage">
+              <NextImage
+                src="/localimages/emptyuser.png"
+                layout="fill"
+                alt="userImage"
+              />
+            </div>
+            <div className="userinfo">
+              <span>{boardDetail?.board.user.email}</span>
+              <br />
+              <span>{boardDetail?.board.user.name}</span>
+            </div>
+          </div>
+          <div>
+            <Link href={`/board/${boardDetail?.board.id}/setting`}>
+              <a>
+                <Button isLoading={false} text="수정" />
+              </a>
+            </Link>
+          </div>
+        </div>
+        <main>
+          <div>
+            {boardDetail?.board.description.split('\n').map((v, i) => (
+              <p key={i}>{v}</p>
+            ))}
+          </div>
+        </main>
+        <div>
+          {boardDetail?.board.boardTag[0] &&
+            boardDetail?.board.boardTag[0].hashtag
+              .split(',')
+              .map((hashtag, i) => (
+                <span className="hashtag" key={i}>
+                  <span>#</span>
+                  <span>{hashtag}</span>
+                </span>
+              ))}
+        </div>
+        <div className="infoline">
+          <span></span>
+        </div>
+        <h3>{data?.comments.length}개의 댓글</h3>
+        <div className="chatformwrap">
+          <div className="chatform">
+            <div className="userimage">
+              <NextImage
+                src="/localimages/emptyuser.png"
+                layout="fill"
+                alt="userImage"
+              />
+            </div>
+            <div className="chatinput">
+              <div
+                style={{
+                  minHeight: '200px',
+                  height: '200px',
+                  position: 'relative'
+                }}
+              >
+                <Editor mutate={mutate} isLoading={isLoading} btntrue={true} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          {data?.comments.map((comment) => (
+            <div key={comment.id} className="comment_list">
+              <div style={{ display: 'flex' }}>
+                <div className="userimage">
+                  <NextImage
+                    src="/localimages/emptyuser.png"
+                    layout="fill"
+                    alt="userImage"
+                  />
+                </div>
+                <div>
+                  <div>{comment.user.name}</div>
+
+                  <span>
+                    {timeForToday(
+                      comment.createdAt
+                        .toString()
+                        .slice(0, comment.createdAt.toString().indexOf('.'))
+                    )}
+                  </span>
+                </div>
+              </div>
+              {typeof window && (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: Dompurify.sanitize(comment.description)
+                  }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      <style jsx>
+        {`
+          a {
+            color: blue;
+          }
+          .articlewrap {
+            margin: auto;
+            width: 50vw;
+          }
+          .infoline {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.75rem;
+            position: relative;
+            > span {
+              background-color: white;
+              color: rgba(0, 0, 0, 0.45);
+              padding-left: 0.5rem;
+              padding-right: 0.5rem;
+              font-weight: 600;
+            }
+            > span::before {
+              content: '';
+              position: absolute;
+
+              z-index: -1;
+              width: 100%;
+              top: 50%;
+              left: 0;
+              border-top: 1px solid rgba(0, 0, 0, 0.16);
+            }
+          }
+          .userwrap {
+            display: flex;
+          }
+
+          .useraccountinfo {
+            width: 80%;
+            position: relative;
+            display: flex;
+
+            .userinfo {
+              margin-left: 8px;
+            }
+          }
+          .chatformwrap {
+            display: flex;
+            justify-content: center;
+            border: 1px solid rgba(0, 0, 0, 0.16);
+            border-radius: 0.5rem;
+            margin-top: 4rem;
+            margin-bottom: 4rem;
+            padding: 1rem;
+          }
+          .chatform {
+            display: flex;
+            width: 80%;
+            margin-top: 2rem;
+          }
+          .userimage {
+            width: 50px;
+            min-width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 5px;
+            overflow: hidden;
+            position: relative;
+          }
+          .chatinput_btn {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.8rem;
+
+            > div {
+              width: 15%;
+              min-width: 90px;
+            }
+          }
+          .chatinput {
+            position: relative;
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            > div:first-child {
+              min-height: 200px;
+              height: 200px;
+              position: relative;
+            }
+          }
+
+          main {
+            margin-top: 2rem;
+          }
+          .hashtag {
+            background-color: #f8f9fa;
+            display: inline-block;
+            border-radius: 1rem;
+            height: 2rem;
+            line-height: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            margin-right: 0.75rem;
+            margin-bottom: 1rem;
+            &:hover {
+              cursor: pointer;
+              background-color: darkgray;
+            }
+            span {
+              font-weight: bold;
+            }
+
+            span:nth-child(1) {
+              color: #12b886;
+              font-weight: bold;
+              padding-right: 0.2rem;
+            }
+          }
+          .comment_list {
+            border-bottom: 1px solid black;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+          }
+        `}
+      </style>
     </div>
   );
 };

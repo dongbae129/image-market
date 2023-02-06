@@ -49,7 +49,7 @@ const BoardChat = async (
         ok: false,
         message: 'need to any chat'
       });
-    console.log(boardId, req.body, 'boardId');
+    console.log(boardId, 'BO!!', req.body, 'BOAA');
     const authResponse = checkAuth(req, res, 0);
     if (!authResponse || !authResponse.accessToken)
       return res.json({

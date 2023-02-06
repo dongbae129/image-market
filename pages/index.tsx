@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 
 import Link from 'next/link';
 
-import { useInfiniteQuery, useQuery } from 'react-query';
+import { useInfiniteQuery, useQueryClient } from 'react-query';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { Product, User } from '@prisma/client';
@@ -48,6 +48,7 @@ const Home: NextPage = () => {
   const divRef = useRef<number[]>([]);
   const countRef = useRef<HTMLDivElement>(null);
 
+  const queryClient = useQueryClient();
   const { accessToken } = useSelector((state: any) => state.user);
   // const dispatch = useDispatch();
   const header = {

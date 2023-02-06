@@ -21,6 +21,7 @@ const Button = ({
           border: none;
           padding: 0.5rem;
           width: 100%;
+          min-width: 90px;
           font-weight: 500;
           font-size: 1.25rem;
           border-radius: 4px;

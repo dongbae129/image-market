@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import Input from './../components/input';
 import { Product } from '@prisma/client';
 import style from '@styles/Upload.module.scss';
@@ -11,6 +11,7 @@ import Button from '@components/button';
 import NextImage from 'next/image';
 import InputHashtag from '@components/hashtag';
 import TextArea from '@components/textarea';
+import { userResponse } from '@components/headmenu';
 
 interface UploadProductForm {
   image: FileList;
@@ -32,11 +33,13 @@ const Upload: NextPage = () => {
   const ratioRef = useRef('');
   const imgInputRef = useRef<JSX.Element>(null);
   const imgref = useRef<HTMLImageElement>(null);
-  if (imgref) {
-    console.log(imgref.current, 'imgref');
-  }
 
   const router = useRouter();
+
+  const { data } = useQuery<userResponse>(['userInfo']);
+
+  if ((data && !data?.ok) || (data && !data.user.id)) router.push('/');
+
   const { register, handleSubmit, watch } = useForm<UploadProductForm>();
   const uploadPost = (data: FormData) =>
     axios.post('/api/product/upload', data).then((res) => res.data);
@@ -58,6 +61,7 @@ const Upload: NextPage = () => {
     productAuth,
     ratio
   }: UploadProductForm) => {
+    console.log(title, 'ti');
     if (isLoading) return;
     // console.log(imageWatch[0], '@@');
     const form = new FormData();
@@ -101,38 +105,16 @@ const Upload: NextPage = () => {
   }, [imageWatch]);
 
   console.log(imagePreview, 'imagePreview');
-  const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const target = e.target as HTMLInputElement;
-      if (hashtag.includes(target.value)) {
-        alert('중복태그 불가능합니다');
-        return;
-      }
-      if (hashtag.length > 4) {
-        alert('해쉬태그는 5개까지 가능합니다');
-        return;
-      }
-      setHashtag(hashtag.concat(target.value));
-      target.value = '';
-    }
-  };
-  const deleteHashtag = (index: number) => () => {
-    setHashtag((prev) => prev.filter((v, i) => i !== index));
-  };
-  console.log(imagePreview, 'qwed');
-  console.log(imgInputRef.current, 'imginput');
+
   return (
     <div className="uploadwrap">
       <div>
-        <form onSubmit={handleSubmit(onValid)}>
+        <div>
           <div>
             <div className="upload_image">
               {imagePreview ? (
                 <NextImage src={imagePreview} alt="" layout="fill" />
               ) : (
-                // <img src={imagePreview} ref={imgref} />
-                // <img src={imagePreview} />
-                // <img src={imagePreview} alt="" />
                 <label>
                   <svg
                     stroke="currentColor"
@@ -147,12 +129,6 @@ const Upload: NextPage = () => {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  {/* <input
-                    {...register('image')}
-                    accept="image/*"
-                    type="file"
-                    style={{ display: 'none' }}
-                  /> */}
                   <Input
                     name="image"
                     accept="image/*"
@@ -167,22 +143,23 @@ const Upload: NextPage = () => {
 
             <div className="upload_input">
               <Input
-                label="제목"
+                label="title"
                 name="title"
                 type="text"
                 required
-                register={register('title')}
+                register={register('title', { required: true })}
               />
+              <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
 
               <TextArea
-                label="내용"
+                label="description"
                 name="description"
                 type="text"
                 required
                 register={register('description', { required: true })}
               />
               <Input
-                label="유료"
+                label="productAuth"
                 name="productAuth"
                 type="checkbox"
                 register={register('productAuth')}
@@ -190,9 +167,12 @@ const Upload: NextPage = () => {
             </div>
           </div>
 
-          <Button isLoading={isLoading} text="저장" />
-        </form>
-        <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
+          <Button
+            isLoading={isLoading}
+            text="저장"
+            onClick={handleSubmit(onValid)}
+          />
+        </div>
       </div>
       <style jsx>{`
         .uploadwrap {
@@ -200,7 +180,7 @@ const Upload: NextPage = () => {
           justify-content: center;
 
           > div {
-            max-width: 30rem;
+            max-width: 400px;
           }
         }
         .upload_image-wrap {
@@ -227,6 +207,7 @@ const Upload: NextPage = () => {
           label {
             width: 100%;
             height: 100%;
+            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;

@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import 'react-quill/dist/quill.snow.css';
 import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useEffect, useState } from 'react';

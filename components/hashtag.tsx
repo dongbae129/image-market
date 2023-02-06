@@ -28,6 +28,7 @@ const InputHashtag = ({ hashtag, setHashtag }: HashtagProps) => {
     <div className="hashtagwrap">
       <Input
         className="hashinput"
+        label="hash"
         type="text"
         onKeyUp={onKeyUp}
         placeholder="태그 입력후 엔터"
@@ -45,7 +46,6 @@ const InputHashtag = ({ hashtag, setHashtag }: HashtagProps) => {
       <style jsx>{`
         .hashtagwrap {
           width: 100%;
-          margin-top: 2rem;
         }
         .hashinput {
           margin-bottom: 1rem;

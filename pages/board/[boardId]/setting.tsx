@@ -2,9 +2,7 @@ import type { NextPage } from 'next';
 import { useQuery } from 'react-query';
 import { getFetch } from '@libs/client/fetcher';
 
-import Link from 'next/link';
 import UploadImage from '@components/uploadImage';
-import Input from '@components/input';
 import { useRouter } from 'next/router';
 
 const BoardSetting: NextPage = () => {
@@ -16,11 +14,21 @@ const BoardSetting: NextPage = () => {
   });
   console.log(data, 'Data');
   return (
-    <UploadImage
-      url={`board/${boardId}`}
-      component={['title', 'description']}
-      elementType={['input', 'textarea']}
-    />
+    <div className="settingwrap">
+      <UploadImage
+        url={`board/${boardId}`}
+        component={['title', 'description']}
+        elementType={['input', 'textarea']}
+        buttontext="수정"
+        hashtrue={true}
+      />
+      <style jsx>{`
+        .settingwrap {
+          width: 50vw;
+          margin: auto;
+        }
+      `}</style>
+    </div>
   );
 };
 

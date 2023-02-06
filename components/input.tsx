@@ -1,14 +1,19 @@
 import { UseFormRegisterReturn } from 'react-hook-form';
-import { useState } from 'react';
+import { useState, ComponentProps } from 'react';
+import { labelOb } from '@libs/client/data/data';
 interface InputProps {
   label?: string;
   name: string;
   required?: boolean;
   register?: UseFormRegisterReturn;
   imgbool?: string;
+  inputValue?: string | null | undefined;
   [key: string]: any;
 }
 
+interface LabelType {
+  [key: string]: string;
+}
 const Input = ({
   label,
   name,
@@ -18,16 +23,18 @@ const Input = ({
   classname,
   imgbool,
   type,
+  inputValue,
   ...rest
 }: InputProps) => {
   return (
     <div className={classname ? classname : 'inputwrap'}>
-      {label ? <label htmlFor={name}>{label}</label> : null}
+      {label ? <label htmlFor={name}>{labelOb[label]}</label> : null}
       <div className="input-div">
         <input
           id={name}
           required={required}
           type={type}
+          placeholder={inputValue || ''}
           {...register}
           {...rest}
         />
@@ -58,7 +65,9 @@ const Input = ({
           padding: 0.5rem;
           padding-left: ${paddingleft ? paddingleft : '0.5rem'};
           font-size: 1rem;
-          outline: 1px solid rgba(0, 0, 0, 0.16);
+          outline: ${type === 'checkbox'
+            ? 'none'
+            : '1px solid rgba(0, 0, 0, 0.16)'};
 
           &:focus {
             outline: 3px solid rgb(127, 193, 255);

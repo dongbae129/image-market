@@ -54,7 +54,7 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
           <div className="middle-sidebar">
             <ul className="sidebar-list">
               <li className="sidebar-list-item" data-icon="setting">
-                <Link href={'#'}>
+                <Link href={`/profile/settings`}>
                   <a className="sidebar-link">
                     <span className="sideiconwrap">
                       <IoMdSettings className="sidebar-icon" size="25" />

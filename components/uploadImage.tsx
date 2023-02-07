@@ -29,18 +29,18 @@ interface UploadImageProps {
 interface UploadFormData {
   form: FormData;
   info: object;
-  editorValue: string;
 }
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
   const routerId = router.query.boardId;
+  console.log(routerId, ' router');
   const [imagePreview, setImagePreview] = useState('');
   const [editorValue, setEditorValue] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
 
   const { register, handleSubmit, watch } = useForm<UploadForm>();
   const postUploadForm = (data: UploadFormData) =>
-    axios.post(`/api/${info.url}`, data).then((res) => res.data);
+    axios.post(`/api/${info.url}/${routerId}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
     onSuccess: () => {
@@ -64,8 +64,9 @@ const UploadImage = (info: UploadImageProps) => {
       }
     }
     info['boardtag'] = hashtag.join(',');
+    info['description'] = editorValue;
     // info.push({ boardtag: hashtag.join(',') });
-    mutate({ form, info, editorValue });
+    mutate({ form, info });
   };
   useEffect(() => {
     if (imageWatch && imageWatch.length > 0) {

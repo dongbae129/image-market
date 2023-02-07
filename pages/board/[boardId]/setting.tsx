@@ -16,7 +16,7 @@ const BoardSetting: NextPage = () => {
   return (
     <div className="settingwrap">
       <UploadImage
-        url={`board/${boardId}`}
+        url={`board`}
         component={['title', 'description']}
         elementType={['input', 'textarea']}
         buttontext="수정"

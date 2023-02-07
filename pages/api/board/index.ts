@@ -3,8 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 import { checkAuth } from '@libs/server/auth';
 import { decode } from 'jsonwebtoken';
-import { formatISO } from 'date-fns';
-import dayjs from 'dayjs';
 import { PostBoardInfo } from './[boardId]';
 
 const Board = async (

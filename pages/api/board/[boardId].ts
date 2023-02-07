@@ -84,6 +84,7 @@ const BoardDetail = async (
   } else if (req.method === 'POST') {
     const { title, description, boardtag }: PostBoardInfo = req.body.info;
     const { boardId } = req.query;
+    console.log(title, description, boardtag, boardId, 'Board update');
 
     if (!boardId)
       return res.status(401).json({
@@ -96,6 +97,7 @@ const BoardDetail = async (
           id: +boardId.toString()
         }
       });
+      console.log(board, 'board find');
       if (board) {
         await client.board.update({
           where: {
@@ -106,14 +108,29 @@ const BoardDetail = async (
             description: description
           }
         });
-        await client.boardTag.update({
+        const boardTag = await client.boardTag.findUnique({
           where: {
             boardId: board.id
-          },
-          data: {
-            hashtag: boardtag
           }
         });
+        if (boardTag) {
+          await client.boardTag.update({
+            where: {
+              boardId: board.id
+            },
+            data: {
+              hashtag: boardtag
+            }
+          });
+        } else {
+          await client.boardTag.create({
+            data: {
+              boardId: board.id,
+              hashtag: boardtag
+            }
+          });
+        }
+
         return res.json({
           ok: true,
           message: 'updated the board'

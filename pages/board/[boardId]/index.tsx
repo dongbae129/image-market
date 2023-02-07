@@ -105,11 +105,13 @@ const BoardDetail: NextPage = () => {
           </div>
         </div>
         <main>
-          <div>
-            {boardDetail?.board.description.split('\n').map((v, i) => (
-              <p key={i}>{v}</p>
-            ))}
-          </div>
+          {boardDetail && (
+            <div
+              dangerouslySetInnerHTML={{
+                __html: Dompurify.sanitize(boardDetail?.board.description)
+              }}
+            />
+          )}
         </main>
         <div>
           {boardDetail?.board.boardTag[0] &&

@@ -195,6 +195,11 @@
   "resolved" "https://registry.npmjs.org/@prisma/engines/-/engines-4.7.1.tgz"
   "version" "4.7.1"
 
+"@react-icons/all-files@^4.1.0":
+  "integrity" "sha512-hxBI2UOuVaI3O/BhQfhtb4kcGn9ft12RWAFVMUeNjqqhLsHvFtzIkFaptBJpFDANTKoDfdVoHTKZDlwKCACbMQ=="
+  "resolved" "https://registry.npmjs.org/@react-icons/all-files/-/all-files-4.1.0.tgz"
+  "version" "4.1.0"
+
 "@react-three/fiber@^8.8.3":
   "integrity" "sha512-eQB0Kd05FLRtdNafpB9zaXiXHyGj1yEwo5ixTIpvzASrN8eO4uQOPbd38cCK4lNaS9/VaeAswMjwHVH+cR2pRw=="
   "resolved" "https://registry.npmjs.org/@react-three/fiber/-/fiber-8.8.3.tgz"

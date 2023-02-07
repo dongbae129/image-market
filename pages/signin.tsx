@@ -9,11 +9,10 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
-import { RiKakaoTalkFill } from 'react-icons/ri';
-import { SiNaver } from 'react-icons/si';
-import { FcGoogle } from 'react-icons/fc';
-import { useEffect } from 'react';
-import { getFetch } from '@libs/client/fetcher';
+import { RiKakaoTalkFill } from '@react-icons/all-files/ri/RiKakaoTalkFill';
+import { SiNativescript } from '@react-icons/all-files/si/SiNativescript';
+import { FcGoogle } from '@react-icons/all-files/fc/FcGoogle';
+
 import { userResponse } from '@components/headmenu';
 
 interface SingInForm {
@@ -96,7 +95,7 @@ const Signin: NextPage = () => {
               </Link>
               <Link href={'#'}>
                 <a className="sns_main_link">
-                  <SiNaver size={25} />
+                  <SiNativescript size={25} />
                 </a>
               </Link>
               <Link href={'#'}>

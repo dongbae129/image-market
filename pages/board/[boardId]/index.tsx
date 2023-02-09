@@ -154,7 +154,7 @@ const BoardDetail: NextPage = () => {
         <div>
           {data?.comments.map((comment) => (
             <div key={comment.id} className="comment_list">
-              <div style={{ display: 'flex' }}>
+              <div>
                 <div className="userimage">
                   <NextImage
                     src="/localimages/emptyuser.png"
@@ -163,9 +163,9 @@ const BoardDetail: NextPage = () => {
                   />
                 </div>
                 <div>
-                  <div>{comment.user.name}</div>
+                  <div className="comment_list_name">{comment.user.name}</div>
 
-                  <span>
+                  <span className="comment_time">
                     {timeForToday(
                       comment.createdAt
                         .toString()
@@ -303,9 +303,19 @@ const BoardDetail: NextPage = () => {
             }
           }
           .comment_list {
-            border-bottom: 1px solid black;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.16);
             padding-top: 1rem;
             padding-bottom: 1rem;
+
+            > div:first-child {
+              display: flex;
+            }
+          }
+          .comment_list_name {
+            font-weight: bold;
+          }
+          .comment_time {
+            font-size: 0.9rem;
           }
         `}
       </style>

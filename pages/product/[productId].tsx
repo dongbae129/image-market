@@ -247,7 +247,9 @@ const ProductDetail: NextPage = () => {
                 <div key={comment?.id}>
                   <div className="chatInfo">
                     <div>
-                      <div className="chatuserimage"></div>
+                      <div className="chatuserimage_inner">
+                        <div className="chatuserimage"></div>
+                      </div>
                       <div className="chatuserInfo">
                         <div className="chatusername">
                           {comment?.user?.name}
@@ -262,19 +264,29 @@ const ProductDetail: NextPage = () => {
 
             <div className="chatregister">
               <form onSubmit={handleSubmit(onValid)}>
-                <div className="chatuserimage"></div>
-                <TextArea
-                  className="autoTextarea"
-                  onKeyDown={autoResizeTextarea}
-                  onKeyUp={autoResizeTextarea}
-                  name="chat"
-                  register={register('chat')}
-                ></TextArea>
-                <Button
-                  className="registerbtn"
-                  isLoading={mutateLoading}
-                  text="작성"
-                />
+                <div>
+                  <div className="chatuserimage_outer">
+                    <div className="chatuserimage"></div>
+                  </div>
+                  <div className="chat-textareawrap">
+                    <TextArea
+                      className="autoTextarea"
+                      onKeyDown={autoResizeTextarea}
+                      onKeyUp={autoResizeTextarea}
+                      name="chat"
+                      register={register('chat')}
+                    ></TextArea>
+                  </div>
+                </div>
+                <div className="registerbtn_wrap">
+                  <div className="registerbtn_div">
+                    <Button
+                      className="registerbtn"
+                      isLoading={mutateLoading}
+                      text="작성"
+                    />
+                  </div>
+                </div>
                 <div className="errormsg">{errors.chatErrors?.message}</div>
               </form>
             </div>
@@ -282,6 +294,10 @@ const ProductDetail: NextPage = () => {
         </div>
 
         <style jsx>{`
+          $img_inner: 32px;
+          $img_outer: 50px;
+          $userimg-out_mgr: 8px;
+
           .productwrapout {
             position: relative;
             margin-top: 30px;
@@ -437,22 +453,20 @@ const ProductDetail: NextPage = () => {
             }
           }
           .chatwrap {
-            display: ${chatOpen ? 'block' : 'none'};
+            display: ${chatOpen ? 'flex' : 'none'};
+            flex-direction: column;
             width: 100%;
+            > div {
+              margin-top: 10px;
+              margin-bottom: 10px;
+            }
 
             .chatInfo {
               > div {
                 display: flex;
 
-                .chatuserimage {
-                  border-radius: 50%;
-                  width: 20px;
-                  height: 20px;
-                  background-color: gray;
-                  margin-right: 5px;
-                }
                 .chatuserInfo {
-                  width: 100%;
+                  width: calc(100% - (#{$img_inner} + 5px));
                 }
 
                 .chatusername {
@@ -462,10 +476,40 @@ const ProductDetail: NextPage = () => {
                 .userchat {
                   padding-left: 7px;
                   width: 100%;
-                  border: 1px solid black;
+
                   word-break: break-all;
                 }
               }
+            }
+          }
+          .chatuserimage_inner {
+            width: $img_inner;
+            height: $img_inner;
+            margin-right: 5px;
+          }
+          .chatuserimage_outer {
+            width: $img_outer;
+            height: $img_outer;
+            margin-right: 8px;
+          }
+          .chatuserimage {
+            background: url(/localimages/emptyuser.png) center no-repeat;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            margin-right: 5px;
+          }
+          .chat-textareawrap {
+            width: calc(100% - (#{$img_outer} + #{$userimg-out_mgr}));
+          }
+          .registerbtn_wrap {
+            display: flex;
+            justify-content: end;
+            margin-top: 0.5rem;
+
+            .registerbtn_div {
+              width: 100px;
             }
           }
 
@@ -473,14 +517,19 @@ const ProductDetail: NextPage = () => {
             position: relative;
             width: 100%;
             min-height: 60px;
-            border: 1px solid rgb(226, 203, 203);
             display: flex;
-            border-radius: 14px;
+
             margin-top: 15px;
 
             form {
               width: 100%;
               height: 100%;
+
+              > div:first-child {
+                display: flex;
+                position: relative;
+                height: auto;
+              }
             }
           }
           .errormsg {

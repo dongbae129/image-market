@@ -22,7 +22,7 @@ const TextArea = ({ name, label, register, ...rest }: TextAreaProps) => {
           width: 100%;
           height: 100%;
           border-radius: 4px;
-          margin-top: 0.25rem;
+          /*margin-top: 0.25rem;*/
           padding: 8px;
           padding-left: 15px;
           padding-right: 80px;

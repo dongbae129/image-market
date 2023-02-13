@@ -11,7 +11,9 @@ import { useState, useRef } from 'react';
 
 import TextArea from '@components/textarea';
 import Button from '@components/button';
-import Input from '@components/input';
+import SvgData from 'json/data.json';
+import SvgIcon from '@components/svgIcon';
+
 interface UserHashtagHit {
   user: {
     email: string;
@@ -57,9 +59,14 @@ const ProductDetail: NextPage = () => {
     formState: { errors },
     watch
   } = useForm<ChatForm>();
+  const { modify } = SvgData.SVG;
   const watchFiled = watch('chat');
   const watchAuth = watch('checkAuth');
   const { productId } = router.query;
+
+  const svgPath = [
+    'M388.8 896.4v-27.198c.6-2.2 1.6-4.2 2-6.4 8.8-57.2 56.4-102.4 112.199-106.2 62.4-4.4 115.2 31.199 132.4 89.199 2.2 7.6 3.8 15.6 5.8 23.4v27.2c-.6 1.8-1.6 3.399-1.8 5.399-8.6 52.8-46.6 93-98.6 104.4-4 .8-8 2-12 3h-27.2c-1.8-.6-3.6-1.6-5.4-1.8-52-8.4-91.599-45.4-103.6-96.8-1.2-5-2.6-9.6-3.8-14.2zm252.4-768.797l-.001 27.202c-.6 2.2-1.6 4.2-1.8 6.4-9 57.6-56.8 102.6-113.2 106.2-62.2 4-114.8-32-131.8-90.2-2.2-7.401-3.8-15-5.6-22.401v-27.2c.6-1.8 1.6-3.4 2-5.2 9.6-52 39.8-86 90.2-102.2 6.6-2.2 13.6-3.4 20.4-5.2h27.2c1.8.6 3.6 1.6 5.4 1.8 52.2 8.6 91.6 45.4 103.6 96.8 1.201 4.8 2.401 9.4 3.601 13.999zm-.001 370.801v27.2c-.6 2.2-1.6 4.2-2 6.4-9 57.4-58.6 103.6-114.6 106-63 2.8-116.4-35.2-131.4-93.8-1.6-6.2-3-12.4-4.4-18.6v-27.2c.6-2.2 1.6-4.2 2-6.4 8.8-57.4 58.6-103.601 114.6-106.2 63-3 116.4 35.2 131.4 93.8 1.6 6.4 3 12.6 4.4 18.8z'
+  ];
 
   const getProduct = () =>
     axios.get(`/api/product/${productId}`).then((res) => res.data);
@@ -188,15 +195,25 @@ const ProductDetail: NextPage = () => {
                 </div>
                 <div className="useremail">{data?.product?.user?.email}</div>
               </div>
-              <div>
-                <button>
-                  <a
-                    href={`/api/product/download?productId=${productId}&imgAuth=${watchAuth}`}
-                    download
-                  >
-                    저장
-                  </a>
-                </button>
+              <div className="btnwithmodify">
+                <div>
+                  <button>
+                    <a
+                      href={`/api/product/download?productId=${productId}&imgAuth=${watchAuth}`}
+                      download
+                    >
+                      저장
+                    </a>
+                  </button>
+                </div>
+                <div className="svgwrap_div">
+                  {/* <SlOptionsVertical /> */}
+                  <SvgIcon svgInfo={modify} viewBox="0 0 1040 1040" />
+                </div>
+                <div className="modifypost">
+                  <a>수정하기</a>
+                  <a>삭제하기</a>
+                </div>
               </div>
               {/* <Input
                 label="checkAuth"
@@ -376,6 +393,23 @@ const ProductDetail: NextPage = () => {
               padding: 5px;
               font-size: 16px;
               font-weight: 600;
+            }
+          }
+          .btnwithmodify {
+            display: flex;
+          }
+          .svgwrap_div {
+            width: 40px;
+          }
+          .modifypost {
+            position: absolute;
+            width: 163px;
+            border: 1px solid #d5d5d5;
+            top: 60px;
+            right: 0;
+
+            > a {
+              display: block;
             }
           }
           .useraccountinfo {

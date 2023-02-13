@@ -3,18 +3,21 @@ import Input from '@components/input';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import Link from 'next/link';
+import SvgData from 'json/data.json';
+
 // import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
-import { RiKakaoTalkFill } from '@react-icons/all-files/ri/RiKakaoTalkFill';
-import { SiNativescript } from '@react-icons/all-files/si/SiNativescript';
-import { FcGoogle } from '@react-icons/all-files/fc/FcGoogle';
+import { RiKakaoTalkFill } from 'react-icons/ri';
+import { SiNaver } from 'react-icons/si';
+import { FcGoogle } from 'react-icons/fc';
 
 import { userResponse } from '@components/headmenu';
-
+import SVG from 'json/data.json';
+import SvgIcon from '@components/svgIcon';
 interface SingInForm {
   userId: string;
   password: string;
@@ -28,6 +31,8 @@ const Signin: NextPage = () => {
   const queryClient = useQueryClient();
   const { data } = useQuery<userResponse>(['userInfo']);
 
+  const { google, kakao, naver } = SvgData.SVG;
+  console.log(SVG, 'SSS');
   if (data?.ok && data.user.id) router.push('/');
 
   // useEffect(() => {
@@ -90,17 +95,32 @@ const Signin: NextPage = () => {
             <div className="sign-login-sns_main">
               <Link href={KAKAO_AUTH_URL}>
                 <a className="sns_main_link">
-                  <RiKakaoTalkFill size={25} />
+                  <div
+                    style={{ width: '25px', height: '25px', margin: 'auto' }}
+                  >
+                    <SvgIcon svgInfo={kakao} viewBox="0 0 25 25" />
+                    {/* <RiKakaoTalkFill /> */}
+                  </div>
                 </a>
               </Link>
               <Link href={'#'}>
                 <a className="sns_main_link">
-                  <SiNativescript size={25} />
+                  <div
+                    style={{ width: '25px', height: '25px', margin: 'auto' }}
+                  >
+                    <SvgIcon svgInfo={naver} viewBox="0 0 25 25" />
+                    {/* <SiNaver /> */}
+                  </div>
                 </a>
               </Link>
               <Link href={'#'}>
                 <a className="sns_main_link">
-                  <FcGoogle size={25} />
+                  <div
+                    style={{ width: '25px', height: '25px', margin: 'auto' }}
+                  >
+                    <SvgIcon svgInfo={google} viewBox="0 0 48 48" />
+                  </div>
+                  {/* <FcGoogle size={25} /> */}
                 </a>
               </Link>
               {/* <a href={KAKAO_AUTH_URL}>

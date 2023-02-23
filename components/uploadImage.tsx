@@ -203,6 +203,7 @@ const UploadImage = (info: UploadImageProps) => {
           min-height: 300px;
           height: 300px;
           position: relative;
+          margin-bottom: 2rem;
         }
       `}</style>
     </>

@@ -62,6 +62,44 @@ const Product = async (
     } catch (error) {
       console.error(error, 'getProductError');
     }
+  } else if (req.method === 'DELETE') {
+    console.log(req.body, 'body');
+    console.log(req.query, 'query');
+    const { productId } = req.query;
+    if (!productId)
+      return res.status(401).json({
+        ok: false,
+        message: "doesn't have product"
+      });
+
+    try {
+      const product = await client.product.findUnique({
+        where: {
+          id: +productId.toString()
+        }
+      });
+      if (!product)
+        return res.status(401).json({
+          ok: false,
+          message: "doesn't have the product"
+        });
+      await client.product.delete({
+        where: {
+          id: +productId.toString()
+        }
+      });
+
+      res.json({
+        ok: true,
+        message: 'success delete the products'
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        ok: false,
+        message: error
+      });
+    }
   }
 };
 

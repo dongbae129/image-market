@@ -32,7 +32,7 @@ const KakaoHandler: NextPage = () => {
             );
             // console.log(queryClient, 'query');
 
-            router.replace('/');
+            router.push('/');
           } else {
             router.replace('signin');
           }
@@ -41,7 +41,7 @@ const KakaoHandler: NextPage = () => {
           'authorization'
         ] = `Bearer ${res.data.accessToken}`;
         queryClient.invalidateQueries(['userInfo']);
-        res.data.userInfo ? router.replace('/') : null;
+        res.data.userInfo ? router.push('/') : null;
       });
   }, []);
 

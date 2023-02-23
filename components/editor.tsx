@@ -105,16 +105,19 @@ const Editor = ({ mutate, isLoading, btntrue, setter }: EditorProps) => {
   return (
     <div className="editor">
       <div>
-        <CustomToolbar />
-        <QuillNoSSRWrapper
-          onChange={handleText}
-          value={chat}
-          modules={modules}
-          formats={formats}
-          theme="snow"
-          className="editor_input"
-          style={editorInput}
-        />
+        <label htmlFor="editor_label">본문</label>
+        <div id="editor_label">
+          <CustomToolbar />
+          <QuillNoSSRWrapper
+            onChange={handleText}
+            value={chat}
+            modules={modules}
+            formats={formats}
+            theme="snow"
+            className="editor_input"
+            style={editorInput}
+          />
+        </div>
       </div>
       {btntrue && (
         <div className="chatinput_btn">
@@ -143,6 +146,15 @@ const Editor = ({ mutate, isLoading, btntrue, setter }: EditorProps) => {
             width: 15%;
             min-width: 90px;
           }
+        }
+        label {
+          font-weight: 500;
+          font-size: 0.875rem;
+          line-height: 1.25rem;
+        }
+        #editor_label {
+          height: 100%;
+          margin-top: 0.25rem;
         }
       `}</style>
     </div>

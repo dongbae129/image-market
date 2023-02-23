@@ -32,7 +32,6 @@ const Signin: NextPage = () => {
   const { data } = useQuery<userResponse>(['userInfo']);
 
   const { google, kakao, naver } = SvgData.SVG;
-  console.log(SVG, 'SSS');
   if (data?.ok && data.user.id) router.push('/');
 
   // useEffect(() => {
@@ -62,7 +61,6 @@ const Signin: NextPage = () => {
       console.log(error, '%^%^%^');
     },
     onSuccess: (res) => {
-      console.log(res, '$$');
       dispatch(setAccessToken(res.accessToken));
       // axios.defaults.headers.common['Authorization'] = '';
 

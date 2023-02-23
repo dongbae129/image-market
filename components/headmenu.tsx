@@ -56,9 +56,6 @@ const HeadMenu: NextPage = () => {
           <span className="golinkinhead">HOME</span>
         </Link>
 
-        <Link href={'/upload'}>
-          <span className="golinkinhead">UPLOAD</span>
-        </Link>
         <Link href={'/board'}>
           <span className="golinkinhead">BOARD</span>
         </Link>
@@ -80,7 +77,10 @@ const HeadMenu: NextPage = () => {
         </form>
       </div>
       {userInfo?.ok ? (
-        <div className="golinkwrap">
+        <div className="golinkwrap right">
+          <Link href={'/upload'}>
+            <span className="golinkinhead">UPLOAD</span>
+          </Link>
           <Sidebar userInfo={userInfo.user} />
         </div>
       ) : (
@@ -108,6 +108,7 @@ const HeadMenu: NextPage = () => {
           .golinkwrap {
             display: flex;
             align-items: center;
+
             height: 100%;
             width: 15%;
             span {
@@ -118,6 +119,9 @@ const HeadMenu: NextPage = () => {
             > span {
               margin-right: 1rem;
             }
+          }
+          .golinkwrap.right {
+            justify-content: center;
           }
         }
         .golinkinhead {

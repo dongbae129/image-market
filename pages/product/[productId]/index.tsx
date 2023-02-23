@@ -13,6 +13,8 @@ import TextArea from '@components/textarea';
 import Button from '@components/button';
 import SvgData from 'json/data.json';
 import SvgIcon from '@components/svgIcon';
+import Link from 'next/link';
+import Modal from '@components/modal';
 
 interface UserHashtagHit {
   user: {
@@ -43,11 +45,14 @@ interface ChatResponse {
   comments: CommentWithUser[];
 }
 interface ProductDetail {
+  ok: boolean;
   product: Product & UserHashtagHit;
 }
 
 const ProductDetail: NextPage = () => {
   const [chatOpen, setChatOpen] = useState(false);
+  const [modifyOpen, setModifyOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
   const arrowRef = useRef<HTMLSpanElement>(null);
   const queryClient = useQueryClient();
@@ -64,13 +69,9 @@ const ProductDetail: NextPage = () => {
   const watchAuth = watch('checkAuth');
   const { productId } = router.query;
 
-  const svgPath = [
-    'M388.8 896.4v-27.198c.6-2.2 1.6-4.2 2-6.4 8.8-57.2 56.4-102.4 112.199-106.2 62.4-4.4 115.2 31.199 132.4 89.199 2.2 7.6 3.8 15.6 5.8 23.4v27.2c-.6 1.8-1.6 3.399-1.8 5.399-8.6 52.8-46.6 93-98.6 104.4-4 .8-8 2-12 3h-27.2c-1.8-.6-3.6-1.6-5.4-1.8-52-8.4-91.599-45.4-103.6-96.8-1.2-5-2.6-9.6-3.8-14.2zm252.4-768.797l-.001 27.202c-.6 2.2-1.6 4.2-1.8 6.4-9 57.6-56.8 102.6-113.2 106.2-62.2 4-114.8-32-131.8-90.2-2.2-7.401-3.8-15-5.6-22.401v-27.2c.6-1.8 1.6-3.4 2-5.2 9.6-52 39.8-86 90.2-102.2 6.6-2.2 13.6-3.4 20.4-5.2h27.2c1.8.6 3.6 1.6 5.4 1.8 52.2 8.6 91.6 45.4 103.6 96.8 1.201 4.8 2.401 9.4 3.601 13.999zm-.001 370.801v27.2c-.6 2.2-1.6 4.2-2 6.4-9 57.4-58.6 103.6-114.6 106-63 2.8-116.4-35.2-131.4-93.8-1.6-6.2-3-12.4-4.4-18.6v-27.2c.6-2.2 1.6-4.2 2-6.4 8.8-57.4 58.6-103.601 114.6-106.2 63-3 116.4 35.2 131.4 93.8 1.6 6.4 3 12.6 4.4 18.8z'
-  ];
-
   const getProduct = () =>
     axios.get(`/api/product/${productId}`).then((res) => res.data);
-  const { data, isLoading } = useQuery<ProductDetail>(
+  const { data, isLoading, isError } = useQuery<ProductDetail>(
     ['getProduct'],
     getProduct,
     {
@@ -78,11 +79,11 @@ const ProductDetail: NextPage = () => {
     }
   );
 
-  console.log(data, 'Data');
   const chatSend = (chat: ChatForm) =>
     axios
       .post(`/api/chat/product/${data?.product.id}`, chat)
       .then((res) => res.data);
+
   const { mutate, isLoading: mutateLoading } = useMutation<
     ChatMutate,
     any,
@@ -129,11 +130,23 @@ const ProductDetail: NextPage = () => {
       };
     }
   });
+
+  const deleteSend = () =>
+    axios.delete(`/api/product/${productId}`).then((res) => res.data);
+  const { mutate: deleteMutation } = useMutation(deleteSend, {
+    onSuccess: (res) => {
+      console.log(res, 'deleted success');
+      router.replace('/');
+    },
+    onError: (res) => {
+      console.error(res, 'deleted fail');
+    }
+  });
   const { data: chats, isLoading: chatLoading } = useQuery<ChatResponse>(
-    ['getChats', data?.product.id],
-    getFetch(`/api/chat/product/${data?.product.id}`),
+    ['getChats', data?.product?.id],
+    getFetch(`/api/chat/product/${data?.product?.id}`),
     {
-      enabled: !!data?.product.id
+      enabled: !!data?.product?.id
     }
   );
 
@@ -156,10 +169,25 @@ const ProductDetail: NextPage = () => {
       textarea.style.height = `${height + 8}px`;
     }
   };
+  const onClickModify = () => {
+    setModifyOpen((prev) => !prev);
+  };
+  const onClickDelete = () => {
+    setModalOpen((prev) => !prev);
+    // deleteMutation();
+  };
 
   if (isLoading) return <div>Loading Data....</div>;
+  if (!data?.ok) return <div>해당 상품은 존재하지 않습니다</div>;
   return (
     <div>
+      {modalOpen && (
+        <Modal
+          modalOpen={modalOpen}
+          setModalOpen={setModalOpen}
+          deleteMutation={deleteMutation}
+        />
+      )}
       <div className="productwrapout">
         <div className="productwrapin">
           <div className="productInfo">
@@ -171,9 +199,10 @@ const ProductDetail: NextPage = () => {
                       ? `/watermark/watermark_${data?.product.image}`
                       : `/uploads/${data?.product.image}`
                   }
-                  priority
+                  // priority={true}
                   // width={400}
-                  // height={400}
+                  // height={600}
+                  // layout="responsive"
                   // sizes="30vw"
                   // layout="responsive"
                   layout="fill"
@@ -206,13 +235,21 @@ const ProductDetail: NextPage = () => {
                     </a>
                   </button>
                 </div>
-                <div className="svgwrap_div">
+                <div className="svgwrap_div" onClick={onClickModify}>
                   {/* <SlOptionsVertical /> */}
                   <SvgIcon svgInfo={modify} viewBox="0 0 1040 1040" />
                 </div>
-                <div className="modifypost">
-                  <a>수정하기</a>
-                  <a>삭제하기</a>
+                <div className={`modifypost ${modifyOpen ? 'open' : ''}`}>
+                  <div className="modifypost_mar">
+                    <div className="modifypost_pad">
+                      <Link href={`/product/${productId}/setting`}>
+                        수정하기
+                      </Link>
+                    </div>
+                    <div className="modifypost_pad" onClick={onClickDelete}>
+                      <p>삭제하기</p>
+                    </div>
+                  </div>
                 </div>
               </div>
               {/* <Input
@@ -229,6 +266,7 @@ const ProductDetail: NextPage = () => {
                 <li>화소 free, pay</li>
               </ul>
             </div>
+            <div>{data?.product.description}</div>
             <div>
               {data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
                 <span className="hashtag" key={i}>
@@ -402,15 +440,42 @@ const ProductDetail: NextPage = () => {
             width: 40px;
           }
           .modifypost {
+            visibility: hidden;
             position: absolute;
-            width: 163px;
+            width: 0;
             border: 1px solid #d5d5d5;
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px,
+              rgba(0, 0, 0, 0.23) 0px 3px 6px;
+            border-radius: 4px;
+
             top: 60px;
             right: 0;
+
+            white-space: nowrap;
+            overflow: hidden;
+
+            transition: all 0.5s;
 
             > a {
               display: block;
             }
+
+            .modifypost_mar {
+              margin: 8px;
+            }
+            .modifypost_pad {
+              padding: 8px;
+              border-radius: 4px;
+              font-weight: 600;
+              cursor: pointer;
+              &:hover {
+                background-color: #e9e9e9;
+              }
+            }
+          }
+          .modifypost.open {
+            visibility: visible;
+            width: 163px;
           }
           .useraccountinfo {
             display: flex;

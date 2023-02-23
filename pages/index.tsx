@@ -233,7 +233,7 @@ const Home: NextPage = () => {
                             height={divWidth * Number(product.ratio)}
                             sizes="33vw"
                             style={{ width: '100%', height: '100%' }}
-                            priority
+                            // priority={true}
                           />
                         </div>
                       </Link>

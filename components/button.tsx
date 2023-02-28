@@ -1,6 +1,7 @@
 interface buttonProps {
   isLoading: boolean;
   text: string;
+  color?: string | undefined;
   [key: string]: any;
 }
 const Button = ({
@@ -8,6 +9,7 @@ const Button = ({
   register,
   required,
   text,
+  color,
   ...rest
 }: buttonProps) => {
   return (
@@ -16,18 +18,18 @@ const Button = ({
       <style jsx>{`
         button {
           cursor: pointer;
-          background-color: #228be6;
-          color: white;
+          background-color: ${color || '#228be6'};
+          color: ${color ? '#000' : '#fff'};
           border: none;
           padding: 0.5rem;
           width: 100%;
           min-width: 90px;
-          font-weight: 500;
+          font-weight: 600;
           font-size: 1.25rem;
           border-radius: 4px;
           letter-spacing: 2px;
           :hover {
-            background-color: #1c7ed6;
+            filter: brightness(0.8);
           }
         }
       `}</style>

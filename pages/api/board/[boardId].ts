@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 import { ResponseType } from '@libs/server/utils';
+import { checkAuth } from '@libs/server/auth';
+import { decode } from 'jsonwebtoken';
 
 export interface PostBoardInfo {
   title: string;
@@ -26,6 +28,7 @@ const BoardDetail = async (
         include: {
           user: {
             select: {
+              id: true,
               email: true,
               name: true
             }
@@ -143,6 +146,56 @@ const BoardDetail = async (
       }
     } catch (error) {
       console.error(error, 'the baord error');
+      return res.status(500).json({
+        ok: false,
+        error
+      });
+    }
+  } else if (req.method === 'DELETE') {
+    const { boardId } = req.query;
+    try {
+      const auth = checkAuth(req, res, 0);
+      console.log(auth, 'auth');
+
+      if (!auth?.re)
+        return res.status(400).json({
+          ok: false,
+          message: 'need to login'
+        });
+      const decodedId = decode(auth.accessToken as string);
+
+      if (!boardId)
+        return res.status(403).json({
+          ok: false,
+          message: 'no boardId'
+        });
+      const board = await client.board.findUnique({
+        where: {
+          id: +boardId.toString()
+        }
+      });
+      if (!board)
+        return res.json({
+          ok: false,
+          message: "doesn't exit the board"
+        });
+      if (board.userId !== Number(decodedId))
+        return res.status(401).json({
+          ok: false,
+          message: 'invalid board'
+        });
+      await client.board.delete({
+        where: {
+          id: +boardId.toString()
+        }
+      });
+
+      return res.json({
+        ok: true,
+        message: 'success delete the board'
+      });
+    } catch (error) {
+      console.error(error, `${boardId} board error`);
       return res.status(500).json({
         ok: false,
         error

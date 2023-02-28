@@ -1,4 +1,4 @@
-import { Dispatch, MouseEvent, SetStateAction } from 'react';
+import { Dispatch, MouseEvent, SetStateAction, useEffect } from 'react';
 import { UseMutateFunction } from 'react-query';
 interface ModalProps {
   modalOpen: boolean;
@@ -19,6 +19,16 @@ const Modal = ({ modalOpen, setModalOpen, deleteMutation }: ModalProps) => {
   const onClickDeleteMutate = () => {
     deleteMutation();
   };
+  const keyDeleteModal = (e: KeyboardEvent) => {
+    if (modalOpen && e.key === 'Escape') setModalOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    document.addEventListener('keyup', keyDeleteModal);
+    return () => {
+      document.removeEventListener('keyup', keyDeleteModal);
+    };
+  }, []);
 
   return (
     <div className="modalwrap">

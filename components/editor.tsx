@@ -27,8 +27,15 @@ interface EditorProps {
   isLoading: boolean;
   btntrue?: boolean;
   setter?: Dispatch<SetStateAction<string>>;
+  labelTrue?: boolean;
 }
-const Editor = ({ mutate, isLoading, btntrue, setter }: EditorProps) => {
+const Editor = ({
+  mutate,
+  isLoading,
+  btntrue,
+  setter,
+  labelTrue
+}: EditorProps) => {
   const [chat, setChat] = useState('');
 
   const formats = useMemo(
@@ -105,7 +112,7 @@ const Editor = ({ mutate, isLoading, btntrue, setter }: EditorProps) => {
   return (
     <div className="editor">
       <div>
-        <label htmlFor="editor_label">본문</label>
+        {labelTrue && <label htmlFor="editor_label">본문</label>}
         <div id="editor_label">
           <CustomToolbar />
           <QuillNoSSRWrapper

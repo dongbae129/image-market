@@ -15,6 +15,7 @@ import SvgData from 'json/data.json';
 import SvgIcon from '@components/svgIcon';
 import Link from 'next/link';
 import Modal from '@components/modal';
+import DOMPurify from 'dompurify';
 
 interface UserHashtagHit {
   user: {
@@ -235,10 +236,12 @@ const ProductDetail: NextPage = () => {
                     </a>
                   </button>
                 </div>
+
                 <div className="svgwrap_div" onClick={onClickModify}>
                   {/* <SlOptionsVertical /> */}
                   <SvgIcon svgInfo={modify} viewBox="0 0 1040 1040" />
                 </div>
+
                 <div className={`modifypost ${modifyOpen ? 'open' : ''}`}>
                   <div className="modifypost_mar">
                     <div className="modifypost_pad">
@@ -259,14 +262,21 @@ const ProductDetail: NextPage = () => {
                 register={register('checkAuth')}
               /> */}
             </div>
-            <div>
+            {/* <div>
               <ul>
                 <li>화소 free, pay</li>
                 <li>화소 free, pay</li>
                 <li>화소 free, pay</li>
               </ul>
+            </div> */}
+            <div>
+              <h1>{data.product.title}</h1>
             </div>
-            <div>{data?.product.description}</div>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(data?.product.description as string)
+              }}
+            />
             <div>
               {data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
                 <span className="hashtag" key={i}>
@@ -407,7 +417,7 @@ const ProductDetail: NextPage = () => {
 
               button {
                 border-radius: 24px;
-                background-color: red;
+                background-color: #e60023;
                 color: white;
                 border: 0;
                 min-width: 60px;
@@ -438,6 +448,12 @@ const ProductDetail: NextPage = () => {
           }
           .svgwrap_div {
             width: 40px;
+            border-radius: 15px;
+            margin-left: 15px;
+
+            :hover {
+              background-color: #e9ecef;
+            }
           }
           .modifypost {
             visibility: hidden;

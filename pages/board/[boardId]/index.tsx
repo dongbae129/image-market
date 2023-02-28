@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Button from '@components/button';
 import { useMutation, useQuery } from 'react-query';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { getFetch } from '@libs/client/fetcher';
 import { Board, Chat, User } from '@prisma/client';
 import Link from 'next/link';
@@ -17,6 +17,10 @@ interface chatWithUser extends Chat {
   user: {
     name: string;
   };
+}
+interface BoardUser {
+  ok: boolean;
+  user: User;
 }
 export interface UploadChatResponse {
   ok: boolean;
@@ -38,19 +42,26 @@ interface boardDetailResponse {
 }
 const BoardDetail: NextPage = () => {
   const router = useRouter();
-  // const { register, handleSubmit } = useForm<boardChat>();
-  // const onValid = ({ chat }: boardChat) => {
-  //   if (isLoading) return;
-  //   console.log(chat, 'CCC');
-  //   // mutate({ chat });
-  // };
+
   const { boardId } = router.query;
 
-  const { data: boardDetail } = useQuery<boardDetailResponse>(
+  const { data: boardDetail } = useQuery<boardDetailResponse, AxiosError>(
     ['getBoard'],
     getFetch(`/api/board/${boardId}`),
     {
-      enabled: !!boardId
+      enabled: !!boardId,
+      onSuccess: (res) => {
+        if (
+          res instanceof AxiosError &&
+          res.response &&
+          res.response.status > 400
+        )
+          router.replace('/board');
+      },
+      onError: (err) => {
+        console.log(err, 'error');
+        // if(err && err?.status >= 400)
+      }
     }
   );
   const { data, refetch } = useQuery<UploadChatResponse>(
@@ -60,6 +71,7 @@ const BoardDetail: NextPage = () => {
       enabled: !!boardId
     }
   );
+  console.log(data, 'Data');
   const chatting = (data: boardChat) =>
     axios.post(`/api/chat/board/${boardId}`, data).then((res) => res.data);
   const { mutate, isLoading } = useMutation<UploadChatResponse, any, boardChat>(
@@ -74,13 +86,15 @@ const BoardDetail: NextPage = () => {
       }
     }
   );
+  const { data: userInfo } = useQuery<BoardUser>(['userInfo']);
+  console.log(userInfo, 'userinfo');
   return (
     <div className="articlewrap">
       <div className="infoline">
         <span>게시판</span>
       </div>
       <div>
-        <h1>제목: {boardDetail?.board.title}</h1>
+        <h1>제목: {boardDetail?.board?.title}</h1>
         <div className="userwrap">
           <div className="useraccountinfo">
             <div className="userimage">
@@ -91,31 +105,34 @@ const BoardDetail: NextPage = () => {
               />
             </div>
             <div className="userinfo">
-              <span>{boardDetail?.board.user.email}</span>
+              <span>{boardDetail?.board?.user?.email}</span>
               <br />
-              <span>{boardDetail?.board.user.name}</span>
+              <span>{boardDetail?.board?.user?.name}</span>
             </div>
           </div>
-          <div>
-            <Link href={`/board/${boardDetail?.board.id}/setting`}>
-              <a>
-                <Button isLoading={false} text="수정" />
-              </a>
-            </Link>
-          </div>
+
+          {userInfo?.user.id === boardDetail?.board.user.id ? (
+            <div>
+              <Link href={`/board/${boardDetail?.board?.id}/setting`}>
+                <a>
+                  <Button isLoading={false} text="수정" />
+                </a>
+              </Link>
+            </div>
+          ) : null}
         </div>
         <main>
           {boardDetail && (
             <div
               dangerouslySetInnerHTML={{
-                __html: Dompurify.sanitize(boardDetail?.board.description)
+                __html: Dompurify.sanitize(boardDetail?.board?.description)
               }}
             />
           )}
         </main>
         <div>
-          {boardDetail?.board.boardTag[0] &&
-            boardDetail?.board.boardTag[0].hashtag
+          {boardDetail?.board?.boardTag[0] &&
+            boardDetail?.board?.boardTag[0].hashtag
               .split(',')
               .map((hashtag, i) => (
                 <span className="hashtag" key={i}>

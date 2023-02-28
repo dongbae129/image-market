@@ -12,6 +12,7 @@ import NextImage from 'next/image';
 import InputHashtag from '@components/hashtag';
 import TextArea from '@components/textarea';
 import { userResponse } from '@components/headmenu';
+import UploadImage from '@components/uploadImage';
 
 interface UploadProductForm {
   image: FileList;
@@ -36,9 +37,9 @@ const Upload: NextPage = () => {
 
   const router = useRouter();
 
-  const { data } = useQuery<userResponse>(['userInfo']);
+  // const { data } = useQuery<userResponse>(['userInfo']);
 
-  if ((data && !data?.ok) || (data && !data.user.id)) router.push('/');
+  // if ((data && !data?.ok) || (data && !data.user.id)) router.push('/');
 
   const { register, handleSubmit, watch } = useForm<UploadProductForm>();
   const uploadPost = (data: FormData) =>
@@ -76,7 +77,7 @@ const Upload: NextPage = () => {
     form.append('description', description!);
     form.append('ratio', ratioRef.current);
     form.append('productAuth', JSON.stringify({ productBool: productAuth }));
-    // mutate(form);
+    mutate(form);
   };
 
   useEffect(() => {
@@ -108,7 +109,7 @@ const Upload: NextPage = () => {
 
   return (
     <div className="uploadwrap">
-      <div>
+      {/* <div>
         <div>
           <div>
             <div className="upload_image">
@@ -173,15 +174,30 @@ const Upload: NextPage = () => {
             onClick={handleSubmit(onValid)}
           />
         </div>
-      </div>
+      </div> */}
+      <UploadImage
+        url="product"
+        component={['title', 'description', 'productAuth']}
+        elementType={['input', 'textarea', 'input']}
+        buttontext={['등록']}
+        buttonColor={[]}
+        labelTrue={true}
+        hashtrue={true}
+        image="true"
+      />
       <style jsx>{`
         .uploadwrap {
           display: flex;
           justify-content: center;
-
-          > div {
-            max-width: 400px;
-          }
+          flex-direction: column;
+          align-items: center;
+          max-width: 40rem;
+          box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+          margin: auto;
+          margin-top: 2rem;
+          padding: 2.5rem;
+          padding-bottom: 10px;
+          padding-top: 2rem;
         }
         .upload_image-wrap {
           display: flex;

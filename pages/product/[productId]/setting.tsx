@@ -3,12 +3,13 @@ import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
 import { getFetch } from '@libs/client/fetcher';
 import UploadImage from '@components/uploadImage';
+import ProductDetail from './index';
 
 const ProductSetting: NextPage = () => {
   const router = useRouter();
-  const productId = router.query;
+  const { productId } = router.query;
 
-  const { data } = useQuery(
+  const { data } = useQuery<ProductDetail>(
     ['getProduct'],
     getFetch(`/api/product/${productId}`),
     {
@@ -23,9 +24,16 @@ const ProductSetting: NextPage = () => {
           url={`prodcut/${productId}`}
           component={['title', 'description']}
           elementType={['input', 'textarea']}
-          buttontext="수정"
+          buttontext={['수정']}
+          buttonColor={[]}
           hashtrue={true}
+          labelTrue={true}
           image="true"
+          elementValue={{
+            title: data?.product.title,
+            description: data?.product.description,
+            hashtag: data?.product.hashtag.hashtag
+          }}
         />
       </div>
       <style jsx>{`

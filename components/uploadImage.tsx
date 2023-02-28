@@ -18,32 +18,43 @@ interface UploadForm {
 interface UploadImageProps {
   image?: string | null;
   url: string;
-  buttontext: string;
+  buttontext: string[];
   component: string[];
   elementType: string[];
   hashtrue: boolean;
+  buttonColor: string[];
+  labelTrue: boolean;
+  setModalOpen?: () => void;
   elementValue?: {
-    [key: string]: string | null;
+    [key: string]: string | null | undefined;
   };
 }
 interface UploadFormData {
-  form: FormData;
   info: object;
 }
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
   const routerId = router.query.boardId;
-  console.log(routerId, ' router');
   const [imagePreview, setImagePreview] = useState('');
   const [editorValue, setEditorValue] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
 
   const { register, handleSubmit, watch } = useForm<UploadForm>();
-  const postUploadForm = (data: UploadFormData) =>
-    axios.post(`/api/${info.url}/${routerId}`, data).then((res) => res.data);
+  const postUploadForm = (data: FormData | UploadFormData) =>
+    axios
+      .post(
+        `/api/${info.url === 'product' ? 'product/upload' : info.url}${
+          routerId ? '/' + routerId : ''
+        }`,
+        data
+      )
+      .then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
-    onSuccess: () => {
+    onSuccess: (res) => {
+      console.log(res, 'res');
+      const routerId = res.product ? res.product.id : res.board.id;
+      console.log(routerId, 'routerId');
       router.push(`/${info.url}/${routerId ? routerId : ''}`);
     }
   });
@@ -58,15 +69,31 @@ const UploadImage = (info: UploadImageProps) => {
       if (key === 'image') {
         form.append('file', v[key][0]);
       } else {
+        // if (key === 'productAuth') {
+        //   form.append('productAuth', JSON.stringify({ productBool: v[key] }));
+        //   info[key] = JSON.stringify({ productBool: v[key] });
+        // }
         form.append(key, v[key]);
         info[key] = v[key];
         // info{ [key]: v[key] };
       }
     }
+    form.append('hashtag', hashtag.join(','));
+    form.append('description', editorValue);
     info['boardtag'] = hashtag.join(',');
     info['description'] = editorValue;
     // info.push({ boardtag: hashtag.join(',') });
-    mutate({ form, info });
+    console.log(info, 'info');
+    form.forEach((key, val) => {
+      console.log(key, val, 'vv');
+    });
+    console.log(v, 'upload');
+    mutate(info.url === 'product' ? form : { info });
+  };
+  const onDeleteBoard = () => {
+    axios
+      .delete(`/api/${info.url}/${routerId}`)
+      .then(() => router.push('/board'));
   };
   useEffect(() => {
     if (imageWatch && imageWatch.length > 0) {
@@ -114,11 +141,13 @@ const UploadImage = (info: UploadImageProps) => {
                 key={v}
                 label={v}
                 name={v}
-                type="text"
+                type={v === 'productAuth' ? 'checkbox' : 'text'}
                 // value={info.elementValue && info.elementValue[v]}
                 inputValue={info.elementValue && info.elementValue[v]}
                 required
-                register={register(v, { required: true })}
+                register={register(v, {
+                  required: v === 'productAuth' ? false : true
+                })}
               />
             );
           } else if (info.elementType[i] === 'textarea')
@@ -136,6 +165,7 @@ const UploadImage = (info: UploadImageProps) => {
                     isLoading={false}
                     btntrue={!info.buttontext}
                     setter={setEditorValue}
+                    labelTrue={info.labelTrue}
                   />
                 </div>
               </div>
@@ -151,13 +181,22 @@ const UploadImage = (info: UploadImageProps) => {
         {info.hashtrue && (
           <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
         )}
-        {info.buttontext && (
-          <Button
-            isLoading={isLoading}
-            text={info.buttontext}
-            onClick={handleSubmit(onValid)}
-          />
-        )}
+        <div className="buttonwrap">
+          {info.buttontext &&
+            info.buttontext.map((text, i) => (
+              <div key={i}>
+                <Button
+                  isLoading={false}
+                  // isLoading={isLoading}
+                  text={text}
+                  color={info.buttonColor[i]}
+                  onClick={
+                    text === '삭제' ? info.setModalOpen : handleSubmit(onValid)
+                  }
+                />
+              </div>
+            ))}
+        </div>
       </div>
 
       <style jsx>{`
@@ -200,10 +239,18 @@ const UploadImage = (info: UploadImageProps) => {
           }
         }
         .editorwrap {
-          min-height: 300px;
-          height: 300px;
+          min-height: 150px;
+          height: 200px;
           position: relative;
           margin-bottom: 2rem;
+        }
+        .buttonwrap {
+          display: flex;
+          justify-content: end;
+
+          > div {
+            padding: 10px;
+          }
         }
       `}</style>
     </>

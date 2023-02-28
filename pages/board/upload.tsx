@@ -20,7 +20,9 @@ const BoardUpload: NextPage = () => {
         url="board"
         component={['title', 'description']}
         elementType={['input', 'textarea']}
-        buttontext="등록"
+        buttontext={['등록']}
+        buttonColor={[]}
+        labelTrue={true}
         hashtrue={true}
       />
       <style jsx>{`
@@ -32,8 +34,10 @@ const BoardUpload: NextPage = () => {
           max-width: 40rem;
           box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
           margin: auto;
-          margin-top: 5rem;
+          margin-top: 2rem;
           padding: 2.5rem;
+          padding-bottom: 10px;
+          padding-top: 2rem;
         }
       `}</style>
     </div>

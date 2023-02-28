@@ -1,6 +1,3 @@
-import nextConnect from 'next-connect';
-import multer from 'multer';
-import path from 'path';
 import client from '@libs/server/client';
 import { decode } from 'jsonwebtoken';
 import { checkAuth } from '@libs/server/auth';
@@ -56,6 +53,14 @@ export const config = {
 // const app = nc;
 const app = nc;
 app.post(isLogedIn, upload.single('file'), async (req, res) => {
+  // console.log(req.body, 'Body111');
+  // console.log(req.file, 'file111');
+  // console.log(req.body.form, 'fffooo');
+  // console.log(JSON.parse(req.body.productAuth), 'authproduct');
+
+  // return res.json({
+  //   ok: true
+  // });
   // console.log(req.body, 'body');
   // console.log(req.body.email, 'email');
   // console.log(req.url, 'url');
@@ -77,7 +82,8 @@ app.post(isLogedIn, upload.single('file'), async (req, res) => {
     // console.log(req.file?.filename, 'filename');
     // console.log(req.body, ' body');
 
-    const productAuth = JSON.parse(req.body.productAuth).productBool;
+    const productAuth = JSON.parse(req.body.productAuth);
+    // const productAuth = req.body.productAuth;
     // checkAuth(req, res);
     // const clientAccessToken = req.headers['authorization']?.split(' ')[1];
     const decoded = decode(auth.accessToken!) as TokenPayload;

@@ -21,7 +21,7 @@ export const storage = multer.diskStorage({
     file.originalname = Buffer.from(file.originalname, 'latin1').toString(
       'utf8'
     );
-    console.log(file, 'File TEST!!!!!!!');
+
     // const encodedName = encodeURIComponent(file.originalname);
     const encodedName = file.originalname;
     const ext = path.extname(encodedName);

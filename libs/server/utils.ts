@@ -1,10 +1,11 @@
 import { JwtPayload } from 'jsonwebtoken';
 import multer from 'multer';
 import { NextApiRequest, NextApiResponse } from 'next';
-import nextConnect from 'next-connect';
+import nextConnect, { NextHandler } from 'next-connect';
 import path from 'path';
-import { checkAuth } from '@libs/server/auth';
+import { checkAuth, checkAuthResponse } from '@libs/server/auth';
 import dayjs from 'dayjs';
+import { Request, Response } from 'express';
 export interface ResponseType {
   ok: boolean;
   [key: string]: any;
@@ -14,7 +15,7 @@ export interface TokenPayload extends JwtPayload {
   type: number;
 }
 export const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (req: Request, file, cb) {
     cb(null, './public/uploads');
   },
   filename: function (req: any, file, cb) {
@@ -33,7 +34,11 @@ export const storage = multer.diskStorage({
   }
 });
 
-export const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
+export const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: any
+) => {
   const ext = path.extname(file.originalname);
   if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
     return cb(new Error('png, jpg만 업로드 가능합니다'));
@@ -45,10 +50,12 @@ export const upload = multer({
   fileFilter: fileFilter,
   limits: {
     fileSize: 20 * 1024 * 1024
+    // fileSize: 1024
   }
 });
+
 export const nc = nextConnect({
-  onError: (err, req: NextApiRequest, res: NextApiResponse<ResponseType>) => {
+  onError: (err, req: Request, res: NextApiResponse<ResponseType>) => {
     console.error(err.stack);
     res.statusCode = 500;
     res.statusMessage = 'Something broke';
@@ -58,7 +65,10 @@ export const nc = nextConnect({
     res.statusMessage = 'Page is not found';
   }
 });
-export const isLogedIn = (req: NextApiRequest, res: any, next: () => void) => {
+interface LogedInType extends NextApiRequest {
+  auth: checkAuthResponse;
+}
+export const isLogedIn = (req: LogedInType, res: any, next: () => void) => {
   const auth = checkAuth(req, res, 0);
 
   if (!auth?.re) {
@@ -66,7 +76,27 @@ export const isLogedIn = (req: NextApiRequest, res: any, next: () => void) => {
       ok: false,
       message: 'login middleware test false'
     });
-  } else next();
+  } else {
+    req.auth = auth;
+    next();
+  }
+};
+
+export const upLoader = (
+  req: Request,
+  res: Response<ResponseType>,
+  next: NextHandler
+) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.error(err, 'multererror');
+      return res.status(500).json({
+        ok: false,
+        message: 'multer error'
+      });
+    }
+    next();
+  });
 };
 
 export const dbNow = (): Date => dayjs().add(9, 'hour').toDate();

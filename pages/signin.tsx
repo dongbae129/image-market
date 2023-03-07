@@ -5,18 +5,13 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import SvgData from 'json/data.json';
 
-// import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useDispatch } from 'react-redux';
 import { setAccessToken } from 'reducers/user';
-import { RiKakaoTalkFill } from 'react-icons/ri';
-import { SiNaver } from 'react-icons/si';
-import { FcGoogle } from 'react-icons/fc';
 
 import { userResponse } from '@components/headmenu';
-import SVG from 'json/data.json';
 import SvgIcon from '@components/svgIcon';
 interface SingInForm {
   userId: string;

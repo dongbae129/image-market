@@ -378,7 +378,9 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
         const planegeo = new THREE.PlaneGeometry(0.5, 0.5);
         const planemat = new THREE.MeshStandardMaterial({
           map: new THREE.TextureLoader().load(
-            '/uploads/이미지21670169826661.jpg'
+            user.image
+              ? `/uploads/${user.image}`
+              : '/uploads/이미지21670169826661.jpg'
             // user.image || '/uploads/이미지21670169826661.jpg'
           ),
           side: THREE.DoubleSide

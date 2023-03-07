@@ -33,10 +33,10 @@ export const authLinkCheck = (req: NextApiRequest, res: NextApiResponse) => {
     });
   }
 };
-interface checkAuthResponse {
+export interface checkAuthResponse {
   re: boolean;
   ac: boolean | null;
-  accessToken?: string;
+  accessToken: string;
   cookie?: null;
   message: string;
 }

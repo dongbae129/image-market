@@ -4,6 +4,7 @@ import { checkAuth } from '@libs/server/auth';
 import axios from 'axios';
 import { isLogedIn, nc, TokenPayload, upload, dbNow } from '@libs/server/utils';
 import sharp from 'sharp';
+import { MulterError } from 'multer';
 
 export const config = {
   api: {
@@ -52,9 +53,22 @@ export const config = {
 // });
 // const app = nc;
 const app = nc;
-app.post(isLogedIn, upload.single('file'), async (req, res) => {
-  // console.log(req.body, 'Body111');
-  // console.log(req.file, 'file111');
+app.post(isLogedIn, async (req, res) => {
+  console.log(req.body, 'Body!!');
+  console.log(req.file, 'file!!');
+  const mulup = upload.single('file');
+  mulup(req, res, (err) => {
+    if (err instanceof MulterError) {
+      console.error(err, 'multerError if');
+      req.file.error = true;
+    } else if (err) {
+      console.error(err, 'multerError else if');
+      req.file.error = true;
+    }
+  });
+
+  console.log(req.file, 'file222');
+
   // console.log(req.body.form, 'fffooo');
   // console.log(JSON.parse(req.body.productAuth), 'authproduct');
 

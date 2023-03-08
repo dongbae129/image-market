@@ -15,6 +15,12 @@ const UserSecurity = async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       const decoded = decode(auth.accessToken) as TokenPayload;
+      if (decoded.type !== 1) {
+        return res.status(400).json({
+          ok: false,
+          message: "Social users can't change their password"
+        });
+      }
       if (decoded.id !== +req.query.userId) {
         return res.status(400).json({
           ok: false,

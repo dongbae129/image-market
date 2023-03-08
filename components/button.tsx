@@ -28,8 +28,11 @@ const Button = ({
           font-size: 1.25rem;
           border-radius: 4px;
           letter-spacing: 2px;
-          :hover {
+          :hover:not(:disabled) {
             filter: brightness(0.8);
+          }
+          :disabled {
+            background-color: #d0ebff;
           }
         }
       `}</style>

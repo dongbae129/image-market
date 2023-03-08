@@ -50,28 +50,38 @@ const Security: NextPage = () => {
         <div>
           <form onSubmit={handleSubmit(onValid)}>
             <Input
+              className="psInput"
               label="prevPassword"
               name="prevPassword"
               type="password"
+              disabled={data?.user.emailActive ? true : false}
               required
               register={register('prevPassword', { required: true })}
             />
             <Input
+              className="psInput"
               label="password"
               name="password"
               type="password"
+              disabled={data?.user.emailActive ? true : false}
               required
               register={register('password', { required: true })}
             />
             <Input
+              className="psInput"
               label="passwordCheck"
               name="passwordCheck"
               type="password"
+              disabled={data?.user.emailActive ? true : false}
               required
               register={register('passwordCheck', { required: true })}
             />
             <div>
-              <Button isLoading={false} text="LOGIN" />
+              <Button
+                isLoading={false}
+                text="LOGIN"
+                disabled={data?.user.emailActive ? true : false}
+              />
             </div>
           </form>
         </div>

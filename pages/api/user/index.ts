@@ -26,7 +26,8 @@ const User = async (
             id: true,
             name: true,
             email: true,
-            image: true
+            image: true,
+            emailActive: true
           }
         });
 

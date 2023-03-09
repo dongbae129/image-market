@@ -2,7 +2,14 @@ import client from '@libs/server/client';
 import { decode } from 'jsonwebtoken';
 import { checkAuth } from '@libs/server/auth';
 import axios from 'axios';
-import { isLogedIn, nc, TokenPayload, upload, dbNow } from '@libs/server/utils';
+import {
+  isLogedIn,
+  nc,
+  TokenPayload,
+  upload,
+  dbNow,
+  upLoader
+} from '@libs/server/utils';
 import sharp from 'sharp';
 import { MulterError } from 'multer';
 
@@ -53,33 +60,9 @@ export const config = {
 // });
 // const app = nc;
 const app = nc;
-app.post(isLogedIn, async (req, res) => {
+app.post(isLogedIn, upLoader, async (req, res) => {
   console.log(req.body, 'Body!!');
   console.log(req.file, 'file!!');
-  const mulup = upload.single('file');
-  mulup(req, res, (err) => {
-    if (err instanceof MulterError) {
-      console.error(err, 'multerError if');
-      req.file.error = true;
-    } else if (err) {
-      console.error(err, 'multerError else if');
-      req.file.error = true;
-    }
-  });
-
-  console.log(req.file, 'file222');
-
-  // console.log(req.body.form, 'fffooo');
-  // console.log(JSON.parse(req.body.productAuth), 'authproduct');
-
-  // return res.json({
-  //   ok: true
-  // });
-  // console.log(req.body, 'body');
-  // console.log(req.body.email, 'email');
-  // console.log(req.url, 'url');
-  // console.log(req.file, 'file');
-  // console.log(JSON.parse(req.body.productAuth).productBool, 'bb');
 
   try {
     const auth = checkAuth(req, res, 0);

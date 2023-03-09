@@ -33,6 +33,7 @@ const KakaoHandler: NextPage = () => {
             // console.log(queryClient, 'query');
 
             router.push('/');
+            // router.push('/', undefined, { shallow: true });
           } else {
             router.replace('signin');
           }

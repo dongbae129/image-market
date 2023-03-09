@@ -28,13 +28,15 @@ interface EditorProps {
   btntrue?: boolean;
   setter?: Dispatch<SetStateAction<string>>;
   labelTrue?: boolean;
+  btnActive: boolean;
 }
 const Editor = ({
   mutate,
   isLoading,
   btntrue,
   setter,
-  labelTrue
+  labelTrue,
+  btnActive
 }: EditorProps) => {
   const [chat, setChat] = useState('');
 
@@ -129,7 +131,12 @@ const Editor = ({
       {btntrue && (
         <div className="chatinput_btn">
           <div>
-            <Button isLoading={false} text="작성" onClick={submitText} />
+            <Button
+              isLoading={false}
+              text="작성"
+              onClick={submitText}
+              disabled={btnActive ? true : false}
+            />
           </div>
         </div>
       )}

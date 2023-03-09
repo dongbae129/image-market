@@ -30,8 +30,9 @@ interface UploadImageProps {
   };
 }
 interface UploadFormData {
-  info: object;
+  [key: string]: string | boolean | undefined;
 }
+
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
   const routerId = router.query.boardId;
@@ -63,32 +64,34 @@ const UploadImage = (info: UploadImageProps) => {
   const onValid = (v: UploadForm) => {
     if (isLoading) return;
     const form = new FormData();
-    const info: { [key: string]: string } = {};
+    const formInfo: UploadFormData = {};
 
+    console.log(v, 'vvvvvv');
     for (const key in v) {
       if (key === 'image') {
         form.append('file', v[key][0]);
       } else {
         // if (key === 'productAuth') {
         //   form.append('productAuth', JSON.stringify({ productBool: v[key] }));
-        //   info[key] = JSON.stringify({ productBool: v[key] });
+        //   formInfo[key] = JSON.stringify({ productBool: v[key] });
         // }
         form.append(key, v[key]);
-        info[key] = v[key];
-        // info{ [key]: v[key] };
+        formInfo[key] = v[key];
+        // formInfo{ [key]: v[key] };
       }
     }
     form.append('hashtag', hashtag.join(','));
     form.append('description', editorValue);
-    info['boardtag'] = hashtag.join(',');
-    info['description'] = editorValue;
-    // info.push({ boardtag: hashtag.join(',') });
-    console.log(info, 'info');
+    formInfo['boardtag'] = hashtag.join(',');
+    formInfo['description'] = editorValue;
+    // formInfo.push({ boardtag: hashtag.join(',') });
+    console.log(formInfo, 'formInfo');
     form.forEach((key, val) => {
       console.log(key, val, 'vv');
     });
     console.log(v, 'upload');
-    mutate(info.url === 'product' ? form : { info });
+    console.log(formInfo.url, 'url');
+    mutate(info.url === 'product' ? form : formInfo);
   };
   const onDeleteBoard = () => {
     axios

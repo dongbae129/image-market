@@ -55,30 +55,30 @@ const Upload: NextPage = () => {
     }
   });
   const imageWatch = watch('image');
-  const onValid = ({
-    image,
-    title,
-    description,
-    productAuth,
-    ratio
-  }: UploadProductForm) => {
-    console.log(title, 'ti');
-    if (isLoading) return;
-    // console.log(imageWatch[0], '@@');
-    const form = new FormData();
+  // const onValid = ({
+  //   image,
+  //   title,
+  //   description,
+  //   productAuth,
+  //   ratio
+  // }: UploadProductForm) => {
+  //   console.log(title, 'ti');
+  //   if (isLoading) return;
+  //   // console.log(imageWatch[0], '@@');
+  //   const form = new FormData();
 
-    // const imgtest = new Image()
-    console.log(image, 'Image');
+  //   // const imgtest = new Image()
+  //   console.log(image, 'Image');
 
-    console.log(hashtag, 'hash');
-    form.append('file', image[0]);
-    form.append('title', title);
-    form.append('hashtag', hashtag.join());
-    form.append('description', description!);
-    form.append('ratio', ratioRef.current);
-    form.append('productAuth', JSON.stringify({ productBool: productAuth }));
-    mutate(form);
-  };
+  //   console.log(hashtag, 'hash');
+  //   form.append('file', image[0]);
+  //   form.append('title', title);
+  //   form.append('hashtag', hashtag.join());
+  //   form.append('description', description!);
+  //   form.append('ratio', ratioRef.current);
+  //   form.append('productAuth', JSON.stringify({ productBool: productAuth }));
+  //   mutate(form);
+  // };
 
   useEffect(() => {
     if (imageWatch && imageWatch.length > 0) {

@@ -5,6 +5,7 @@ import type { NextPage } from 'next';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from 'react-query';
 import Button from '@components/button';
+import SetSelect from '@components/setSelect';
 
 interface UserCheck {
   password: string;
@@ -42,56 +43,63 @@ const Security: NextPage = () => {
     mutate(info);
   };
   return (
-    <div className="securitywrap">
-      <div className="security">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div>
-          <form onSubmit={handleSubmit(onValid)}>
-            <Input
-              className="psInput"
-              label="prevPassword"
-              name="prevPassword"
-              type="password"
-              disabled={data?.user.emailActive ? true : false}
-              required
-              register={register('prevPassword', { required: true })}
-            />
-            <Input
-              className="psInput"
-              label="password"
-              name="password"
-              type="password"
-              disabled={data?.user.emailActive ? true : false}
-              required
-              register={register('password', { required: true })}
-            />
-            <Input
-              className="psInput"
-              label="passwordCheck"
-              name="passwordCheck"
-              type="password"
-              disabled={data?.user.emailActive ? true : false}
-              required
-              register={register('passwordCheck', { required: true })}
-            />
-            <div>
-              <Button
-                isLoading={false}
-                text="LOGIN"
+    <div className="securitOverwrap">
+      <SetSelect />
+      <div className="securitywrap">
+        <div className="security">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div>
+            <form onSubmit={handleSubmit(onValid)}>
+              <Input
+                className="psInput"
+                label="prevPassword"
+                name="prevPassword"
+                type="password"
                 disabled={data?.user.emailActive ? true : false}
+                required
+                register={register('prevPassword', { required: true })}
               />
-            </div>
-          </form>
+              <Input
+                className="psInput"
+                label="password"
+                name="password"
+                type="password"
+                disabled={data?.user.emailActive ? true : false}
+                required
+                register={register('password', { required: true })}
+              />
+              <Input
+                className="psInput"
+                label="passwordCheck"
+                name="passwordCheck"
+                type="password"
+                disabled={data?.user.emailActive ? true : false}
+                required
+                register={register('passwordCheck', { required: true })}
+              />
+              <div>
+                <Button
+                  isLoading={false}
+                  text="LOGIN"
+                  disabled={data?.user.emailActive ? true : false}
+                />
+              </div>
+            </form>
+          </div>
         </div>
       </div>
       <style jsx>{`
+        .securitOverwrap {
+          width: 100%;
+          height: calc(100% - 80px);
+          position: absolute;
+        }
         .securitywrap {
           display: flex;
-          position: absolute;
           width: 100%;
-          height: calc(100% - 70px);
+          height: calc(100% - 80px);
           justify-content: center;
           align-items: center;
         }

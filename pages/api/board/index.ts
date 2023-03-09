@@ -22,7 +22,7 @@ const Board = async (
         const decoded = decode(authResponse.accessToken) as TokenPayload;
 
         console.log(req.body, 'Body');
-        const { title, description, boardtag }: PostBoardInfo = req.body.info;
+        const { title, description, boardtag }: PostBoardInfo = req.body;
         if (title === '' || description === '')
           return res.json({
             ok: false,
@@ -143,6 +143,9 @@ const Board = async (
               boardChat: true
             }
           }
+        },
+        orderBy: {
+          updatedAt: 'desc'
         }
       });
       return res.json({

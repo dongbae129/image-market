@@ -111,7 +111,7 @@ const BoardDetail: NextPage = () => {
             </div>
           </div>
 
-          {userInfo?.user.id === boardDetail?.board.user.id ? (
+          {userInfo?.user?.id === boardDetail?.board.user.id ? (
             <div>
               <Link href={`/board/${boardDetail?.board?.id}/setting`}>
                 <a>
@@ -162,7 +162,12 @@ const BoardDetail: NextPage = () => {
                   position: 'relative'
                 }}
               >
-                <Editor mutate={mutate} isLoading={isLoading} btntrue={true} />
+                <Editor
+                  mutate={mutate}
+                  isLoading={isLoading}
+                  btntrue={true}
+                  btnActive={userInfo?.user ? false : true}
+                />
               </div>
             </div>
           </div>

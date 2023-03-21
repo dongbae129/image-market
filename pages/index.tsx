@@ -7,7 +7,7 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { Product, User } from '@prisma/client';
 import NextImage from 'next/future/image';
-import { getFetch } from '@libs/client/fetcher';
+import { getFetch, newAxios } from '@libs/client/fetcher';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 
@@ -61,7 +61,7 @@ const Home: NextPage = () => {
   const [divWidth, setDivWidth] = useState(0);
 
   const getProducts = ({ pageParam = 0 }) =>
-    axios.get(`/api/product?id=${pageParam}`).then((res) => res.data);
+    newAxios.get(`/api/product?id=${pageParam}`).then((res) => res.data);
 
   // const getProducts = async ({ pageParam = 1 }) => {
   //   const { products } = await axios
@@ -119,7 +119,9 @@ const Home: NextPage = () => {
           .getPropertyValue('font-size')
           .slice(0, -2) * 3;
       setDivWidth((test - size) / 4);
+      console.log('in');
     }
+    console.log('out');
   }, []);
   useEffect(() => {
     if (inView && hasNextPage) fetchNextPage();

@@ -13,6 +13,7 @@ import { setAccessToken } from 'reducers/user';
 
 import { userResponse } from '@components/headmenu';
 import SvgIcon from '@components/svgIcon';
+import { newAxios } from '@libs/client/fetcher';
 interface SingInForm {
   userId: string;
   password: string;
@@ -59,7 +60,9 @@ const Signin: NextPage = () => {
       dispatch(setAccessToken(res.accessToken));
       // axios.defaults.headers.common['Authorization'] = '';
 
-      axios.defaults.headers.common['authorization'] =
+      // axios.defaults.headers.common['authorization'] =
+      //   'Bearer ' + res.accessToken;
+      newAxios.defaults.headers.common['authorization'] =
         'Bearer ' + res.accessToken;
       console.log(axios.defaults.headers, '$$$');
       queryClient.invalidateQueries(['userInfo']);

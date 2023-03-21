@@ -71,7 +71,7 @@ interface LogedInType extends NextApiRequest {
 export const isLogedIn = (req: LogedInType, res: any, next: () => void) => {
   const auth = checkAuth(req, res, 0);
 
-  if (!auth?.re) {
+  if (!auth?.checkError) {
     res.status(401).json({
       ok: false,
       message: 'login middleware test false'

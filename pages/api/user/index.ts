@@ -8,19 +8,20 @@ const User = async (
   res: NextApiResponse<ResponseType>
 ) => {
   const auth = checkAuth(req, res, 0);
-  if (!auth?.re)
-    return res.json({
+  console.log(auth, 'Auth');
+  if (auth?.checkError)
+    return res.status(401).json({
       ok: false,
-      message: 'need to login'
+      auth
     });
+
   if (req.method === 'GET') {
     try {
-      if (auth.accessToken) {
-        const decoded = decode(auth?.accessToken) as TokenPayload;
-        console.log(decoded, 'DD');
+      if (auth?.payload) {
+        const { id } = auth?.payload as TokenPayload;
         const user = await client.user.findUnique({
           where: {
-            id: decoded.id
+            id
           },
           select: {
             id: true,
@@ -40,8 +41,8 @@ const User = async (
       console.error(e, 'faile method GET');
     }
   } else if (req.method === 'POST') {
-    return res.json({
-      ok: true,
+    return res.status(400).json({
+      ok: false,
       meesage: '나중에'
     });
   }

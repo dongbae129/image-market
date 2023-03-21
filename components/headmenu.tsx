@@ -47,7 +47,7 @@ const HeadMenu: NextPage = () => {
   };
   const { data: userInfo } = useQuery<userResponse>(
     ['userInfo'],
-    getFetch('/api/user', header)
+    getFetch('/api/user')
   );
   return (
     <div className="headmenuwrap">

@@ -63,16 +63,11 @@ const app = nc;
 app.post(isLogedIn, upLoader, async (req, res) => {
   console.log(req.body, 'Body!!');
   console.log(req.file, 'file!!');
+  const auth = req.auth;
 
   try {
     const auth = checkAuth(req, res, 0);
     console.log(auth, 'auth');
-
-    if (!auth?.re)
-      return res.json({
-        ok: false,
-        message: 'need to login'
-      });
 
     // console.log(req.headers['authorization'], 'Header');
     // console.log(req.file, 'file');
@@ -84,12 +79,12 @@ app.post(isLogedIn, upLoader, async (req, res) => {
     // checkAuth(req, res);
     // const clientAccessToken = req.headers['authorization']?.split(' ')[1];
     const decoded = decode(auth.accessToken!) as TokenPayload;
-    if (auth.accessToken!.length > 0) {
-      axios.defaults.headers.common[
-        'authorization'
-      ] = `Bearer ${auth?.accessToken}`;
-    }
-    const userId = decoded.id;
+    // if (auth.accessToken!.length > 0) {
+    //   axios.defaults.headers.common[
+    //     'authorization'
+    //   ] = `Bearer ${auth?.accessToken}`;
+    // }
+    const userId = (auth?.payload as TokenPayload).id;
 
     console.log(req.body, 'BBB');
     let imgname: string;

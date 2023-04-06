@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Button from '@components/button';
 import { useMutation, useQuery } from 'react-query';
 import axios, { AxiosError } from 'axios';
-import { getFetch } from '@libs/client/fetcher';
+import { getFetch, newAxios } from '@libs/client/fetcher';
 import { Board, Chat, User } from '@prisma/client';
 import Link from 'next/link';
 import NextImage from 'next/image';
@@ -43,7 +43,7 @@ interface boardDetailResponse {
 const BoardDetail: NextPage = () => {
   const router = useRouter();
 
-  const { boardId } = router.query;
+  const boardId = router.query.id;
 
   const { data: boardDetail } = useQuery<boardDetailResponse, AxiosError>(
     ['getBoard'],
@@ -73,7 +73,7 @@ const BoardDetail: NextPage = () => {
   );
   console.log(data, 'Data');
   const chatting = (data: boardChat) =>
-    axios.post(`/api/chat/board/${boardId}`, data).then((res) => res.data);
+    newAxios.post(`/api/chat/board/${boardId}`, data).then((res) => res.data);
   const { mutate, isLoading } = useMutation<UploadChatResponse, any, boardChat>(
     chatting,
     {

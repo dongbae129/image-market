@@ -1,14 +1,17 @@
 import '../styles/globals.css';
 import 'react-quill/dist/quill.snow.css';
 import type { AppProps } from 'next/app';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import { useEffect, useState } from 'react';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Provider } from 'react-redux';
 
 import store from 'reducers/store';
 import Layout from '@components/layout';
+import { getFetch } from '@libs/client/fetcher';
 function MyApp({ Component, pageProps }: AppProps) {
+  // const { restoreState } = store.getState().user;
+
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -19,6 +22,10 @@ function MyApp({ Component, pageProps }: AppProps) {
         }
       })
   );
+  // queryClient.getQueryData(['userInfo']);
+  // useQuery(['userInfo'], getFetch('/api/user'), {
+  //   enabled: !restoreState
+  // });
   // useEffect(() => {
   //   // window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_KEY);
   //   // const kakao = document.createElement('script');

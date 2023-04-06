@@ -50,20 +50,20 @@ const BoardChat = async (
         message: 'need to any chat'
       });
     console.log(boardId, 'BO!!', req.body, 'BOAA');
-    const authResponse = checkAuth(req, res, 0);
-    if (!authResponse || !authResponse.accessToken)
-      return res.json({
+    const auth = checkAuth(req, res, 0);
+    if (auth.checkError)
+      return res.status(401).json({
         ok: false,
-        message: 'need to login for chat'
+        auth
       });
-    const userId = decode(authResponse.accessToken) as TokenPayload;
+    const userId = (auth.payload as TokenPayload).id;
 
     try {
       const now = dbNow();
       const chat = await client.boardChat.create({
         data: {
           description: req.body.chat,
-          userId: userId.id,
+          userId: userId,
           boardId: +boardId.toString(),
           createdAt: now,
           updatedAt: now
@@ -87,32 +87,6 @@ const BoardChat = async (
         meesage: `/api/chat/[${boardId}], post, create chat error`
       });
     }
-
-    // const decoded = decode(token) as JwtPayload;
-    // console.log(decoded, '!@!!!!!!!!!!!');
-    // const {
-    //   body: { chat }
-    // } = req;
-    // if (!chat)
-    //   return res.json({
-    //     ok: false,
-    //     message: 'input anything'
-    //   });
-    // const comment = await client.chat.create({
-    //   data: {
-    //     description: chat,
-    //     productId: +boardId.toString(),
-    //     userId: decoded?.boardId
-    //   },
-    //   select: {
-    //     user: true
-    //   }
-    // });
-    // return res.json({
-    //   ok: true,
-    //   message: 'success create comment',
-    //   comment
-    // });
   }
 };
 

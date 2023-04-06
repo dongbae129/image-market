@@ -1,6 +1,6 @@
 import axios from 'axios';
 import cookie from 'cookie';
-import { sign, verify, decode, JwtPayload, VerifyErrors } from 'jsonwebtoken';
+import { sign, verify, JwtPayload, VerifyErrors } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export const authLinkCheck = (req: NextApiRequest, res: NextApiResponse) => {
@@ -47,12 +47,21 @@ interface VerifyType {
   checkError?: boolean;
   payload?: string | JwtPayload | undefined;
 }
+// |이 코드는 Next.js API 라우트에서 인증을 체크하는 함수인 `checkAuth`를 정의하는 코드입니다.
+// |
+// |좋은 점:
+// |- 코드가 간결하고 읽기 쉽습니다.
+// |- 함수의 인자와 반환값이 명확하게 정의되어 있습니다.
+// |- `console.log`를 이용하여 디버깅을 수행하고 있습니다.
+// |
+// |나쁜 점:
+// |- `verify` 함수는 비동기 함수이지만, `verifyed` 변수에 값을 할당하는 부분이 동기적으로 작성되어 있습니다. 따라서 `verifyed` 변수에는 항상 빈 객체가 할당됩니다. 이 문제를 해결하기 위해서는 `verify` 함수를 Promise를 반환하도록 수정하거나, `verify` 함수의 콜백 함수 내부에서 반환값을 처리해야 합니다.
+// |- `checkAuth` 함수가 반환하는 값의 타입인 `checkAuthResponse`가 정의되어 있지 않습니다. 이를 해결하기 위해서는 `checkAuthResponse`의 타입을 정의해야 합니다.
 export const checkAuth = (
   req: NextApiRequest,
   res: NextApiResponse,
   logintype: number
-): checkAuthResponse | undefined => {
-  const type = logintype;
+): checkAuthResponse => {
   const clientAccessToken = req.headers['authorization']?.split(' ')[1];
   console.log(req.cookies, 'Refresh');
   console.log(clientAccessToken, 'api/index');
@@ -92,93 +101,6 @@ export const checkAuth = (
     ...state,
     ...verifyed
   };
-  // // 쿠키 있을때
-
-  // if (req.cookies['refreshToken']) {
-  //   // const clientRefreshToken = cookie.parse(req.cookies).refreshToken;
-  //   const clientRefreshToken = req.cookies['refreshToken'];
-  //   // 쿠키에서 refresh 있을때
-
-  //   verify(
-  //     clientRefreshToken,
-  //     process.env.REFRESH_TOKEN_SECRET,
-  //     (err, payload) => {
-  //       // re: x
-  //       if (err) {
-  //         console.log(err, '11');
-  //         state = {
-  //           re: false,
-  //           ac: false,
-  //           message: 'login please',
-  //           err
-  //         };
-  //         return state;
-  //       }
-  //       // re: 0
-  //       else if (payload) {
-  //         if (clientAccessToken) {
-  //           verify(
-  //             clientAccessToken,
-  //             process.env.ACCESS_TOKEN_SECRET,
-  //             (err: any, paylaod: any) => {
-  //               // re: o, ac: x
-  //               if (err) {
-  //                 console.log(err, '2222');
-  //                 console.log(clientAccessToken, 'bb');
-  //                 const decoded = decode(clientRefreshToken);
-  //                 type = (decoded as JwtPayload).type;
-  //                 console.log(decoded, 'BB');
-  //                 // if (decoded) {
-  //                 const accessToken = createAccessToken(decoded?.id, type);
-  //                 console.log(accessToken, 'aa');
-  //                 console.log(decode(accessToken), 'AA');
-
-  //                 state = {
-  //                   re: true,
-  //                   ac: false,
-  //                   message: 'refresh is true but, access is false',
-  //                   accessToken,
-  //                   err
-  //                 };
-  //               }
-  //               // re: o, ac: o
-  //               else {
-  //                 console.log(decode(clientAccessToken), 'auth testtt');
-  //                 state = {
-  //                   re: true,
-  //                   ac: true,
-  //                   message: 'refreh is true, access is true',
-  //                   accessToken: clientAccessToken
-  //                 };
-  //               }
-  //             }
-  //           );
-  //         }
-  //         // header 에 authorization 없을때
-  //         else {
-  //           type = (payload as JwtPayload).type;
-  //           const accessToken = createAccessToken(payload.id, type);
-  //           state = {
-  //             re: true,
-  //             ac: null,
-  //             message: 'refresh is true, but no author header',
-  //             accessToken
-  //           };
-  //         }
-  //       }
-  //     }
-  //   );
-  // }
-  // // 쿠키 없을때
-  // else {
-  //   state = {
-  //     re: false,
-  //     ac: null,
-  //     cookie: null,
-  //     message: 'no have cookie'
-  //   };
-  // }
-  // return state;
 };
 export const refreshToken = () => {
   return axios
@@ -197,11 +119,8 @@ export const createAccessToken = (id: number, type: number) => {
   });
 };
 
-export const createRefreshToken = (id: number, type: number) => {
-  return sign({ id, type }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: '5m'
-  });
-};
+export const createRefreshToken = (id: number, type: number) =>
+  sign({ id, type }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '20m' });
 
 export const sendRefreshToken = (res: any, token: any) => {
   res.setHeader(

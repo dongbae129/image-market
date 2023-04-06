@@ -71,10 +71,12 @@ interface LogedInType extends NextApiRequest {
 export const isLogedIn = (req: LogedInType, res: any, next: () => void) => {
   const auth = checkAuth(req, res, 0);
 
-  if (!auth?.checkError) {
+  console.log(auth, 'Auth');
+  if (auth?.checkError) {
     res.status(401).json({
       ok: false,
-      message: 'login middleware test false'
+      message: 'login middleware test false',
+      auth
     });
   } else {
     req.auth = auth;
@@ -87,7 +89,10 @@ export const upLoader = (
   res: Response<ResponseType>,
   next: NextHandler
 ) => {
+  console.log(req.file, 'file body');
+  // next();
   upload.single('file')(req, res, (err) => {
+    // if(req.body.imageOk === "false")
     if (err) {
       console.error(err, 'multererror');
       return res.status(500).json({

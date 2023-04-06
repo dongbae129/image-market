@@ -11,6 +11,7 @@ import axios from 'axios';
 import NextImage from 'next/image';
 import Link from 'next/link';
 import SetSelect from '@components/setSelect';
+import store from 'reducers/store';
 
 interface SettingForm {
   name: string;
@@ -24,7 +25,7 @@ interface SettingForm {
 const SettingHome: NextPage = () => {
   const [imagePreview, setImagePreview] = useState('');
   const { data } = useQuery<userResponse>(['userInfo'], getFetch('/api/user'), {
-    // staleTime: 1000 * 60
+    enabled: !store.getState().user.restoreState
   });
   const { watch, register, handleSubmit } = useForm<SettingForm>();
   const imageWatch = watch('image');

@@ -111,6 +111,10 @@ const Modal = ({ modalOpen, setModalOpen, deleteMutation }: ModalProps) => {
             border-radius: 10px;
             border: 0;
             cursor: pointer;
+
+            :hover {
+              filter: brightness(0.7);
+            }
           }
           .content_btn_cancel {
             background-color: rgb(239, 239, 239);

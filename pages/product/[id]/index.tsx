@@ -16,6 +16,7 @@ import SvgIcon from '@components/svgIcon';
 import Link from 'next/link';
 import Modal from '@components/modal';
 import DOMPurify from 'dompurify';
+import Input from '@components/input';
 
 interface UserHashtagHit {
   user: {
@@ -68,7 +69,7 @@ const ProductDetail: NextPage = () => {
   const { modify } = SvgData.SVG;
   const watchFiled = watch('chat');
   const watchAuth = watch('checkAuth');
-  const { productId } = router.query;
+  const productId = router.query.id;
 
   const getProduct = () =>
     axios.get(`/api/product/${productId}`).then((res) => res.data);
@@ -255,12 +256,12 @@ const ProductDetail: NextPage = () => {
                   </div>
                 </div>
               </div>
-              {/* <Input
+              <Input
                 label="checkAuth"
                 name="checkAuth"
                 type="checkbox"
                 register={register('checkAuth')}
-              /> */}
+              />
             </div>
             {/* <div>
               <ul>

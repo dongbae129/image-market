@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import { User } from '@prisma/client';
 import Sidebar from './sidebar';
 import { useState } from 'react';
+import store from 'reducers/store';
 
 interface HeadSearch {
   search: string;
@@ -47,7 +48,10 @@ const HeadMenu: NextPage = () => {
   };
   const { data: userInfo } = useQuery<userResponse>(
     ['userInfo'],
-    getFetch('/api/user')
+    getFetch('/api/user'),
+    {
+      enabled: !store.getState().user.restoreState
+    }
   );
   return (
     <div className="headmenuwrap">

@@ -4,9 +4,13 @@ import { useQuery } from 'react-query';
 import { userResponse } from '@components/headmenu';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { getFetch } from '@libs/client/fetcher';
+import store from 'reducers/store';
 
 const BoardUpload: NextPage = () => {
-  const { data } = useQuery<userResponse>(['userInfo']);
+  const { data } = useQuery<userResponse>(['userInfo'], getFetch('/api/user'), {
+    enabled: !store.getState().user.restoreState
+  });
   const router = useRouter();
   useEffect(() => {
     if ((data && !data?.ok) || (data && !data?.user.id)) {

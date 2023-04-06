@@ -1,8 +1,9 @@
 import axios, { AxiosError, AxiosRequestHeaders } from 'axios';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import store from 'reducers/store';
-import { setAccessToken } from 'reducers/user';
+import { setAccessToken, setRestoreState } from 'reducers/user';
 
 export const newAxios = axios.create({
   baseURL: 'http://localhost:3000',
@@ -35,24 +36,31 @@ newAxios.interceptors.request.use(
 );
 interface AxiosErrorWithData {
   ok: boolean;
-  auth?: object;
+  auth?: {
+    checkError: boolean;
+    [key: string]: any;
+  };
 }
+
 newAxios.interceptors.response.use(
   (response) => {
     return response;
   },
   async (err: AxiosError<AxiosErrorWithData>) => {
     const { response, config } = err;
+
     const originalRequest = config;
-    console.log(response, 'err response');
+    // console.log(response, 'err response');
     if (response?.status === 401) {
-      if (response?.data.auth.checkError) {
+      console.log(response, '401');
+      if (response?.data?.auth?.checkError) {
         try {
           const { data } = await axios.get('/api/user/restore');
           store.dispatch(setAccessToken(data.accessToken));
           (
             originalRequest.headers as AxiosRequestHeaders
           ).authorization = `Bearear ${store.getState().user.accessToken}`;
+          store.dispatch(setRestoreState(true));
           return axios(originalRequest);
           /**여기서 refresh를 이용한 acc 재요청? */
           /**애초에 서버에서 expired면 res에
@@ -60,7 +68,8 @@ newAxios.interceptors.response.use(
            * 그러면 client에서 재요청만 하면 되니깐 깔끔하지 않나? */
           // store.dispatch(setAccessToken(response.data.accessToken))
         } catch (error) {
-          console.error(error, 'fail to restore');
+          // console.error(error, 'fail to restore');
+          // store.dispatch(setRestoreState(false));
           return Promise.reject(error);
         }
       }

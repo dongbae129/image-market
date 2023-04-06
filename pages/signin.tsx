@@ -9,11 +9,17 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useDispatch } from 'react-redux';
-import { setAccessToken } from 'reducers/user';
+import {
+  removeAccessToken,
+  setAccessToken,
+  setLogedIn,
+  setRestoreState
+} from 'reducers/user';
 
 import { userResponse } from '@components/headmenu';
 import SvgIcon from '@components/svgIcon';
 import { newAxios } from '@libs/client/fetcher';
+import store from 'reducers/store';
 interface SingInForm {
   userId: string;
   password: string;
@@ -25,22 +31,16 @@ const Signin: NextPage = () => {
   const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&redirect_uri=${redirect_uri}&response_type=code`;
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data } = useQuery<userResponse>(['userInfo']);
+  const { restoreState } = store.getState().user;
+  const { data } = useQuery<userResponse>(['userInfo'], {
+    enabled: !restoreState
+  });
 
   const { google, kakao, naver } = SvgData.SVG;
   if (data?.ok && data.user.id) router.push('/');
-
-  // useEffect(() => {
-  //   const geta = async () => {
-  //     const a = await queryClient.getQueryCache().get('["userInfo"]')?.state;
-  //     return a;
-  //   };
-  //   const A = geta().then((v) => {
-  //     console.log(v, 'V');
-  //     return v;
-  //   });
-  //   console.log(A, 'AAA');
-  // }, []);
+  // if (!restoreState) {
+  //   router.push('/');
+  // }
 
   const dispatch = useDispatch();
   const {
@@ -51,7 +51,7 @@ const Signin: NextPage = () => {
   } = useForm<SingInForm>();
 
   const signInUser = (data: SingInForm) =>
-    axios.post('/api/login', data).then((res) => res.data);
+    newAxios.post('/api/login', data).then((res) => res.data);
   const { mutate, isLoading } = useMutation(signInUser, {
     onError: (error) => {
       console.log(error, '%^%^%^');
@@ -65,6 +65,8 @@ const Signin: NextPage = () => {
       newAxios.defaults.headers.common['authorization'] =
         'Bearer ' + res.accessToken;
       console.log(axios.defaults.headers, '$$$');
+      store.dispatch(setRestoreState(true));
+      store.dispatch(setLogedIn(true));
       queryClient.invalidateQueries(['userInfo']);
       router.push('/');
     }

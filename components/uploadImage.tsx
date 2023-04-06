@@ -1,3 +1,4 @@
+import { newAxios } from '@libs/client/fetcher';
 import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -35,20 +36,20 @@ interface UploadFormData {
 
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
-  const routerId = router.query.boardId;
+  const routerId = router.query.id;
+  console.log(info, 'Info');
+  useEffect(() => {
+    if (info.elementValue?.hashtag)
+      setHashtag(info.elementValue.hashtag.split(','));
+  }, [info.elementValue?.hashtag]);
   const [imagePreview, setImagePreview] = useState('');
   const [editorValue, setEditorValue] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
 
   const { register, handleSubmit, watch } = useForm<UploadForm>();
   const postUploadForm = (data: FormData | UploadFormData) =>
-    axios
-      .post(
-        `/api/${info.url === 'product' ? 'product/upload' : info.url}${
-          routerId ? '/' + routerId : ''
-        }`,
-        data
-      )
+    newAxios
+      .post(`/api/product/${routerId}/update`, data)
       .then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
@@ -66,15 +67,17 @@ const UploadImage = (info: UploadImageProps) => {
     const form = new FormData();
     const formInfo: UploadFormData = {};
 
-    console.log(v, 'vvvvvv');
     for (const key in v) {
       if (key === 'image') {
         form.append('file', v[key][0]);
       } else {
-        // if (key === 'productAuth') {
-        //   form.append('productAuth', JSON.stringify({ productBool: v[key] }));
-        //   formInfo[key] = JSON.stringify({ productBool: v[key] });
-        // }
+        if (key === 'productAuth') {
+          form.append(
+            'productAuth',
+            JSON.stringify({ productBoolean: v[key] })
+          );
+          continue;
+        }
         form.append(key, v[key]);
         formInfo[key] = v[key];
         // formInfo{ [key]: v[key] };
@@ -82,19 +85,22 @@ const UploadImage = (info: UploadImageProps) => {
     }
     form.append('hashtag', hashtag.join(','));
     form.append('description', editorValue);
+    form.append(
+      'imageOk',
+      JSON.stringify({ imgBoolean: v.image[0] ? true : false })
+    );
     formInfo['boardtag'] = hashtag.join(',');
     formInfo['description'] = editorValue;
-    // formInfo.push({ boardtag: hashtag.join(',') });
-    console.log(formInfo, 'formInfo');
-    form.forEach((key, val) => {
-      console.log(key, val, 'vv');
-    });
-    console.log(v, 'upload');
-    console.log(formInfo.url, 'url');
-    mutate(info.url === 'product' ? form : formInfo);
+
+    // form.forEach((key, val) => {
+    //   console.log(key, val, 'vv');
+    // });
+
+    // mutate(info.url === 'product' ? form : formInfo);
+    mutate(form);
   };
   const onDeleteBoard = () => {
-    axios
+    newAxios
       .delete(`/api/${info.url}/${routerId}`)
       .then(() => router.push('/board'));
   };
@@ -105,6 +111,7 @@ const UploadImage = (info: UploadImageProps) => {
     }
   }, [imageWatch]);
 
+  console.log(imagePreview, 'eee');
   return (
     <>
       <div className="uploadimagewrap">
@@ -169,6 +176,8 @@ const UploadImage = (info: UploadImageProps) => {
                     btntrue={!info.buttontext}
                     setter={setEditorValue}
                     labelTrue={info.labelTrue}
+                    btnActive={false}
+                    chatValue={info.elementValue?.description || ''}
                   />
                 </div>
               </div>

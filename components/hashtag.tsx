@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from 'react';
-import Input from '@components/input';
 
 interface HashtagProps {
   hashtag: string[];
@@ -18,6 +17,7 @@ const InputHashtag = ({ hashtag, setHashtag }: HashtagProps) => {
         return;
       }
       setHashtag(hashtag.concat(target.value));
+
       target.value = '';
     }
   };
@@ -26,14 +26,18 @@ const InputHashtag = ({ hashtag, setHashtag }: HashtagProps) => {
   };
   return (
     <div className="hashtagwrap">
-      <Input
-        className="hashinput"
-        label="hash"
-        type="text"
-        onKeyUp={onKeyUp}
-        placeholder="태그 입력후 엔터"
-        name="hash"
-      />
+      <div className="hashinput">
+        <label htmlFor="hash">태그</label>
+        <div className="input-div">
+          <input
+            id="hash"
+            type="text"
+            placeholder="태그 입력후 엔터"
+            onKeyUp={onKeyUp}
+            name="hash"
+          />
+        </div>
+      </div>
 
       <div>
         {hashtag.map((v, i) => (
@@ -72,6 +76,35 @@ const InputHashtag = ({ hashtag, setHashtag }: HashtagProps) => {
             color: #12b886;
             font-weight: bold;
             padding-right: 0.2rem;
+          }
+        }
+        .inputwrap {
+          height: 100%;
+          position: relative;
+        }
+        .input-div {
+          height: 100%;
+          margin-top: 0.25rem;
+          margin-bottom: 1rem;
+        }
+        label {
+          font-weight: 500;
+          font-size: 0.875rem;
+          line-height: 1.25rem;
+        }
+
+        input {
+          width: 100%;
+          height: 100%;
+          border-radius: 4px;
+          border: none;
+          padding: 0.5rem;
+          padding-left: 0.5rem;
+          font-size: 1rem;
+          outline: 1px solid rgba(0, 0, 0, 0.16);
+
+          &:focus {
+            outline: 3px solid rgb(127, 193, 255);
           }
         }
       `}</style>

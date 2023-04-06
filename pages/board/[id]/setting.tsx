@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import { useMutation, useQuery } from 'react-query';
-import { getFetch } from '@libs/client/fetcher';
+import { getFetch, newAxios } from '@libs/client/fetcher';
 import { useState } from 'react';
 import UploadImage from '@components/uploadImage';
 import { useRouter } from 'next/router';
@@ -10,13 +10,13 @@ import Modal from '@components/modal';
 const BoardSetting: NextPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
-  const boardId = router.query.boardId;
+  const boardId = router.query.id;
   console.log(boardId);
   const { data } = useQuery(['getBoard'], getFetch(`/api/board/${boardId}`), {
     enabled: !!boardId
   });
   const deleteSend = () =>
-    axios.delete(`/api/board/${boardId}`).then((res) => res.data);
+    newAxios.delete(`/api/board/${boardId}`).then((res) => res.data);
   const { mutate: deleteMutation } = useMutation(deleteSend, {
     onSuccess: (res) => {
       console.log(res, 'deleted success');

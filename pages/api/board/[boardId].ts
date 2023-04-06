@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
-import { ResponseType } from '@libs/server/utils';
+import { ResponseType, TokenPayload } from '@libs/server/utils';
 import { checkAuth } from '@libs/server/auth';
 import { decode } from 'jsonwebtoken';
 
@@ -85,7 +85,14 @@ const BoardDetail = async (
       });
     }
   } else if (req.method === 'POST') {
-    const { title, description, boardtag }: PostBoardInfo = req.body.info;
+    const auth = checkAuth(req, res, 0);
+    if (auth.checkError) {
+      return res.status(401).json({
+        ok: false,
+        auth
+      });
+    }
+    const { title, description, boardtag }: PostBoardInfo = req.body;
     const { boardId } = req.query;
     console.log(title, description, boardtag, boardId, 'Board update');
 
@@ -136,7 +143,10 @@ const BoardDetail = async (
 
         return res.json({
           ok: true,
-          message: 'updated the board'
+          message: 'updated the board',
+          board: {
+            id: board.id
+          }
         });
       } else {
         return res.status(401).json({
@@ -157,15 +167,15 @@ const BoardDetail = async (
       const auth = checkAuth(req, res, 0);
       console.log(auth, 'auth');
 
-      if (!auth?.re)
-        return res.status(400).json({
+      if (auth?.checkError)
+        return res.status(401).json({
           ok: false,
-          message: 'need to login'
+          auth
         });
-      const decodedId = decode(auth.accessToken as string);
+      const decodedId = (auth.payload as TokenPayload).id;
 
       if (!boardId)
-        return res.status(403).json({
+        return res.status(404).json({
           ok: false,
           message: 'no boardId'
         });
@@ -175,14 +185,14 @@ const BoardDetail = async (
         }
       });
       if (!board)
-        return res.json({
+        return res.status(404).json({
           ok: false,
           message: "doesn't exit the board"
         });
-      if (board.userId !== Number(decodedId))
+      if (board.userId !== decodedId)
         return res.status(401).json({
           ok: false,
-          message: 'invalid board'
+          message: '당신의 게시물이 아닙니다'
         });
       await client.board.delete({
         where: {

@@ -18,7 +18,7 @@ const Download = async (req: NextApiRequest, res: NextApiResponse) => {
     // 사진 권한 관리 어떻게할까...
     try {
       const auth = checkAuth(req, res, 0);
-      if (!auth || !auth.re || !auth.accessToken) {
+      if (!auth || !auth.checkError) {
         return res.status(401).json({
           ok: false,
           message: 'need to login'
@@ -30,7 +30,7 @@ const Download = async (req: NextApiRequest, res: NextApiResponse) => {
         }
       });
       if (!product || !product.image)
-        return res.status(401).json({
+        return res.status(404).json({
           ok: false,
           message: 'no product or image'
         });
@@ -47,15 +47,16 @@ const Download = async (req: NextApiRequest, res: NextApiResponse) => {
         return filestream.pipe(res);
       } else {
         /**유료 이미지 */
-        const userIdDecoded = (decode(auth.accessToken) as TokenPayload).id;
-        if (imgAuth === 'true') {
-          await client.productAuth.create({
-            data: {
-              productId: product.id,
-              userId: userIdDecoded
-            }
-          });
-        }
+        // const userIdDecoded = (decode(auth.accessToken) as TokenPayload).id;
+        const userIdDecoded = (auth.payload as TokenPayload).id;
+        // if (imgAuth === 'true') {
+        //   await client.productAuth.create({
+        //     data: {
+        //       productId: product.id,
+        //       userId: userIdDecoded
+        //     }
+        //   });
+        // }
         const imageAuth = await client.productAuth.findFirst({
           where: {
             userId: userIdDecoded,

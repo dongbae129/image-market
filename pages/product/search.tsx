@@ -23,7 +23,7 @@ interface InfinteProducts {
 const Search: NextPage = () => {
   const router = useRouter();
   const search = router.query.find?.toString();
-
+  console.log(search, 'SS');
   const getSearchData = ({ pageParam = 0 }) =>
     axios
       .get(`/api/product?id=${pageParam}&search=${search}`)

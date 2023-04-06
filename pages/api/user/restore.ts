@@ -7,6 +7,14 @@ import { ResponseType } from '@libs/server/utils';
 import { decode, verify, JwtPayload } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
 
+interface StateType {
+  ok?: boolean;
+  auth?: {
+    checkError: boolean;
+  };
+  message?: string;
+  accessToken?: string;
+}
 const Restore = (req: NextApiRequest, res: NextApiResponse<ResponseType>) => {
   if (req.method === 'GET') {
     if (!req.cookies['refreshToken']) {
@@ -19,13 +27,13 @@ const Restore = (req: NextApiRequest, res: NextApiResponse<ResponseType>) => {
       });
     }
     const refreshToken = req.cookies['refreshToken'];
-    let state = {};
+    let state: StateType = {};
     verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, payload) => {
       if (err) {
         state = {
           ok: false,
           auth: {
-            checkError: false
+            checkError: true
           },
           message: 'need to login, invalid refreshToken'
         };
@@ -36,6 +44,11 @@ const Restore = (req: NextApiRequest, res: NextApiResponse<ResponseType>) => {
         accessToken
       };
     });
+    if (state?.auth?.checkError)
+      return res.status(403).json({
+        ok: false,
+        ...state
+      });
 
     return res.json({
       ok: true,

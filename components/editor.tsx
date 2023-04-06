@@ -8,7 +8,7 @@ import {
 
 import 'react-quill/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
-
+import { useEffect } from 'react';
 import Button from '@components/button';
 import { UseMutateFunction } from 'react-query';
 
@@ -29,6 +29,7 @@ interface EditorProps {
   setter?: Dispatch<SetStateAction<string>>;
   labelTrue?: boolean;
   btnActive: boolean;
+  chatValue: string;
 }
 const Editor = ({
   mutate,
@@ -36,9 +37,13 @@ const Editor = ({
   btntrue,
   setter,
   labelTrue,
-  btnActive
+  btnActive,
+  chatValue
 }: EditorProps) => {
-  const [chat, setChat] = useState('');
+  const [chat, setChat] = useState(chatValue);
+  useEffect(() => {
+    setChat(chatValue);
+  }, [chatValue]);
 
   const formats = useMemo(
     () => [
@@ -101,6 +106,7 @@ const Editor = ({
     setChat(value);
     if (setter) setter(value);
   };
+  console.log(chat, 'CC');
   const submitText = () => {
     if (isLoading) return;
     mutate({ chat });

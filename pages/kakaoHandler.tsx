@@ -1,10 +1,12 @@
+import { newAxios } from '@libs/client/fetcher';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { QueryClient, useQueryClient } from 'react-query';
 import { useDispatch } from 'react-redux';
-import { setAccessToken } from 'reducers/user';
+import store from 'reducers/store';
+import { setAccessToken, setLogedIn, setRestoreState } from 'reducers/user';
 
 interface LoginResponse {
   ok: boolean;
@@ -46,6 +48,12 @@ const KakaoHandler: NextPage = () => {
         // axios.defaults.headers.common[
         //   'authorization'
         // ] = `Bearer ${res.data.accessToken}`;
+
+        newAxios.defaults.headers.common[
+          'authorization'
+        ] = `Bearer ${res.data.accessToken}`;
+        store.dispatch(setRestoreState(true));
+        store.dispatch(setLogedIn(true));
         queryClient.invalidateQueries(['userInfo']);
         res.data.userInfo ? router.push('/') : null;
       });

@@ -1,5 +1,5 @@
 import { UseFormRegisterReturn } from 'react-hook-form';
-import { useState, ComponentProps } from 'react';
+import { useState, ComponentProps, useEffect } from 'react';
 import { labelOb } from '@libs/client/data/data';
 interface InputProps {
   label?: string;
@@ -26,6 +26,10 @@ const Input = ({
   inputValue,
   ...rest
 }: InputProps) => {
+  const [value, setValue] = useState('');
+  useEffect(() => {
+    if (inputValue) setValue(inputValue);
+  }, [inputValue]);
   return (
     <div className={classname ? classname : 'inputwrap'}>
       {label ? <label htmlFor={name}>{labelOb[label]}</label> : null}
@@ -34,8 +38,14 @@ const Input = ({
           id={name}
           required={required}
           type={type}
-          placeholder={inputValue || ''}
+          // placeholder={inputValue || ''}
+          value={name === 'image' ? undefined : value}
           {...register}
+          onChange={
+            name === 'image'
+              ? register?.onChange
+              : (e) => setValue(e.target.value)
+          }
           {...rest}
         />
       </div>

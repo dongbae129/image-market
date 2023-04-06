@@ -7,7 +7,7 @@ import ProductDetail from './index';
 
 const ProductSetting: NextPage = () => {
   const router = useRouter();
-  const { productId } = router.query;
+  const productId = router.query.id;
 
   const { data } = useQuery<ProductDetail>(
     ['getProduct'],
@@ -22,8 +22,8 @@ const ProductSetting: NextPage = () => {
       <div>
         <UploadImage
           url={`prodcut/${productId}`}
-          component={['title', 'description']}
-          elementType={['input', 'textarea']}
+          component={['title', 'description', 'productAuth']}
+          elementType={['input', 'textarea', 'input']}
           buttontext={['수정']}
           buttonColor={[]}
           hashtrue={true}

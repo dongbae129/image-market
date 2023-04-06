@@ -1,17 +1,13 @@
 import client from '@libs/server/client';
-import { decode } from 'jsonwebtoken';
-import { checkAuth } from '@libs/server/auth';
-import axios from 'axios';
+
 import {
   isLogedIn,
   nc,
   TokenPayload,
-  upload,
   dbNow,
   upLoader
 } from '@libs/server/utils';
 import sharp from 'sharp';
-import { MulterError } from 'multer';
 
 export const config = {
   api: {
@@ -19,76 +15,21 @@ export const config = {
   }
 };
 
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, './public/uploads');
-//   },
-//   filename: function (req: any, file, cb) {
-//     const ext = path.extname(file.originalname);
-//     const basename = path.basename(file.originalname, ext);
-//     const filename = basename + new Date().valueOf() + ext;
-//     req.filename = filename;
-
-//     cb(null, filename);
-//   }
-// });
-
-// const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
-//   const ext = path.extname(file.originalname);
-//   if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
-//     return cb(new Error('png, jpg만 업로드 가능합니다'));
-//   }
-//   cb(null, true);
-// };
-// export const upload = multer({
-//   storage: storage,
-//   fileFilter: fileFilter,
-//   limits: {
-//     fileSize: 20 * 1024 * 1024
-//   }
-// });
-// export const nc = nextConnect({
-//   onError: (err, req, res) => {
-//     console.error(err.stack);
-//     res.statusCode = 500;
-//     res.statusMessage = 'Something broke';
-//   },
-//   onNoMatch: (req, res) => {
-//     res.statusCode = 404;
-//     res.statusMessage = 'Page is not found';
-//   }
-// });
-// const app = nc;
 const app = nc;
 app.post(isLogedIn, upLoader, async (req, res) => {
   console.log(req.body, 'Body!!');
   console.log(req.file, 'file!!');
-  const auth = req.auth;
+  // return res.send('EEE');
+  const { productBoolean: productAuth } = JSON.parse(req.body.productAuth);
+  const { imgBoolean } = JSON.parse(req.body.imageOk);
 
   try {
-    const auth = checkAuth(req, res, 0);
-    console.log(auth, 'auth');
+    const auth = req.auth;
 
-    // console.log(req.headers['authorization'], 'Header');
-    // console.log(req.file, 'file');
-    // console.log(req.file?.filename, 'filename');
-    // console.log(req.body, ' body');
-
-    const productAuth = JSON.parse(req.body.productAuth);
-    // const productAuth = req.body.productAuth;
-    // checkAuth(req, res);
-    // const clientAccessToken = req.headers['authorization']?.split(' ')[1];
-    const decoded = decode(auth.accessToken!) as TokenPayload;
-    // if (auth.accessToken!.length > 0) {
-    //   axios.defaults.headers.common[
-    //     'authorization'
-    //   ] = `Bearer ${auth?.accessToken}`;
-    // }
     const userId = (auth?.payload as TokenPayload).id;
 
-    console.log(req.body, 'BBB');
     let imgname: string;
-    if (!req.file?.filename)
+    if (!req.file?.filename && imgBoolean)
       return res.status(401).json({
         ok: false,
         message: 'faile to upload image file'
@@ -127,6 +68,11 @@ app.post(isLogedIn, upLoader, async (req, res) => {
         ''
       );
     } else {
+      if (!req.file?.filename)
+        return res.status(401).json({
+          ok: false,
+          message: 'faile to upload image file'
+        });
       imgname = req.file.filename;
     }
 

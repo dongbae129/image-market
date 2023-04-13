@@ -5,6 +5,7 @@ import nextConnect, { NextHandler } from 'next-connect';
 import path from 'path';
 import { checkAuth, checkAuthResponse } from '@libs/server/auth';
 import dayjs from 'dayjs';
+import fs from 'fs';
 import { Request, Response } from 'express';
 export interface ResponseType {
   ok: boolean;
@@ -53,6 +54,33 @@ export const upload = multer({
     // fileSize: 1024
   }
 });
+export const imgDelete = (url: string) => {
+  let state = {
+    nowater: false,
+    water: false
+  };
+  if (fs.existsSync(`public/uploads/${url}`)) {
+    try {
+      fs.unlinkSync(`public/uploads/${url}`);
+      state = {
+        ...state,
+        nowater: true
+      };
+      if (fs.existsSync(`public/watermark/watermark_${url}`)) {
+        fs.unlinkSync(`public/watermark/watermark_${url}`);
+      }
+      state = {
+        ...state,
+        water: true
+      };
+      return state;
+    } catch (error) {
+      console.error(error, 'fail to unlinkSync file image');
+      return state;
+    }
+  }
+  return state;
+};
 
 export const nc = nextConnect({
   onError: (err, req: Request, res: NextApiResponse<ResponseType>) => {
@@ -89,10 +117,7 @@ export const upLoader = (
   res: Response<ResponseType>,
   next: NextHandler
 ) => {
-  console.log(req.file, 'file body');
-  // next();
   upload.single('file')(req, res, (err) => {
-    // if(req.body.imageOk === "false")
     if (err) {
       console.error(err, 'multererror');
       return res.status(500).json({

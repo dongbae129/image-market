@@ -21,7 +21,7 @@ const ProductSetting: NextPage = () => {
     <div className="uploadwrap">
       <div>
         <UploadImage
-          url={`prodcut/${productId}`}
+          url={`product/${productId}/update`}
           component={['title', 'description', 'productAuth']}
           elementType={['input', 'textarea', 'input']}
           buttontext={['수정']}

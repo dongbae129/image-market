@@ -21,29 +21,28 @@
     "plugin:prettier/recommended"
   ],
   "rules": {
-    "no-console": "off", // console.log(사용하는 것 금지)
     "prettier/prettier": [
       "error",
       {
         "endOfLine": "auto"
       }
-    ],
-    "arrow-body-style": "off",
-    "prefer-arrow-callback": "off",
-    "react/react-in-jsx-scope": "off",
-    "no-unused-expressions": 0,
-    "import/extensions": ["off"],
-    "import/no-unresolved": "off",
-    "import/prefer-default-export": "off",
-    "@typescript-eslint/no-var-requires": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off", //values returned from a module are of the expected type.
-    "no-nested-ternary": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    // 삼항연산안에 또 삼항연산 하는 것을 방지
+    ]
+    // "arrow-body-style": "off",
+    // "prefer-arrow-callback": "off",
+    // "react/react-in-jsx-scope": "off",
+    // "no-unused-expressions": 0,
+    // "import/extensions": ["off"],
+    // "import/no-unresolved": "off",
+    // "import/prefer-default-export": "off",
+    // "@typescript-eslint/no-var-requires": "off",
+    // "@typescript-eslint/explicit-module-boundary-types": "off", //values returned from a module are of the expected type.
+    // "no-nested-ternary": "off",
+    // "@typescript-eslint/no-explicit-any": "off",
+    // // 삼항연산안에 또 삼항연산 하는 것을 방지
 
-    "spaced-comment": "off", // 주석 쓰는 것 방지
-    "no-unused-variable": "off",
-    "@typescript-eslint/no-non-null-assertion": "off"
+    // "spaced-comment": "off", // 주석 쓰는 것 방지
+    // "no-unused-variable": "off",
+    // "@typescript-eslint/no-non-null-assertion": "off"
   },
   "settings": {
     "react": {

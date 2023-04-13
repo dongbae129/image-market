@@ -24,6 +24,7 @@
     "date-fns": "^2.29.3",
     "dayjs": "^1.11.7",
     "dompurify": "^2.4.3",
+    "fs": "^0.0.1-security",
     "gsap": "^3.11.3",
     "iconv-lite": "^0.6.3",
     "iron-session": "^6.2.1",

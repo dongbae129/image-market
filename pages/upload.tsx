@@ -176,7 +176,7 @@ const Upload: NextPage = () => {
         </div>
       </div> */}
       <UploadImage
-        url="product"
+        url="product/upload"
         component={['title', 'description', 'productAuth']}
         elementType={['input', 'textarea', 'input']}
         buttontext={['등록']}

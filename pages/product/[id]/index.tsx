@@ -491,6 +491,7 @@ const ProductDetail: NextPage = () => {
             }
           }
           .modifypost.open {
+            background-color: white;
             visibility: visible;
             width: 163px;
           }

@@ -1,4 +1,4 @@
-import { ResponseType } from '@libs/server/utils';
+import { ResponseType, imgDelete } from '@libs/server/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 const Product = async (
@@ -88,10 +88,17 @@ const Product = async (
           id: +productId.toString()
         }
       });
+      const { nowater, water } = imgDelete(product.image);
+      let imgDeleteState = true;
+      if (!nowater || !water) {
+        console.error('fail to delete img file');
+        imgDeleteState = false;
+      }
 
       res.json({
         ok: true,
-        message: 'success delete the products'
+        message: 'success delete the products',
+        imgDeleteState
       });
     } catch (error) {
       console.error(error);

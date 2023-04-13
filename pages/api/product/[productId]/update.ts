@@ -1,6 +1,6 @@
 import client from '@libs/server/client';
 
-import { isLogedIn, nc, dbNow, upLoader } from '@libs/server/utils';
+import { isLogedIn, nc, dbNow, upLoader, imgDelete } from '@libs/server/utils';
 import sharp from 'sharp';
 
 export const config = {
@@ -22,6 +22,8 @@ productUpdate.post(isLogedIn, upLoader, async (req, res) => {
     console.log(productAuth, imgBoolean);
     const { productId } = req.query;
     const { title, hashtag, description } = req.body;
+    console.log(typeof productId, 'SDF');
+    console.log(req.file?.filename, 'fuiff');
     // return res.send('test');
     if (!productId || !title || !hashtag || !description)
       return res.status(404).json({
@@ -42,6 +44,7 @@ productUpdate.post(isLogedIn, upLoader, async (req, res) => {
 
     // const userId = (auth?.payload as TokenPayload).id;
     let imgname;
+    // imgDelete(findProduct.image);
 
     if (imgBoolean) {
       if (!req.file?.filename)
@@ -73,11 +76,14 @@ productUpdate.post(isLogedIn, upLoader, async (req, res) => {
           .toFile(
             `./public/watermark/watermark_${req.file?.filename}`,
             (err, _) => {
-              if (err) console.error(err, 'water Error');
-              return res.status(500).json({
-                ok: false,
-                message: 'fail to make watermark image'
-              });
+              if (err) {
+                console.error(err, 'water Error');
+                return res.status(500).json({
+                  ok: false,
+                  message: 'fail to make watermark image'
+                });
+              }
+
               // console.log(info, 'Info');
             }
           ));
@@ -89,9 +95,50 @@ productUpdate.post(isLogedIn, upLoader, async (req, res) => {
       } else {
         imgname = req.file?.filename;
       }
+    } else {
+      if (productAuth) {
+        const watermark = await sharp(
+          `./public/localimages/spring_remove.png`
+        ).toBuffer();
+
+        type SharpWithOptions = sharp.Sharp & {
+          options: {
+            fileOut: string;
+          };
+        };
+        const image = await (<SharpWithOptions>sharp(
+          // encodeURIComponent(req.file?.path)
+          `public\\uploads\\${findProduct.image}`
+        )
+          .composite([
+            {
+              input: watermark,
+              gravity: 'center',
+              tile: true
+            }
+          ])
+          .toFile(
+            `./public/watermark/watermark_${findProduct.image}`,
+            (err, _) => {
+              if (err) {
+                console.error(err, 'water Error');
+                return res.status(500).json({
+                  ok: false,
+                  message: 'fail to make watermark image'
+                });
+              }
+
+              // console.log(info, 'Info');
+            }
+          ));
+        imgname = image.options.fileOut.replace(
+          './public/watermark/watermark_',
+          ''
+        );
+      }
     }
     const now = dbNow();
-    await client.product.update({
+    const updatedProduct = await client.product.update({
       where: {
         id: findProduct.id
       },
@@ -126,7 +173,7 @@ productUpdate.post(isLogedIn, upLoader, async (req, res) => {
     }
     return res.json({
       ok: true,
-      message: 'success to update product'
+      product: updatedProduct
     });
 
     // const imgname: string = image.options.fileOut.slice(21);

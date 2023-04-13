@@ -42,22 +42,25 @@ const UploadImage = (info: UploadImageProps) => {
     if (info.elementValue?.hashtag)
       setHashtag(info.elementValue.hashtag.split(','));
   }, [info.elementValue?.hashtag]);
+  useEffect(() => {
+    if (info.elementValue?.description)
+      setEditorValue(info.elementValue?.description);
+  }, [info.elementValue?.description]);
   const [imagePreview, setImagePreview] = useState('');
   const [editorValue, setEditorValue] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
 
   const { register, handleSubmit, watch } = useForm<UploadForm>();
   const postUploadForm = (data: FormData | UploadFormData) =>
-    newAxios
-      .post(`/api/product/${routerId}/update`, data)
-      .then((res) => res.data);
+    newAxios.post(`/api/${info.url}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
     onSuccess: (res) => {
       console.log(res, 'res');
       const routerId = res.product ? res.product.id : res.board.id;
       console.log(routerId, 'routerId');
-      router.push(`/${info.url}/${routerId ? routerId : ''}`);
+      const originalRoute = info.url.split('/')[0];
+      router.replace(`/${originalRoute}/${routerId ? routerId : ''}`);
     }
   });
 
@@ -92,9 +95,9 @@ const UploadImage = (info: UploadImageProps) => {
     formInfo['boardtag'] = hashtag.join(',');
     formInfo['description'] = editorValue;
 
-    // form.forEach((key, val) => {
-    //   console.log(key, val, 'vv');
-    // });
+    form.forEach((key, val) => {
+      console.log(key, val, 'vv');
+    });
 
     // mutate(info.url === 'product' ? form : formInfo);
     mutate(form);

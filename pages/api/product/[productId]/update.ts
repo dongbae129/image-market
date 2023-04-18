@@ -22,7 +22,7 @@ productUpdate.post(isLogedIn, upLoader, async (req, res) => {
     console.log(productAuth, imgBoolean);
     const { productId } = req.query;
     const { title, hashtag, description } = req.body;
-    console.log(typeof productId, 'SDF');
+    console.log(productId, req.body, 'SDF');
     console.log(req.file?.filename, 'fuiff');
     // return res.send('test');
     if (!productId || !title || !hashtag || !description)

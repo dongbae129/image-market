@@ -6,15 +6,29 @@ import UploadImage from '@components/uploadImage';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Modal from '@components/modal';
+import { Board } from '@prisma/client';
 
+interface BoardTag {
+  boardTag: {
+    hashtag: string;
+  }[];
+}
+interface BoardDetail {
+  ok: boolean;
+  board: Board & BoardTag;
+}
 const BoardSetting: NextPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
   const boardId = router.query.id;
   console.log(boardId);
-  const { data } = useQuery(['getBoard'], getFetch(`/api/board/${boardId}`), {
-    enabled: !!boardId
-  });
+  const { data } = useQuery<BoardDetail>(
+    ['getBoard'],
+    getFetch(`/api/board/${boardId}`),
+    {
+      enabled: !!boardId
+    }
+  );
   const deleteSend = () =>
     newAxios.delete(`/api/board/${boardId}`).then((res) => res.data);
   const { mutate: deleteMutation } = useMutation(deleteSend, {
@@ -48,6 +62,11 @@ const BoardSetting: NextPage = () => {
         buttonColor={['#dee2e6']}
         labelTrue={true}
         setModalOpen={() => setModalOpen((prev) => !prev)}
+        elementValue={{
+          title: data?.board.title,
+          description: data?.board.description,
+          hashtag: data?.board.boardTag[0].hashtag
+        }}
       />
 
       <style jsx>{`

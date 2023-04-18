@@ -79,6 +79,7 @@ const UploadImage = (info: UploadImageProps) => {
             'productAuth',
             JSON.stringify({ productBoolean: v[key] })
           );
+          formInfo['productAuth'] = JSON.stringify({ productBoolean: v[key] });
           continue;
         }
         form.append(key, v[key]);
@@ -90,7 +91,7 @@ const UploadImage = (info: UploadImageProps) => {
     form.append('description', editorValue);
     form.append(
       'imageOk',
-      JSON.stringify({ imgBoolean: v.image[0] ? true : false })
+      JSON.stringify({ imgBoolean: v.image && v.image[0] ? true : false })
     );
     formInfo['boardtag'] = hashtag.join(',');
     formInfo['description'] = editorValue;
@@ -99,8 +100,8 @@ const UploadImage = (info: UploadImageProps) => {
       console.log(key, val, 'vv');
     });
 
-    // mutate(info.url === 'product' ? form : formInfo);
-    mutate(form);
+    mutate(info.url.includes('product') ? form : formInfo);
+    // mutate(form);
   };
   const onDeleteBoard = () => {
     newAxios

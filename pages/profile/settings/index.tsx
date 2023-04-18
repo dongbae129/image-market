@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import { useQuery, useMutation } from 'react-query';
-import { getFetch } from '@libs/client/fetcher';
+import { getFetch, newAxios } from '@libs/client/fetcher';
 import { userResponse } from '@components/headmenu';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -30,7 +30,9 @@ const SettingHome: NextPage = () => {
   const { watch, register, handleSubmit } = useForm<SettingForm>();
   const imageWatch = watch('image');
   const setUser = (formData: FormData) =>
-    axios.post(`/api/user/${data?.user.id}`, formData).then((res) => res.data);
+    newAxios
+      .post(`/api/user/${data?.user.id}`, formData)
+      .then((res) => res.data);
   const { mutate, isLoading } = useMutation(setUser);
 
   const onValid = (formData: SettingForm) => {

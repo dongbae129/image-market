@@ -21,25 +21,28 @@ const Board = async (
       }
       if (auth.payload) {
         const decoded = auth.payload as TokenPayload;
+        console.log(decoded, 'decoded');
         const { title, description, boardtag }: PostBoardInfo = req.body;
+        console.log(title, description, boardtag, 'Body');
         if (title === '' || description === '')
           return res.json({
             ok: false,
             error: 'input board informations'
           });
         if (decoded.id) {
-          const userId = decoded.id;
-
+          const Id = decoded.id;
+          console.log(Id, 'IID');
           const now = dbNow();
           const board = await client.board.create({
             data: {
               title,
               description,
-              userId,
+              userId: Id,
               createdAt: now,
               updatedAt: now
             }
           });
+          console.log(board, 'Boardsd');
           await client.boardHit.create({
             data: {
               hit: 0,

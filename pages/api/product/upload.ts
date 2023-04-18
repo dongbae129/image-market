@@ -85,7 +85,7 @@ app.post(isLogedIn, upLoader, async (req, res) => {
         image: imgname,
         title: req.body.title,
         description: req.body.description,
-        userId: userId!,
+        userId: userId,
         auth: productAuth,
         ratio: req.body.ratio,
         createdAt: now,

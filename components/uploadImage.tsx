@@ -37,7 +37,8 @@ interface UploadFormData {
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
   const routerId = router.query.id;
-  console.log(info, 'Info');
+  // console.log(info, 'Info');
+
   useEffect(() => {
     if (info.elementValue?.hashtag)
       setHashtag(info.elementValue.hashtag.split(','));
@@ -46,29 +47,36 @@ const UploadImage = (info: UploadImageProps) => {
     if (info.elementValue?.description)
       setEditorValue(info.elementValue?.description);
   }, [info.elementValue?.description]);
+  useEffect(() => {
+    if (info?.elementValue?.title) setInputTitle(info?.elementValue?.title);
+  }, [info?.elementValue?.title]);
   const [imagePreview, setImagePreview] = useState('');
   const [editorValue, setEditorValue] = useState('');
+  const [inputTitle, setInputTitle] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
 
-  const { register, handleSubmit, watch } = useForm<UploadForm>();
+  const { register, handleSubmit, watch, setValue, getValues } =
+    useForm<UploadForm>();
   const postUploadForm = (data: FormData | UploadFormData) =>
     newAxios.post(`/api/${info.url}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
     onSuccess: (res) => {
-      console.log(res, 'res');
+      // console.log(res, 'res');
       const routerId = res.product ? res.product.id : res.board.id;
-      console.log(routerId, 'routerId');
+      // console.log(routerId, 'routerId');
       const originalRoute = info.url.split('/')[0];
       router.replace(`/${originalRoute}/${routerId ? routerId : ''}`);
     }
   });
+  console.log(info, 'III');
 
   const imageWatch = watch('image');
   const onValid = (v: UploadForm) => {
     if (isLoading) return;
     const form = new FormData();
     const formInfo: UploadFormData = {};
+    console.log(v, 'VVV');
 
     for (const key in v) {
       if (key === 'image') {
@@ -115,7 +123,6 @@ const UploadImage = (info: UploadImageProps) => {
     }
   }, [imageWatch]);
 
-  console.log(imagePreview, 'eee');
   return (
     <>
       <div className="uploadimagewrap">
@@ -142,7 +149,7 @@ const UploadImage = (info: UploadImageProps) => {
                 accept="image/*"
                 type="file"
                 imgbool="false"
-                // required
+                required
                 register={register('image')}
               />
             </label>
@@ -157,11 +164,11 @@ const UploadImage = (info: UploadImageProps) => {
                 name={v}
                 type={v === 'productAuth' ? 'checkbox' : 'text'}
                 // value={info.elementValue && info.elementValue[v]}
-                inputValue={info.elementValue && info.elementValue[v]}
+                // inputValue={info.elementValue && info.elementValue[v]}
                 required
-                register={register(v, {
-                  required: v === 'productAuth' ? false : true
-                })}
+                register={register(v)}
+                inputValue={v === 'title' ? inputTitle : ''}
+                setRegister={setValue}
               />
             );
           } else if (info.elementType[i] === 'textarea')

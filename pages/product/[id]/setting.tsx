@@ -22,8 +22,9 @@ const ProductSetting: NextPage = () => {
       <div>
         <UploadImage
           url={`product/${productId}/update`}
-          component={['title', 'description', 'productAuth']}
-          elementType={['input', 'textarea', 'input']}
+          // component={['title', 'description', 'productAuth']}
+          component={['productAuth', 'title', 'description']}
+          elementType={['input', 'input', 'textarea']}
           buttontext={['수정']}
           buttonColor={[]}
           hashtrue={true}

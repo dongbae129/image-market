@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import Image from 'next/image';
 import { Chat, HashTag, Product, ProductHit } from '@prisma/client';
-import { getFetch } from '@libs/client/fetcher';
+import { getFetch, newAxios } from '@libs/client/fetcher';
 import { useForm } from 'react-hook-form';
 import { useState, useRef } from 'react';
 
@@ -82,7 +82,7 @@ const ProductDetail: NextPage = () => {
   );
 
   const chatSend = (chat: ChatForm) =>
-    axios
+    newAxios
       .post(`/api/chat/product/${data?.product.id}`, chat)
       .then((res) => res.data);
 
@@ -101,6 +101,7 @@ const ProductDetail: NextPage = () => {
         return;
       }
       reset({ chat: '' });
+      setChatOpen(true);
       await queryClient.cancelQueries(['getChats', data?.product.id]);
       const prevChats = queryClient.getQueryData<ChatResponse>([
         'getChats',
@@ -123,10 +124,6 @@ const ProductDetail: NextPage = () => {
           };
         }
       );
-      console.log(
-        queryClient.getQueryData<ChatResponse>(['getChats', data?.product.id]),
-        'test'
-      );
       return {
         prevChats
       };
@@ -148,7 +145,10 @@ const ProductDetail: NextPage = () => {
     ['getChats', data?.product?.id],
     getFetch(`/api/chat/product/${data?.product?.id}`),
     {
-      enabled: !!data?.product?.id
+      enabled: !!data?.product?.id,
+      onSuccess: ({ comments }) => {
+        if (comments.length > 0) setChatOpen(true);
+      }
     }
   );
 
@@ -278,7 +278,7 @@ const ProductDetail: NextPage = () => {
                 __html: DOMPurify.sanitize(data?.product.description as string)
               }}
             />
-            <div>
+            <div className="hashtagwrap">
               {data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
                 <span className="hashtag" key={i}>
                   <span>#</span>
@@ -443,6 +443,9 @@ const ProductDetail: NextPage = () => {
               font-size: 16px;
               font-weight: 600;
             }
+          }
+          .hashtagwrap {
+            padding-top: 10px;
           }
           .btnwithmodify {
             display: flex;

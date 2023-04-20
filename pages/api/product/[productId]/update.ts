@@ -13,6 +13,7 @@ const productUpdate = nc;
 productUpdate.post(isLogedIn, upLoader, async (req, res) => {
   console.log(req.body, 'Body!!');
   console.log(req.file, 'file!!');
+  // return res.send('dd');
   // return res.send('EEE');
 
   try {
@@ -25,7 +26,12 @@ productUpdate.post(isLogedIn, upLoader, async (req, res) => {
     console.log(productId, req.body, 'SDF');
     console.log(req.file?.filename, 'fuiff');
     // return res.send('test');
-    if (!productId || !title || !hashtag || !description)
+    if (
+      !productId ||
+      !title ||
+      (!hashtag && hashtag.length < 0) ||
+      !description
+    )
       return res.status(404).json({
         ok: false,
         message: "doesn't the product, not productId"

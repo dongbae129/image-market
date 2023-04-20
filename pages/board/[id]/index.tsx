@@ -167,6 +167,7 @@ const BoardDetail: NextPage = () => {
                   isLoading={isLoading}
                   btntrue={true}
                   btnActive={userInfo?.user ? false : true}
+                  chatValue={''}
                 />
               </div>
             </div>

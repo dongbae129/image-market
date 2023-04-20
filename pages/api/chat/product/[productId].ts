@@ -46,20 +46,21 @@ const Chat = async (
         message: 'need to any chat'
       });
     console.log(productId, req.body, 'productId');
-    const authResponse = checkAuth(req, res, 0);
-    if (!authResponse || !authResponse.accessToken)
+    const auth = checkAuth(req, res, 0);
+    if (auth?.checkError)
       return res.json({
         ok: false,
-        message: 'need to login for chat'
+        message: 'need to login for chat',
+        auth
       });
-    const userId = decode(authResponse.accessToken) as TokenPayload;
+    const userId = (auth.payload as TokenPayload).id;
 
     try {
       const now = dbNow();
       const chat = await client.chat.create({
         data: {
           description: req.body.chat,
-          userId: userId.id,
+          userId,
           productId: +productId.toString(),
           createdAt: now,
           updatedAt: now

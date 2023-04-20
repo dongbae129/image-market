@@ -1,16 +1,17 @@
 import { newAxios } from '@libs/client/fetcher';
 import axios from 'axios';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import Button from './button';
 import Editor from './editor';
 import InputHashtag from './hashtag';
 import Input from './input';
+import { getRatio } from '@libs/client/getRatio';
 
-interface UploadForm {
+export interface UploadForm {
   imm?: FileList;
   // title?: string;
   // description?: string;
@@ -37,7 +38,6 @@ interface UploadFormData {
 const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
   const routerId = router.query.id;
-  // console.log(info, 'Info');
 
   useEffect(() => {
     if (info.elementValue?.hashtag)
@@ -54,7 +54,7 @@ const UploadImage = (info: UploadImageProps) => {
   const [editorValue, setEditorValue] = useState('');
   const [inputTitle, setInputTitle] = useState('');
   const [hashtag, setHashtag] = useState<string[]>([]);
-
+  const imgRatioRef = useRef('');
   const { register, handleSubmit, watch, setValue, getValues } =
     useForm<UploadForm>();
   const postUploadForm = (data: FormData | UploadFormData) =>
@@ -69,14 +69,12 @@ const UploadImage = (info: UploadImageProps) => {
       router.replace(`/${originalRoute}/${routerId ? routerId : ''}`);
     }
   });
-  console.log(info, 'III');
 
   const imageWatch = watch('image');
   const onValid = (v: UploadForm) => {
     if (isLoading) return;
     const form = new FormData();
     const formInfo: UploadFormData = {};
-    console.log(v, 'VVV');
 
     for (const key in v) {
       if (key === 'image') {
@@ -103,7 +101,9 @@ const UploadImage = (info: UploadImageProps) => {
     );
     formInfo['boardtag'] = hashtag.join(',');
     formInfo['description'] = editorValue;
-
+    if (imgRatioRef.current.length > 0)
+      form.append('ratio', imgRatioRef.current);
+    formInfo['ratio'] = imgRatioRef.current;
     form.forEach((key, val) => {
       console.log(key, val, 'vv');
     });
@@ -117,10 +117,9 @@ const UploadImage = (info: UploadImageProps) => {
       .then(() => router.push('/board'));
   };
   useEffect(() => {
-    if (imageWatch && imageWatch.length > 0) {
-      const file = imageWatch[0];
-      setImagePreview(URL.createObjectURL(file));
-    }
+    getRatio(imageWatch, setImagePreview)?.then((res) => {
+      imgRatioRef.current = res;
+    });
   }, [imageWatch]);
 
   return (
@@ -128,7 +127,7 @@ const UploadImage = (info: UploadImageProps) => {
       <div className="uploadimagewrap">
         <div className="upload_image">
           {!info.image ? null : info?.image && imagePreview ? (
-            <Image src={imagePreview} alt="" layout="fill" />
+            <NextImage src={imagePreview} alt="" layout="fill" />
           ) : (
             <label>
               <svg

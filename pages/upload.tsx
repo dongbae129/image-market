@@ -54,127 +54,35 @@ const Upload: NextPage = () => {
       router.push(`/product/${product.id}`);
     }
   });
-  const imageWatch = watch('image');
-  // const onValid = ({
-  //   image,
-  //   title,
-  //   description,
-  //   productAuth,
-  //   ratio
-  // }: UploadProductForm) => {
-  //   console.log(title, 'ti');
-  //   if (isLoading) return;
-  //   // console.log(imageWatch[0], '@@');
-  //   const form = new FormData();
+  // const imageWatch = watch('image');
 
-  //   // const imgtest = new Image()
-  //   console.log(image, 'Image');
+  // useEffect(() => {
+  //   if (imageWatch && imageWatch.length > 0) {
+  //     console.log(imageWatch, 'watchbefore');
+  //     const file = imageWatch[0];
+  //     if (file) {
+  //       const ratioImage = new Image();
+  //       ratioImage.src = URL.createObjectURL(file);
 
-  //   console.log(hashtag, 'hash');
-  //   form.append('file', image[0]);
-  //   form.append('title', title);
-  //   form.append('hashtag', hashtag.join());
-  //   form.append('description', description!);
-  //   form.append('ratio', ratioRef.current);
-  //   form.append('productAuth', JSON.stringify({ productBool: productAuth }));
-  //   mutate(form);
-  // };
+  //       ratioImage.onload = () => {
+  //         ratioRef.current = (ratioImage.width / ratioImage.height).toFixed(2);
+  //         console.log(ratioImage.width, ratioImage.height, '?!');
+  //       };
 
-  useEffect(() => {
-    if (imageWatch && imageWatch.length > 0) {
-      console.log(imageWatch, 'watchbefore');
-      const file = imageWatch[0];
-      if (file) {
-        const ratioImage = new Image();
-        ratioImage.src = URL.createObjectURL(file);
-
-        ratioImage.onload = () => {
-          ratioRef.current = (ratioImage.width / ratioImage.height).toFixed(2);
-          console.log(ratioImage.width, ratioImage.height, '?!');
-        };
-
-        // testimage.onload(() => {
-        //   console.log(testimage.width, testimage.height, 'onload');
-        // });
-        // console.log(testimage, '11');
-        // console.log(testimage.width, testimage.height, '22');
-      }
-      console.log(file, 'imagewatch');
-      console.log(imgref.current?.width, 'imgref22');
-      setImagePreview(URL.createObjectURL(file));
-    }
-  }, [imageWatch]);
-
-  console.log(imagePreview, 'imagePreview');
+  //       // testimage.onload(() => {
+  //       //   console.log(testimage.width, testimage.height, 'onload');
+  //       // });
+  //       // console.log(testimage, '11');
+  //       // console.log(testimage.width, testimage.height, '22');
+  //     }
+  //     console.log(file, 'imagewatch');
+  //     console.log(imgref.current?.width, 'imgref22');
+  //     setImagePreview(URL.createObjectURL(file));
+  //   }
+  // }, [imageWatch]);
 
   return (
     <div className="uploadwrap">
-      {/* <div>
-        <div>
-          <div>
-            <div className="upload_image">
-              {imagePreview ? (
-                <NextImage src={imagePreview} alt="" layout="fill" />
-              ) : (
-                <label>
-                  <svg
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 48 48"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <Input
-                    name="image"
-                    accept="image/*"
-                    type="file"
-                    imgbool="false"
-                    // required
-                    register={register('image')}
-                  />
-                </label>
-              )}
-            </div>
-
-            <div className="upload_input">
-              <Input
-                label="title"
-                name="title"
-                type="text"
-                required
-                register={register('title', { required: true })}
-              />
-              <InputHashtag hashtag={hashtag} setHashtag={setHashtag} />
-
-              <TextArea
-                label="description"
-                name="description"
-                type="text"
-                required
-                register={register('description', { required: true })}
-              />
-              <Input
-                label="productAuth"
-                name="productAuth"
-                type="checkbox"
-                register={register('productAuth')}
-              />
-            </div>
-          </div>
-
-          <Button
-            isLoading={isLoading}
-            text="저장"
-            onClick={handleSubmit(onValid)}
-          />
-        </div>
-      </div> */}
       <UploadImage
         url="product/upload"
         component={['title', 'description', 'productAuth']}

@@ -222,7 +222,12 @@ const Home: NextPage = () => {
             {data ? (
               data.pages.map((products) =>
                 products.products.map((product: Product) => (
-                  <div key={product.id} className="product" ref={ref}>
+                  <div
+                    key={product.id}
+                    className="product"
+                    style={{ height: divWidth * Number(product.ratio) }}
+                    ref={ref}
+                  >
                     {divWidth ? (
                       <Link href={`/product/${product.id}`} passHref>
                         <div className="imgwrap">
@@ -230,11 +235,16 @@ const Home: NextPage = () => {
                             alt=""
                             src={`/uploads/${product.image}`}
                             // layout="fill"
-                            // fill={true}
-                            width={divWidth}
-                            height={divWidth * Number(product.ratio)}
+                            fill={true}
+                            // width={'100%'}
+                            // height={divWidth * Number(product.ratio)}
                             sizes="33vw"
-                            style={{ width: '100%', height: '100%' }}
+                            // objectFit="contain"
+                            // style={{
+                            //   // width: '100%',
+                            //   height: divWidth * Number(product.ratio),
+                            //   objectFit: 'fill'
+                            // }}
                             // priority={true}
                           />
                         </div>
@@ -274,8 +284,6 @@ const Home: NextPage = () => {
             height: 90%;
             border-radius: 20px;
             overflow: hidden;
-          }
-          .product {
           }
 
           .product-title {

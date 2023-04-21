@@ -19,7 +19,7 @@ const app = nc;
 app.post(isLogedIn, upLoader, async (req, res) => {
   console.log(req.body, 'Body!!');
   console.log(req.file, 'file!!');
-  // return res.send('EEE');
+  return res.send('EEE');
   const { productBoolean: productAuth } = JSON.parse(req.body.productAuth);
   const { imgBoolean } = JSON.parse(req.body.imageOk);
 

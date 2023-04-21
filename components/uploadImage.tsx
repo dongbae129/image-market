@@ -10,6 +10,7 @@ import Editor from './editor';
 import InputHashtag from './hashtag';
 import Input from './input';
 import { getRatio } from '@libs/client/getRatio';
+import { labelOb } from '@libs/client/data/data';
 
 export interface UploadForm {
   imm?: FileList;
@@ -53,6 +54,7 @@ const UploadImage = (info: UploadImageProps) => {
   const [imagePreview, setImagePreview] = useState('');
   const [editorValue, setEditorValue] = useState('');
   const [inputTitle, setInputTitle] = useState('');
+  const titleRef = useRef('');
   const [hashtag, setHashtag] = useState<string[]>([]);
   const imgRatioRef = useRef('');
   const { register, handleSubmit, watch, setValue, getValues } =
@@ -61,13 +63,13 @@ const UploadImage = (info: UploadImageProps) => {
     newAxios.post(`/api/${info.url}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
-    onSuccess: (res) => {
-      // console.log(res, 'res');
-      const routerId = res.product ? res.product.id : res.board.id;
-      // console.log(routerId, 'routerId');
-      const originalRoute = info.url.split('/')[0];
-      router.replace(`/${originalRoute}/${routerId ? routerId : ''}`);
-    }
+    // onSuccess: (res) => {
+    //   // console.log(res, 'res');
+    //   const routerId = res.product ? res.product.id : res.board.id;
+    //   // console.log(routerId, 'routerId');
+    //   const originalRoute = info.url.split('/')[0];
+    //   router.replace(`/${originalRoute}/${routerId ? routerId : ''}`);
+    // }
   });
 
   const imageWatch = watch('image');
@@ -157,18 +159,35 @@ const UploadImage = (info: UploadImageProps) => {
         {info?.component?.map((v, i) => {
           if (info?.elementType[i] === 'input') {
             return (
-              <Input
-                key={v}
-                label={v}
-                name={v}
-                type={v === 'productAuth' ? 'checkbox' : 'text'}
-                // value={info.elementValue && info.elementValue[v]}
-                // inputValue={info.elementValue && info.elementValue[v]}
-                required
-                register={register(v)}
-                inputValue={v === 'title' ? inputTitle : ''}
-                setRegister={setValue}
-              />
+              <div className={'inputwrap'} key={v}>
+                {<label htmlFor={v}>{labelOb[v]}</label>}
+                <div className="input-div">
+                  <input
+                    id={v}
+                    type={v === 'productAuth' ? 'checkbox' : 'text'}
+                    value={v === 'title' ? inputTitle : undefined}
+                    {...register(v)}
+                    onChange={
+                      v === 'title'
+                        ? (e) => setInputTitle(e.target.value)
+                        : register(v).onChange
+                    }
+                  />
+                </div>
+              </div>
+
+              // <Input
+              //   key={v}
+              //   label={v}
+              //   name={v}
+              //   type={v === 'productAuth' ? 'checkbox' : 'text'}
+              //   // value={info.elementValue && info.elementValue[v]}
+              //   // inputValue={info.elementValue && info.elementValue[v]}
+              //   required
+              //   register={register(v)}
+              //   inputValue={v === 'title' ? inputTitle : ''}
+              //   setRegister={setValue}
+              // />
             );
           } else if (info.elementType[i] === 'textarea')
             return (
@@ -222,6 +241,36 @@ const UploadImage = (info: UploadImageProps) => {
       </div>
 
       <style jsx>{`
+        .inputwrap {
+          display: ${'block'};
+          height: 100%;
+          position: relative;
+        }
+        .input-div {
+          height: 100%;
+          margin-top: 0.25rem;
+          margin-bottom: 1rem;
+        }
+        label {
+          font-weight: 500;
+          font-size: 0.875rem;
+          line-height: 1.25rem;
+        }
+
+        input {
+          width: ${'100%'};
+          height: ${'100%'};
+          border-radius: 4px;
+          border: none;
+          padding: 0.5rem;
+          padding-left: ${'0.5rem'};
+          font-size: 1rem;
+          outline: 1px solid rgba(0, 0, 0, 0.16);
+
+          &:focus {
+            outline: 3px solid rgb(127, 193, 255);
+          }
+        }
         .uploadimagewrap {
           max-width: 100%;
           width: 100%;

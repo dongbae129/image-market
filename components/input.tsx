@@ -28,13 +28,14 @@ const Input = ({
   ...rest
 }: InputProps) => {
   const [value, setV] = useState('');
-
-  if (setRegister) {
-    setRegister('title', inputValue);
-  }
-  useEffect(() => {
-    if (inputValue) setV(inputValue);
-  }, [inputValue]);
+  // console.log('value:', value, 'inputValue:', inputValue, 'V??');
+  console.log('ee');
+  // if (setRegister) {
+  //   setRegister('title', value);
+  // }
+  // useEffect(() => {
+  //   if (inputValue) setV(inputValue);
+  // }, [inputValue]);
 
   return (
     <div className={classname ? classname : 'inputwrap'}>
@@ -46,7 +47,7 @@ const Input = ({
           type={type}
           // placeholder={inputValue || ''}
 
-          value={name === 'image' || name === 'search' ? undefined : value}
+          // value={name === 'image' || name === 'search' ? undefined : value}
           {...register}
           onChange={
             name === 'image' || name === 'search'
@@ -54,7 +55,7 @@ const Input = ({
               : (e) => setV(e.target.value)
           }
           // ref={name === 'title' ? inputRef : register?.ref}
-          {...rest}
+          // {...rest}
         />
       </div>
 

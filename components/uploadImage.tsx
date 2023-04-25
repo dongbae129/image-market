@@ -54,7 +54,8 @@ const UploadImage = (info: UploadImageProps) => {
   const [imagePreview, setImagePreview] = useState('');
   const [editorValue, setEditorValue] = useState('');
   const [inputTitle, setInputTitle] = useState('');
-  const titleRef = useRef('');
+
+  // const titleRef = useRef('');
   const [hashtag, setHashtag] = useState<string[]>([]);
   const imgRatioRef = useRef('');
   const { register, handleSubmit, watch, setValue, getValues } =
@@ -63,13 +64,13 @@ const UploadImage = (info: UploadImageProps) => {
     newAxios.post(`/api/${info.url}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
-    // onSuccess: (res) => {
-    //   // console.log(res, 'res');
-    //   const routerId = res.product ? res.product.id : res.board.id;
-    //   // console.log(routerId, 'routerId');
-    //   const originalRoute = info.url.split('/')[0];
-    //   router.replace(`/${originalRoute}/${routerId ? routerId : ''}`);
-    // }
+    onSuccess: (res) => {
+      // console.log(res, 'res');
+      const routerId = res.product ? res.product.id : res.board.id;
+      // console.log(routerId, 'routerId');
+      const originalRoute = info.url.split('/')[0];
+      router.replace(`/${originalRoute}/${routerId ? routerId : ''}`);
+    }
   });
 
   const imageWatch = watch('image');
@@ -77,6 +78,11 @@ const UploadImage = (info: UploadImageProps) => {
     if (isLoading) return;
     const form = new FormData();
     const formInfo: UploadFormData = {};
+
+    if (info.url.includes('product/upload') && !imagePreview) {
+      alert('이미지를 첨부 하셔야 합니다');
+      return;
+    }
 
     for (const key in v) {
       if (key === 'image') {

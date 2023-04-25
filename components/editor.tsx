@@ -104,9 +104,9 @@ const Editor = ({
 
   const handleText = (value: any) => {
     setChat(value);
-    // if (setter) setter(value);
+    if (setter) setter(value);
   };
-  console.log(chat, 'CC');
+
   const submitText = () => {
     if (isLoading) return;
     mutate({ chat });

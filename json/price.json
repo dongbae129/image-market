@@ -1,0 +1,27 @@
+{
+  "price": [
+    {
+      "pay": 5000,
+      "coin": 50,
+      "bonus": 0
+    },
+    {
+      "pay": 10000,
+      "coin": 100,
+      "bonus": 10,
+      "coupon": 1
+    },
+    {
+      "pay": 20000,
+      "coin": 200,
+      "bonus": 30,
+      "coupon": 2
+    },
+    {
+      "pay": 40000,
+      "coin": 400,
+      "bonus": 80,
+      "coupon": 6
+    }
+  ]
+}

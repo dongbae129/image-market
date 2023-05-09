@@ -40,6 +40,16 @@ const UploadImage = (info: UploadImageProps) => {
   const router = useRouter();
   const routerId = router.query.id;
 
+  const [imagePreview, setImagePreview] = useState('');
+  const [editorValue, setEditorValue] = useState('');
+  const [inputTitle, setInputTitle] = useState('');
+
+  // const titleRef = useRef('');
+  const [hashtag, setHashtag] = useState<string[]>([]);
+  const imgRatioRef = useRef('');
+  const { register, handleSubmit, watch, setValue, getValues } =
+    useForm<UploadForm>();
+
   useEffect(() => {
     if (info.elementValue?.hashtag)
       setHashtag(info.elementValue.hashtag.split(','));
@@ -51,15 +61,6 @@ const UploadImage = (info: UploadImageProps) => {
   useEffect(() => {
     if (info?.elementValue?.title) setInputTitle(info?.elementValue?.title);
   }, [info?.elementValue?.title]);
-  const [imagePreview, setImagePreview] = useState('');
-  const [editorValue, setEditorValue] = useState('');
-  const [inputTitle, setInputTitle] = useState('');
-
-  // const titleRef = useRef('');
-  const [hashtag, setHashtag] = useState<string[]>([]);
-  const imgRatioRef = useRef('');
-  const { register, handleSubmit, watch, setValue, getValues } =
-    useForm<UploadForm>();
   const postUploadForm = (data: FormData | UploadFormData) =>
     newAxios.post(`/api/${info.url}`, data).then((res) => res.data);
 
@@ -74,11 +75,14 @@ const UploadImage = (info: UploadImageProps) => {
   });
 
   const imageWatch = watch('image');
+  console.log(inputTitle, 'inputtitle111');
   const onValid = (v: UploadForm) => {
     if (isLoading) return;
     const form = new FormData();
     const formInfo: UploadFormData = {};
 
+    console.log(v, 'VVV');
+    console.log(inputTitle, 'inputtitle222');
     if (info.url.includes('product/upload') && !imagePreview) {
       alert('이미지를 첨부 하셔야 합니다');
       return;
@@ -94,6 +98,10 @@ const UploadImage = (info: UploadImageProps) => {
             JSON.stringify({ productBoolean: v[key] })
           );
           formInfo['productAuth'] = JSON.stringify({ productBoolean: v[key] });
+          continue;
+        } else if (key === 'title') {
+          form.append('title', inputTitle);
+          formInfo['title'] = inputTitle;
           continue;
         }
         form.append(key, v[key]);

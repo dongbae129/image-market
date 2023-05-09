@@ -1,6 +1,6 @@
 import client from '@libs/server/client';
 
-import { isLogedIn, nc, dbNow, upLoader, imgDelete } from '@libs/server/utils';
+import { isLogedIn, nc, dbNow, upLoader } from '@libs/server/utils';
 import sharp from 'sharp';
 
 export const config = {

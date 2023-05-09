@@ -44,11 +44,13 @@ const Download = async (req: NextApiRequest, res: NextApiResponse) => {
           `Content-Disposition`,
           `attatchment; filename=${getDownloadFilename(req, product.image)}`
         );
+        console.log(filestream, 'filestream');
         return filestream.pipe(res);
       } else {
         /**유료 이미지 */
         // const userIdDecoded = (decode(auth.accessToken) as TokenPayload).id;
-        const userIdDecoded = (auth.payload as TokenPayload).id;
+
+        // const userIdDecoded = (auth.payload as TokenPayload).id;
         // if (imgAuth === 'true') {
         //   await client.productAuth.create({
         //     data: {
@@ -57,42 +59,57 @@ const Download = async (req: NextApiRequest, res: NextApiResponse) => {
         //     }
         //   });
         // }
-        const imageAuth = await client.productAuth.findFirst({
-          where: {
-            userId: userIdDecoded,
-            productId: product.id
-          }
-        });
-        if (imageAuth) {
-          /**워터마크 없는거 */
-          const filestream = fs.createReadStream(
-            `./public/uploads/${product.image}`
-          );
-          res.setHeader(
-            `Content-Disposition`,
-            `attatchment; filename=${getDownloadFilename(req, product.image)}`
-          );
-          return filestream.pipe(res);
-        } else {
-          /**워터마크 있는거 */
-          const filestream = fs.createReadStream(
-            `./public/watermark/watermark_${product.image}`
-          );
-          res.setHeader(
-            `Content-Disposition`,
-            `attatchment; filename=watermark_${getDownloadFilename(
-              req,
-              product.image
-            )}`
-          );
-          return filestream.pipe(res);
-        }
+        const filestream = fs.createReadStream(
+          `./public/watermark/watermark_${product.image}`
+        );
+        // console.log(filestream,"filestream")
+        res.setHeader(
+          `Content-Disposition`,
+          `attatchment; filename=watermark_${getDownloadFilename(
+            req,
+            product.image
+          )}`
+        );
+        return filestream.pipe(res);
+        // const imageAuth = await client.productAuth.findFirst({
+        //   where: {
+        //     userId: userIdDecoded,
+        //     productId: product.id
+        //   }
+        // });
+        // if (imageAuth) {
+        //   /**워터마크 없는거 */
+        //   const filestream = fs.createReadStream(
+        //     `./public/uploads/${product.image}`
+        //   );
+        //   res.setHeader(
+        //     `Content-Disposition`,
+        //     `attatchment; filename=${getDownloadFilename(req, product.image)}`
+        //   );
+        //   return filestream.pipe(res);
+        // } else {
+        //   /**워터마크 있는거 */
+        //   const filestream = fs.createReadStream(
+        //     `./public/watermark/watermark_${product.image}`
+        //   );
+        //   res.setHeader(
+        //     `Content-Disposition`,
+        //     `attatchment; filename=watermark_${getDownloadFilename(
+        //       req,
+        //       product.image
+        //     )}`
+        //   );
+        //   return filestream.pipe(res);
+        // }
       }
 
       //   res.send(`/uploads/${product.image}`);
     } catch (error) {
       console.error(error, 'product image error');
-      res.status(500);
+      return res.status(500).json({
+        ok: false,
+        error
+      });
     }
   }
 };

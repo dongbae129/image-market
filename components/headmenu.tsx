@@ -54,7 +54,7 @@ const HeadMenu: NextPage = () => {
     }
   );
   return (
-    <div className="headmenuwrap">
+    <div className="headmenuwrap z-10 bg-white relative">
       <div className="golinkwrap">
         <Link href={'/'}>
           <span className="golinkinhead">HOME</span>

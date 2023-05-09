@@ -363,7 +363,7 @@ const ProductDetail: NextPage = () => {
           $img_inner: 32px;
           $img_outer: 50px;
           $userimg-out_mgr: 8px;
-
+          $card_mxh: 80vh;
           .productwrapout {
             position: relative;
             margin-top: 30px;
@@ -391,7 +391,7 @@ const ProductDetail: NextPage = () => {
             position: relative;
             width: 50%;
             padding: 1rem;
-            max-height: 80vh;
+            max-height: $card_mxh;
             .imagewrap {
               position: relative;
               border-top-left-radius: 20px;
@@ -405,6 +405,7 @@ const ProductDetail: NextPage = () => {
           .userInfo {
             position: relative;
             width: 50%;
+            max-height: $card_mxh;
             > div:nth-child(1) {
               width: 100%;
               display: flex;
@@ -573,9 +574,11 @@ const ProductDetail: NextPage = () => {
             }
           }
           .chatwrap {
-            display: ${chatOpen ? 'flex' : 'none'};
+            opacity: ${chatOpen ? 1 : 0};
             flex-direction: column;
             width: 100%;
+            height: 40%;
+            overflow-y: scroll;
             > div {
               margin-top: 10px;
               margin-bottom: 10px;

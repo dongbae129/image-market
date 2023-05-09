@@ -35,6 +35,7 @@ const Certification: NextPage = () => {
   /* 3. 콜백 함수 정의하기 */
   function callback(response: any) {
     const { success, merchant_uid, error_msg } = response;
+    console.log(response, 'resp');
 
     if (success) {
       alert('본인인증 성공');

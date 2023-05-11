@@ -1,22 +1,9 @@
 import type { NextPage } from 'next';
-import data from '../../json/price.json';
-import { MouseEvent } from 'react';
+import { useState } from 'react';
+import PaymentCard from '@components/paymentCard';
 
 const Index: NextPage = () => {
-  const { price } = data;
-  const handleOnclick = (e: MouseEvent<HTMLDivElement>) => {
-    let element = e.target as HTMLDivElement;
-    console.log(element.dataset, 'AA');
-    while (!element.classList.contains('datacard')) {
-      element = element.parentNode as HTMLDivElement;
-      if (element.nodeName === 'BODY') {
-        return;
-      }
-    }
-    console.log(element.children, 'class');
-    console.log(element.dataset.card, 'Card dataset');
-  };
-
+  const [cardNumber, setCardNumber] = useState('0');
   return (
     <div className="w-full bg-[#efeff0] mt-[-80px] pt-[64px]">
       <div className="w-[780px] m-auto h-full bg-white">
@@ -27,66 +14,15 @@ const Index: NextPage = () => {
                 충전금액을 선택해 주세요
               </h2>
             </div>
-            <div onClick={handleOnclick}>
+            <div>
               {[1, 2, 3, 4].map((v, i) => (
-                <div
-                  className="datacard mb-5 cursor-pointer"
+                <PaymentCard
+                  v={v}
+                  i={i}
                   key={v}
-                  data-card={v}
-                >
-                  <div className="rounded-tr-2xl rounded-bl-2xl outline outline-gray-300 outline-2 overflow-hidden hover:outline-red-400 focus:outline-blue-400">
-                    <div className="group hover:scale-[1.03] flex h-44 ease-in-out duration-200">
-                      <div className="w-1/2 flex justify-center items-center flex-col">
-                        <div
-                          className="flex justify-center w-full items-center"
-                          data-test={v}
-                        >
-                          {v === 1 && (
-                            <span className="mr-[10%] rounded-xl py-1 px-2 text-white font-bold bg-gray-400">
-                              기본적립
-                            </span>
-                          )}
-
-                          <span className="text-5xl font-bold text-red-400">
-                            {price[i].pay}원
-                          </span>
-                        </div>
-                        <div className="border-2 border-solid border-gray-400 rounded-xl w-[90%] text-center p-1 mt-[5%] text-gray-400 font-bold group-hover:text-red-400 group-hover:border-red-400">
-                          선택하기
-                        </div>
-                      </div>
-                      <div
-                        className={`bg-gray-300 w-1/2 flex flex-col justify-evenly group-hover:bg-red-400`}
-                      >
-                        <div className=" flex justify-center items-center text-white font-bold text-3xl">
-                          {price[i].coin + price[i].bonus}코인
-                        </div>
-                        {price[i].bonus ? (
-                          <div className="h-[50%] bg-white rounded-tr-2xl rounded-bl-2xl flex w-[80%] my-0 mx-auto">
-                            <div className="flex flex-col w-full justify-evenly">
-                              <div className="flex justify-center items-center w-full">
-                                <span className="rounded-2xl p-1 bg-red-400 text-white font-bold text-sm mr-3">
-                                  추가적립
-                                </span>
-                                <span className="font-bold text-sm">
-                                  {price[i].bonus}코인
-                                </span>
-                              </div>
-                              <div className="text-center">
-                                <span className="text-red-400 font-bold text-sm">
-                                  특별보너스{' '}
-                                </span>
-                                <span className="font-bold text-sm">
-                                  쿠폰 {price[i].coupon}장
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  cardNumber={cardNumber}
+                  setCardNumber={setCardNumber}
+                />
               ))}
             </div>
           </div>
@@ -101,7 +37,8 @@ export default Index;
 // import type { NextPage } from 'next';
 // import { useRouter } from 'next/router';
 // import { useEffect } from 'react';
-// export interface Iamport {
+// import paymentCard from './../../components/paymentCard';
+
 //   init: (accountID: string) => void;
 //   request_pay: (params: any, callback?: any) => void;
 //   certification: (params: any, callback?: any) => void;

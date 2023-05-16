@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface SvgInfo {
   // fill?: string;
@@ -12,7 +12,8 @@ interface SvgIconProps {
 }
 
 const SvgIcon = ({ svgInfo, ...rest }: SvgIconProps) => {
-  const svgRef = useRef<SVGPathElement[] | null[]>([]);
+  // const svgRef = useRef<SVGPathElement[] | null[]>([]);
+
   return (
     <>
       <svg
@@ -25,11 +26,14 @@ const SvgIcon = ({ svgInfo, ...rest }: SvgIconProps) => {
         <g>
           {svgInfo.map((info, i) => {
             const svgPath = (
-              <path key={i} ref={(el) => (svgRef.current[i] = el)}></path>
+              <path key={i} fill={info.fill || ''} d={info.d}></path>
             );
-            for (const key in info) {
-              svgRef.current[i]?.setAttribute(key, info[key]);
-            }
+            // const svgPath = (
+            //   <path key={i} ref={(el) => (svgRef.current[i] = el)}></path>
+            // );
+            // for (const key in info) {
+            //   svgRef.current[i]?.setAttribute(key, info[key]);
+            // }
             return svgPath;
           })}
         </g>

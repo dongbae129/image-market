@@ -23,7 +23,6 @@ const PaymentCard = ({ v, i, cardNumber, setCardNumber }: PaymentCardProps) => {
     }
     if (!element.dataset.card) return;
     priceRef.current = price[Number(element.dataset.card) - 1];
-    console.log(price[Number(element.dataset.card) - 1], 'Card dataset');
     setCardNumber(element.dataset.card);
   };
 

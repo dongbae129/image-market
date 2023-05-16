@@ -89,6 +89,9 @@ const HeadMenu: NextPage = () => {
         </div>
       ) : (
         <div className="golinkwrap">
+          <Link href={'/payment'}>
+            <span className="golinkinhead">PAY</span>
+          </Link>
           <Link href={'/signin'}>
             <span className="golinkinhead">SIGNIN</span>
           </Link>

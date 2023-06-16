@@ -2,6 +2,8 @@ import SvgData from 'json/data.json';
 import SvgIcon from '@components/svgIcon';
 // import Link from 'next/link';
 import { useEffect } from 'react';
+import axios from 'axios';
+import { newAxios } from '@libs/client/fetcher';
 
 interface PaymentWayProps {
   payproduct:
@@ -49,7 +51,7 @@ const PaymentWay = ({ payproduct }: PaymentWayProps) => {
       amount: pay, // 결제금액
       name: `포인트충전: ${pay}`, // 주문명
       buyer_name: '테스트중', // 구매자 이름
-      buyer_tel: '테테테스트', // 구매자 전화번호
+      // buyer_tel: '테테테스트', // 구매자 전화번호
       buyer_email: 'dongbae129@naver.com', // 구매자 이메일
       buyer_addr: '신사동 661-16', // 구매자 주소
       buyer_postcode: '06018' // 구매자 우편번호
@@ -62,6 +64,7 @@ const PaymentWay = ({ payproduct }: PaymentWayProps) => {
     const { success, merchant_uid, error_msg } = response;
 
     if (success) {
+      newAxios.post('/api/pay', { response });
       alert('결제 성공');
       console.log(response, 'success');
       // router.push('/');

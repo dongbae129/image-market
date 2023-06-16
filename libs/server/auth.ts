@@ -63,8 +63,8 @@ export const checkAuth = (
   logintype: number
 ): checkAuthResponse => {
   const clientAccessToken = req.headers['authorization']?.split(' ')[1];
-  console.log(req.cookies, 'Refresh');
-  console.log(clientAccessToken, 'api/index');
+  // console.log(req.cookies, 'Refresh');
+  // console.log(clientAccessToken, 'api/index');
 
   const state = {
     re: false,
@@ -80,14 +80,14 @@ export const checkAuth = (
   let verifyed: VerifyType = {};
   verify(clientAccessToken, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
     if (err) {
-      console.log(err, 'testerr');
+      // console.log(err, 'testerr');
       verifyed = {
         err,
         checkError: true
       };
       return;
     }
-    console.log(payload, 'testpayload');
+    // console.log(payload, 'testpayload');
     verifyed = {
       ...state,
       payload,
@@ -95,7 +95,7 @@ export const checkAuth = (
     };
     return;
   });
-  console.log(verifyed, 'verifyed');
+  // console.log(verifyed, 'verifyed');
 
   return {
     ...state,

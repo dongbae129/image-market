@@ -82,6 +82,9 @@ const HeadMenu: NextPage = () => {
       </div>
       {userInfo?.ok ? (
         <div className="golinkwrap right">
+          <Link href={'/payment'}>
+            <span className="golinkinhead">PAY</span>
+          </Link>
           <Link href={'/upload'}>
             <span className="golinkinhead">UPLOAD</span>
           </Link>

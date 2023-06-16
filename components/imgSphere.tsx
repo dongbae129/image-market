@@ -284,7 +284,7 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
       // Scene
 
       // Light
-      const ambientLight = new THREE.AmbientLight('white', 0.5);
+      const ambientLight = new THREE.AmbientLight('white', 0.8);
       scene.add(ambientLight);
 
       const directionalLight = new THREE.DirectionalLight('white', 5);

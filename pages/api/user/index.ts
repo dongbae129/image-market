@@ -28,7 +28,9 @@ const User = async (
             name: true,
             email: true,
             image: true,
-            emailActive: true
+            emailActive: true,
+            coin: true,
+            bonusCoupon: true
           }
         });
 

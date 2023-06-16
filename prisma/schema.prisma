@@ -21,6 +21,8 @@ model User {
   image       String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  coin        Int           @default(0)
+  bonusCoupon Int           @default(0)
   localUser   LocalUser?
   socialUser  SocialUser?
   products    Product[]
@@ -28,6 +30,8 @@ model User {
   Chat        Chat[]
   boardChat   BoardChat[]
   productAuth ProductAuth[]
+  pay         PayDetail[]
+  payUsage    PayUsage[]
 }
 
 model SocialUser {
@@ -47,6 +51,35 @@ model LocalUser {
   password String
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int    @unique
+}
+
+model PayUsage {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  coin      Int      @default(0)
+  coupon    Int      @default(0)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      @unique
+}
+
+model PayDetail {
+  id           Int    @id @default(autoincrement())
+  merchant_uid String
+  name         String
+  paid_amount  Int
+  pg_provider  String
+  buyer_name   String
+  buyer_email  String
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int    @unique
+}
+
+model PayProduct {
+  id          Int @id @default(autoincrement())
+  amount      Int
+  basicCoin   Int
+  bonusCoin   Int @default(0)
+  bonusCoupon Int @default(0)
 }
 
 model Product {

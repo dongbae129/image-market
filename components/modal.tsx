@@ -1,11 +1,39 @@
-import { Dispatch, MouseEvent, SetStateAction, useEffect } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/router';
+import {
+  Dispatch,
+  MouseEvent,
+  SetStateAction,
+  useEffect,
+  useState
+} from 'react';
 import { UseMutateFunction } from 'react-query';
 interface ModalProps {
   modalOpen: boolean;
   setModalOpen: Dispatch<SetStateAction<boolean>>;
   deleteMutation: UseMutateFunction<any, unknown, void, unknown>;
+  modalUse: 'delete' | 'paidDown';
+  productId?: number;
 }
-const Modal = ({ modalOpen, setModalOpen, deleteMutation }: ModalProps) => {
+const modalText = {
+  delete: {
+    header: '정말 삭제하시겠어요?',
+    main: '삭제 후에는 실행을 취소할수 없습니다!',
+    btn: '삭제'
+  },
+  paidDown: {
+    header: '해당 이미지를 다운로드 하시겠습니까?',
+    main: '해당 이미지는 1코인 또는 쿠폰 1장이 필요합니다',
+    btn: '다운'
+  }
+};
+const Modal = ({
+  modalOpen,
+  setModalOpen,
+  deleteMutation,
+  modalUse,
+  productId
+}: ModalProps) => {
   const onClickClose = () => {
     setModalOpen((prev) => !prev);
   };
@@ -17,13 +45,53 @@ const Modal = ({ modalOpen, setModalOpen, deleteMutation }: ModalProps) => {
     }
   };
   const onClickDeleteMutate = () => {
-    deleteMutation();
+    downloadImage();
+    // deleteMutation();
   };
-  const keyDeleteModal = (e: KeyboardEvent) => {
-    if (modalOpen && e.key === 'Escape') setModalOpen((prev) => !prev);
+
+  const extractFilenameFromContentDisposition = (
+    contentDisposition: string
+  ) => {
+    const filenameRegex = /filename=[\w.-]+/;
+    const matches = contentDisposition.match(filenameRegex);
+
+    let filename = '';
+    if (matches) {
+      filename = matches[0].split('=')[1];
+    }
+
+    return filename;
+  };
+
+  const downloadImage = async () => {
+    const response = await axios(
+      `/api/product/download?productId=${productId}&imgAuth=${true}`,
+      {
+        responseType: 'blob'
+      }
+    );
+
+    const contentDisposition = response.headers['content-disposition'];
+
+    const fileName = extractFilenameFromContentDisposition(contentDisposition);
+
+    const url = URL.createObjectURL(response.data);
+
+    const link = document.createElement('a');
+    // const fileName = prompt('enter the file name');
+    link.href = url;
+    link.download = fileName;
+
+    link.click();
+
+    URL.revokeObjectURL(url);
+    setModalOpen((prev) => !prev);
   };
 
   useEffect(() => {
+    const keyDeleteModal = (e: KeyboardEvent) => {
+      if (modalOpen && e.key === 'Escape') setModalOpen((prev) => !prev);
+    };
     document.addEventListener('keyup', keyDeleteModal);
     return () => {
       document.removeEventListener('keyup', keyDeleteModal);
@@ -39,10 +107,10 @@ const Modal = ({ modalOpen, setModalOpen, deleteMutation }: ModalProps) => {
           </div>
           <div className="content">
             <div className="content_ask">
-              <h1>정말 삭제하시겠어요?</h1>
+              <h1>{modalText[modalUse].header}</h1>
             </div>
             <div>
-              <h3>삭제 후에는 실행을 취소할수 없습니다!</h3>
+              <h3>{modalText[modalUse].main}</h3>
             </div>
             <div>
               <div className="content_btnwrap">
@@ -56,7 +124,7 @@ const Modal = ({ modalOpen, setModalOpen, deleteMutation }: ModalProps) => {
                     className="content_btn_delete"
                     onClick={onClickDeleteMutate}
                   >
-                    <div className="content_btn">삭제</div>
+                    <div className="content_btn">{modalText[modalUse].btn}</div>
                   </button>
                 </div>
               </div>
@@ -95,6 +163,7 @@ const Modal = ({ modalOpen, setModalOpen, deleteMutation }: ModalProps) => {
 
         #modal .content {
           padding: 0px 10px;
+          font-weight: bold;
         }
         .content > div {
           padding: 24px;

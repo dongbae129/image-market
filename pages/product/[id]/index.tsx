@@ -55,6 +55,7 @@ const ProductDetail: NextPage = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [modifyOpen, setModifyOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [paidDown, setPaidDown] = useState(false);
   const router = useRouter();
   const arrowRef = useRef<HTMLSpanElement>(null);
   const queryClient = useQueryClient();
@@ -178,6 +179,9 @@ const ProductDetail: NextPage = () => {
     setModalOpen((prev) => !prev);
     // deleteMutation();
   };
+  const onClickDown = () => {
+    setPaidDown((prev) => !prev);
+  };
 
   if (isLoading) return <div>Loading Data....</div>;
   if (!data?.ok) return <div>해당 상품은 존재하지 않습니다</div>;
@@ -188,6 +192,16 @@ const ProductDetail: NextPage = () => {
           modalOpen={modalOpen}
           setModalOpen={setModalOpen}
           deleteMutation={deleteMutation}
+          modalUse="delete"
+        />
+      )}
+      {paidDown && (
+        <Modal
+          modalOpen={paidDown}
+          setModalOpen={setPaidDown}
+          deleteMutation={() => {}}
+          modalUse="paidDown"
+          productId={Number(productId)}
         />
       )}
       <div className="productwrapout">
@@ -229,12 +243,16 @@ const ProductDetail: NextPage = () => {
               <div className="btnwithmodify">
                 <div>
                   <button>
-                    <a
-                      href={`/api/product/download?productId=${productId}&imgAuth=${watchAuth}`}
-                      download
-                    >
-                      저장
-                    </a>
+                    {data.product.auth ? (
+                      <div onClick={onClickDown}>다운로드</div>
+                    ) : (
+                      <a
+                        href={`/api/product/download?productId=${productId}&imgAuth=${watchAuth}`}
+                        download
+                      >
+                        저장
+                      </a>
+                    )}
                   </button>
                 </div>
 

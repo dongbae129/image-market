@@ -201,7 +201,7 @@ const ProductDetail: NextPage = () => {
           setModalOpen={setPaidDown}
           deleteMutation={() => {}}
           modalUse="paidDown"
-          productId={Number(productId)}
+          productId={productId?.toString()}
         />
       )}
       <div className="productwrapout">
@@ -244,7 +244,7 @@ const ProductDetail: NextPage = () => {
                 <div>
                   <button>
                     {data.product.auth ? (
-                      <div onClick={onClickDown}>다운로드</div>
+                      <div onClick={onClickDown}>저장</div>
                     ) : (
                       <a
                         href={`/api/product/download?productId=${productId}&imgAuth=${watchAuth}`}

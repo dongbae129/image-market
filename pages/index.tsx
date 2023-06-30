@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 
 import Link from 'next/link';
 
-import { useInfiniteQuery, useQueryClient } from 'react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from 'react-query';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { Product, User } from '@prisma/client';
@@ -14,7 +14,8 @@ import { useInView } from 'react-intersection-observer';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 
 import Sidebar from '@components/sidebar';
-import HeadMenu from '@components/headmenu';
+import HeadMenu, { userResponse } from '@components/headmenu';
+import Image from 'next/future/image';
 
 // const keyStr =
 //   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -127,10 +128,10 @@ const Home: NextPage = () => {
     if (inView && hasNextPage) fetchNextPage();
   }, [inView, hasNextPage, fetchNextPage]);
 
-  // const { data: userInfo } = useQuery<userResponse>(
-  //   ['userInfo'],
-  //   getFetch('/api/user', header)
-  // );
+  const { data: userInfo } = useQuery<userResponse>(
+    ['userInfo'],
+    getFetch('/api/user', header)
+  );
 
   return (
     <div className="main_wrap">
@@ -211,6 +212,63 @@ const Home: NextPage = () => {
        
         </div>
       </div> */}
+      <div className="main_header flex justify-between w-[94vw] m-auto mb-12">
+        <div className="banner rounded-lg overflow-hidden border border-[#e3e5e8] shadow-md w-[75%] h-80 rounded-lg max-lg:w-full relative">
+          <button className='bg-[url("/localimages/left-arrow.svg")] arrow'></button>
+          <NextImage
+            src={'/localimages/banner.webp'}
+            alt="banner"
+            fill={true}
+          />
+          <button className='bg-[url("/localimages/right-arrow.svg")] arrow right-0'></button>
+        </div>
+        <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-48 rounded-lg max-lg:hidden overflow-hidden">
+          <div className="h-4/6">
+            <div className="flex w-full h-full">
+              <div className="w-[80px] flex justify-center items-center ">
+                <div className="w-[64px] h-[64px] rounded-full bg-slate-400"></div>
+              </div>
+              <div className="flex flex-col justify-center flex-1 pt-7 pb-4">
+                <div className="flex-1 font-bold text-lg">
+                  {userInfo?.user?.name}
+                </div>
+                <div className="flex-1 text-sm">{userInfo?.user?.email}</div>
+                <div className="flex text-center flex-1 text-sm font-bold">
+                  <div className="mr-2">
+                    <span>{userInfo?.user?.coin}</span>코인
+                  </div>
+                  <div className="pl-2 profile_selction relative">
+                    <span>{userInfo?.user?.bonusCoupon}</span>쿠폰
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="h-2/6 flex bg-slate-50 font-bold">
+            <div className="flex-1">
+              <Link href={''}>
+                <a className="block py-5 text-center">
+                  <span className="w-full">설정</span>
+                </a>
+              </Link>
+            </div>
+            <div className="flex-1">
+              <Link href={'#'}>
+                <a className="profile_selction block py-5 text-center relative">
+                  <span className="w-full">내정보</span>
+                </a>
+              </Link>
+            </div>
+            <div className="flex-1">
+              <Link href={'#'}>
+                <a className="profile_selction block py-5 text-center relative">
+                  <span className="w-full">로그아웃</span>
+                </a>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="product-wrap" ref={countRef}>
         <ResponsiveMasonry
           columnsCountBreakPoints={{ 350: 2, 750: 3, 900: 5, 1200: 6 }}
@@ -267,15 +325,35 @@ const Home: NextPage = () => {
           <div ref={ref} style={{ height: '100px' }}></div>
         )}
       </div>
+
       {/* <Sidebar /> */}
       <style jsx>{`
+        .profile_selction::before {
+          content: '';
+          display: block;
+          position: absolute;
+          left: 0;
+          width: 2px;
+          height: 20px;
+          background-color: rgb(148, 163, 184);
+        }
+        .arrow {
+          z-index: 2;
+          width: 6.67vw;
+          height: 6.67vw;
+          background-repeat: no-repeat;
+          background-position: center;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          color: transparent;
+        }
         .main_wrap {
           position: relative;
         }
         .product-wrap {
-          width: 93vw;
+          width: 94vw;
           margin: 0 auto;
-
           .imgwrap {
             position: relative;
             cursor: pointer;

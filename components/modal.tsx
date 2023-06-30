@@ -1,3 +1,4 @@
+import { downloadImage } from '@libs/client/downloadImage';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import {
@@ -11,9 +12,9 @@ import { UseMutateFunction } from 'react-query';
 interface ModalProps {
   modalOpen: boolean;
   setModalOpen: Dispatch<SetStateAction<boolean>>;
-  deleteMutation: UseMutateFunction<any, unknown, void, unknown>;
+  deleteMutation?: UseMutateFunction<any, unknown, void, unknown>;
   modalUse: 'delete' | 'paidDown';
-  productId?: number;
+  productId?: string;
 }
 const modalText = {
   delete: {
@@ -24,7 +25,7 @@ const modalText = {
   paidDown: {
     header: '해당 이미지를 다운로드 하시겠습니까?',
     main: '해당 이미지는 1코인 또는 쿠폰 1장이 필요합니다',
-    btn: '다운'
+    btn: '쿠폰사용'
   }
 };
 const Modal = ({
@@ -44,49 +45,52 @@ const Modal = ({
       setModalOpen((prev) => !prev);
     }
   };
-  const onClickDeleteMutate = () => {
-    downloadImage();
-    // deleteMutation();
-  };
-
-  const extractFilenameFromContentDisposition = (
-    contentDisposition: string
-  ) => {
-    const filenameRegex = /filename=[\w.-]+/;
-    const matches = contentDisposition.match(filenameRegex);
-
-    let filename = '';
-    if (matches) {
-      filename = matches[0].split('=')[1];
+  const onClickDelOrCouponDown = () => {
+    if (modalUse === 'paidDown' && productId) {
+      downloadImage({ productId, setState: setModalOpen });
+    } else {
+      if (deleteMutation) deleteMutation();
     }
-
-    return filename;
   };
 
-  const downloadImage = async () => {
-    const response = await axios(
-      `/api/product/download?productId=${productId}&imgAuth=${true}`,
-      {
-        responseType: 'blob'
-      }
-    );
+  // const extractFilenameFromContentDisposition = (
+  //   contentDisposition: string
+  // ) => {
+  //   const filenameRegex = /filename=[\w.-]+/;
+  //   const matches = contentDisposition.match(filenameRegex);
 
-    const contentDisposition = response.headers['content-disposition'];
+  //   let filename = '';
+  //   if (matches) {
+  //     filename = matches[0].split('=')[1];
+  //   }
 
-    const fileName = extractFilenameFromContentDisposition(contentDisposition);
+  //   return filename;
+  // };
 
-    const url = URL.createObjectURL(response.data);
+  // const downloadImage = async () => {
+  //   const response = await axios(
+  //     `/api/product/download?productId=${productId}&imgAuth=${true}`,
+  //     {
+  //       responseType: 'blob'
+  //     }
+  //   );
 
-    const link = document.createElement('a');
-    // const fileName = prompt('enter the file name');
-    link.href = url;
-    link.download = fileName;
+  //   const contentDisposition = response.headers['content-disposition'];
 
-    link.click();
+  //   const fileName = extractFilenameFromContentDisposition(contentDisposition);
 
-    URL.revokeObjectURL(url);
-    setModalOpen((prev) => !prev);
-  };
+  //   const url = URL.createObjectURL(response.data);
+
+  //   const link = document.createElement('a');
+  //   // const fileName = prompt('enter the file name');
+  //   link.href = url;
+  //   link.download = fileName;
+
+  //   link.click();
+
+  //   URL.revokeObjectURL(url);
+  //   setModalOpen((prev) => !prev);
+  // };
 
   useEffect(() => {
     const keyDeleteModal = (e: KeyboardEvent) => {
@@ -116,13 +120,15 @@ const Modal = ({
               <div className="content_btnwrap">
                 <div>
                   <button className="content_btn_cancel" onClick={onClickClose}>
-                    <div className="content_btn">취소</div>
+                    <div className="content_btn">
+                      {modalUse === 'delete' ? '취소' : '코인사용'}
+                    </div>
                   </button>
                 </div>
                 <div>
                   <button
                     className="content_btn_delete"
-                    onClick={onClickDeleteMutate}
+                    onClick={onClickDelOrCouponDown}
                   >
                     <div className="content_btn">{modalText[modalUse].btn}</div>
                   </button>

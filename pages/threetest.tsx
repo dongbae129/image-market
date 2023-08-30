@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as CANNON from 'cannon-es';
 import { PreventDragClick } from '@libs/client/PreventDragClick';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { TextG } from '@components/TextG';
 
 import axios from 'axios';
@@ -31,6 +31,7 @@ const Threetest: NextPage = () => {
 
   // Scene
   const scene = new THREE.Scene();
+  scene.background = new THREE.Color('white');
   // Light
   const ambientLight = new THREE.AmbientLight('white', 0.5);
   scene.add(ambientLight);
@@ -62,11 +63,25 @@ const Threetest: NextPage = () => {
   floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI / 2);
   cannonWorld.addBody(floorBody);
 
+  const textureLoader = new THREE.TextureLoader();
+
+  const fontLoader = new FontLoader();
+  let floorTexture = null;
+  if (typeof window !== 'undefined') {
+    floorTexture = textureLoader.load('/models/grid.png');
+    floorTexture.wrapS = THREE.RepeatWrapping;
+    floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.x = 10;
+    floorTexture.repeat.y = 10;
+  }
+
   // Mesh
   const floorMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
+    new THREE.PlaneGeometry(100, 100),
     new THREE.MeshStandardMaterial({
-      color: 'slategray'
+      // color: 'slategray'
+      // map: floorTexture
+      map: floorTexture
     })
   );
   floorMesh.rotation.x = -Math.PI / 2;
@@ -104,15 +119,15 @@ const Threetest: NextPage = () => {
   zeroOneMinusone.forEach((v, i) => {
     if (i === 0) {
       vstandMesh[i].position.y = 0.5;
+      // vstandMesh[i].rotation.x = Math.PI * -0.1;
       scene.add(vstandMesh[i]);
       return;
     }
     vstandMesh[i].position.y = 0.25;
     vstandMesh[i].position.x = v;
+    // vstandMesh[i].rotation.x = Math.PI * -0.1;
     scene.add(vstandMesh[i]);
   });
-
-  const fontLoader = new FontLoader();
 
   let count = 0;
   const getRnadomX = () => {
@@ -164,7 +179,7 @@ const Threetest: NextPage = () => {
     data?.products.forEach((v, i: number) => {
       const [x, z] = getRnadomX();
       const mySphere = new TextG({
-        text: `#${v.description}`,
+        text: `#${v.title}`,
         fontLoader,
         scene,
         cannonWorld,
@@ -221,6 +236,8 @@ const Threetest: NextPage = () => {
     const draw = () => {
       const delta = clock.getDelta();
 
+      camera.lookAt(vstandMesh[0].position);
+
       let cannonStepTime = 1 / 60;
       if (delta < 0.01) cannonStepTime = 1 / 120;
       cannonWorld.step(cannonStepTime, delta, 3);
@@ -258,15 +275,16 @@ const Threetest: NextPage = () => {
       </button>
       <canvas id="three-canvas" ref={test} onClick={testclick}></canvas>
       <style jsx>{`
+        .canvas-wrap {
+          width: 100%;
+          height: calc(100% - 80px);
+          overflow: hidden;
+        }
         .delbtn {
           position: absolute;
           left: 20px;
           top: 20px;
           font-size: 20px;
-        }
-        .canvas-wrap {
-          width: 100vw;
-          height: 100vh;
         }
       `}</style>
     </div>

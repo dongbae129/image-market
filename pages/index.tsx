@@ -17,6 +17,8 @@ import Sidebar from '@components/sidebar';
 import HeadMenu, { userResponse } from '@components/headmenu';
 import Image from 'next/future/image';
 
+import UserCard from '@components/userCard';
+
 // const keyStr =
 //   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
@@ -98,7 +100,8 @@ const Home: NextPage = () => {
 
   // const { data } = useQuery(['getProducts'], getProducts);
   // console.log(data, 'Data');
-  const { data, hasNextPage, fetchNextPage, isLoading, isFetchingNextPage } =
+  // product data 가져오기
+  /*const { data, hasNextPage, fetchNextPage, isLoading, isFetchingNextPage } =
     useInfiniteQuery<any>(['getProducts'], getProducts, {
       getNextPageParam: (lastPage, allPage) => {
         const lastPageLength = lastPage.products.length;
@@ -106,7 +109,7 @@ const Home: NextPage = () => {
         return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
       }
     });
-
+*/
   useEffect(() => {
     if (countRef.current) {
       const test = +window
@@ -124,9 +127,10 @@ const Home: NextPage = () => {
     }
     console.log('out');
   }, []);
-  useEffect(() => {
-    if (inView && hasNextPage) fetchNextPage();
-  }, [inView, hasNextPage, fetchNextPage]);
+  // 다시 주석
+  // useEffect(() => {
+  //   if (inView && hasNextPage) fetchNextPage();
+  // }, [inView, hasNextPage, fetchNextPage]);
 
   const { data: userInfo } = useQuery<userResponse>(
     ['userInfo'],
@@ -212,8 +216,8 @@ const Home: NextPage = () => {
        
         </div>
       </div> */}
-      <div className="main_header flex justify-between w-[94vw] m-auto mb-12">
-        <div className="banner rounded-lg overflow-hidden border border-[#e3e5e8] shadow-md w-[75%] h-80 rounded-lg max-lg:w-full relative">
+      <div className="main_header flex w-[94vw] h-[500px] m-auto mb-12">
+        <div className="banner rounded-lg overflow-hidden border border-[#e3e5e8] shadow-md w-[75%] max-lg:w-full relative">
           <button className='bg-[url("/localimages/left-arrow.svg")] arrow'></button>
           <NextImage
             src={'/localimages/banner.webp'}
@@ -222,8 +226,54 @@ const Home: NextPage = () => {
           />
           <button className='bg-[url("/localimages/right-arrow.svg")] arrow right-0'></button>
         </div>
-        <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-48 rounded-lg max-lg:hidden overflow-hidden">
-          <div className="h-4/6">
+        <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-40 rounded-lg max-lg:hidden overflow-hidden p-5 flex flex-col justify-between">
+          <UserCard logedIn={userInfo?.ok} userInfo={userInfo} />
+          {/* <div className="flex h-full">
+            <div className="w-[63px] mr-5 flex items-center">
+              <div className="user_image rounded-[50%] w-full h-[63px] relative">
+                <span className="image_setting absolute w-6 h-6 rounded-[50%] border bottom-0 right-0 bg-white"></span>
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="font-bold">{userInfo?.user?.name}님</div>
+              <div className="text-sm">{userInfo?.user?.email}</div>
+            </div>
+          </div> */}
+
+          {/* <Link href="/signin">
+            <a className="py-4 mt-3 bg-blue-200 block text-center">
+              <i className="mr-2 font-bold text-xl">
+                <span>I-MARKET</span>
+              </i>
+              로그인
+            </a>
+          </Link> */}
+
+          {/* <div className="flex bg-slate-50 font-bold justify-around">
+            <div className="">
+              <Link href={''}>
+                <a className="block text-center text-sm">
+                  <span className="w-full">아이디 찾기</span>
+                </a>
+              </Link>
+            </div>
+            <div className="">
+              <Link href={'#'}>
+                <a className="profile_selection before:left-[-10px] block text-center relative text-sm">
+                  <span className="w-full">비밀번호 찾기</span>
+                </a>
+              </Link>
+            </div>
+            <div className="">
+              <Link href={'#'}>
+                <a className="profile_selection before:left-[-9px] block text-center relative text-sm">
+                  <span className="w-full">회원가입</span>
+                </a>
+              </Link>
+            </div>
+          </div> */}
+
+          {/* <div className="h-4/6">
             <div className="flex w-full h-full">
               <div className="w-[80px] flex justify-center items-center ">
                 <div className="w-[64px] h-[64px] rounded-full bg-slate-400"></div>
@@ -266,7 +316,7 @@ const Home: NextPage = () => {
                 </a>
               </Link>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="product-wrap" ref={countRef}>
@@ -277,7 +327,7 @@ const Home: NextPage = () => {
             /*columnsCount={masonryColumn}*/ gutter="1em"
             className="mas"
           >
-            {data ? (
+            {/* {data ? (
               data.pages.map((products) =>
                 products.products.map((product: Product) => (
                   <div
@@ -316,27 +366,18 @@ const Home: NextPage = () => {
               )
             ) : (
               <></>
-            )}
+            )} */}
           </Masonry>
         </ResponsiveMasonry>
-        {isFetchingNextPage ? (
+        {/* {isFetchingNextPage ? (
           <div>Loading...</div>
         ) : (
           <div ref={ref} style={{ height: '100px' }}></div>
-        )}
+        )} */}
       </div>
 
       {/* <Sidebar /> */}
       <style jsx>{`
-        .profile_selction::before {
-          content: '';
-          display: block;
-          position: absolute;
-          left: 0;
-          width: 2px;
-          height: 20px;
-          background-color: rgb(148, 163, 184);
-        }
         .arrow {
           z-index: 2;
           width: 6.67vw;

@@ -22,22 +22,22 @@ const UserCard = ({ userInfo, logedIn }: userCardProps) => {
             </div>
           </div>
           <>
-            <div className="flex flex-[0.2] bg-slate-50 font-bold justify-around">
-              <div className="">
-                <Link href={''}>
+            <div className="logedIn flex flex-[0.2] bg-slate-50 font-bold justify-around">
+              <div>
+                <Link href={`/profile/${userInfo?.user.id}`}>
                   <a className="block text-center text-sm">
                     <span className="w-full">내정보</span>
                   </a>
                 </Link>
               </div>
-              <div className="">
-                <Link href={'#'}>
+              <div>
+                <Link href={`/profile/${userInfo?.user.id}/myproducts`}>
                   <a className="profile_selection before:left-[-10px] block text-center relative text-sm">
                     <span className="w-full">게시물</span>
                   </a>
                 </Link>
               </div>
-              <div className="">
+              <div>
                 <Link href={'/logout'}>
                   <a className="profile_selection before:left-[-9px] block text-center relative text-sm">
                     <span className="w-full">로그아웃</span>
@@ -49,32 +49,35 @@ const UserCard = ({ userInfo, logedIn }: userCardProps) => {
         </>
       ) : (
         <>
-          <Link href="/signin">
-            <a className="py-4 mt-3 bg-blue-200 block text-center">
-              <i className="mr-2 font-bold text-xl">
-                <span>I-MARKET</span>
-              </i>
-              로그인
-            </a>
-          </Link>
-          <div className="flex bg-slate-50 font-bold justify-around">
+          <div className="flex flex-[2]">
+            <Link href="/signin">
+              <a className="bg-blue-200 text-center w-full flex items-center justify-center h-[80%] rounded">
+                <i className="font-bold text-xl">
+                  <span>I-MARKET </span>
+                  <span className="font-normal text-base">로그인</span>
+                </i>
+              </a>
+            </Link>
+          </div>
+
+          <div className="flex flex-[0.2] bg-slate-50 rounded font-bold justify-around">
             <div className="">
-              <Link href={''}>
+              <Link href={'/help/id'}>
                 <a className="block text-center text-sm">
                   <span className="w-full">아이디 찾기</span>
                 </a>
               </Link>
             </div>
             <div className="">
-              <Link href={'#'}>
+              <Link href={'/help/pw'}>
                 <a className="profile_selection before:left-[-10px] block text-center relative text-sm">
                   <span className="w-full">비밀번호 찾기</span>
                 </a>
               </Link>
             </div>
             <div className="">
-              <Link href={'#'}>
-                <a className="profile_selection before:left-[-9px] block text-center relative text-sm">
+              <Link href={'/register'}>
+                <a className="profile_selection before:left-[-11px] block text-center relative text-sm">
                   <span className="w-full">회원가입</span>
                 </a>
               </Link>
@@ -91,6 +94,9 @@ const UserCard = ({ userInfo, logedIn }: userCardProps) => {
           width: 2px;
           height: 12px;
           background-color: rgb(148, 163, 184);
+        }
+        .logedIn .profile_selection::before {
+          transform: translateX(-13px);
         }
         .image_setting::before {
           content: '';

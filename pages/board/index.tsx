@@ -113,11 +113,9 @@ const Boards: NextPage = () => {
                     )}
                   </span>
                 </div>
-                <div className="board-list__title">
-                  <Link href={`/board/${board.id}`}>
-                    <a>{board.title}</a>
-                  </Link>
-                </div>
+                <Link href={`/board/${board.id}`}>
+                  <div className="board-list__title">{board.title}</div>
+                </Link>
                 {/* <div className="board-list__tag">
                   <span>{board.createdAt.toString()}</span>
                 </div> */}
@@ -206,6 +204,7 @@ const Boards: NextPage = () => {
               .board-list__main {
                 display: flex;
                 flex-direction: column;
+                flex: 1;
 
                 a:hover {
                   color: #1c7ed6;
@@ -220,6 +219,7 @@ const Boards: NextPage = () => {
                 .board-list__title {
                   font-weight: 600;
                   font-size: 1rem;
+                  cursor: pointer;
                 }
               }
             }

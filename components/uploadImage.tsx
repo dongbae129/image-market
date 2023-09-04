@@ -124,7 +124,7 @@ const UploadImage = (info: UploadImageProps) => {
       console.log(key, val, 'vv');
     });
 
-    mutate(info.url.includes('product') ? form : formInfo);
+    // mutate(info.url.includes('product') ? form : formInfo);
     // mutate(form);
   };
   const onDeleteBoard = () => {
@@ -132,6 +132,12 @@ const UploadImage = (info: UploadImageProps) => {
       .delete(`/api/${info.url}/${routerId}`)
       .then(() => router.push('/board'));
   };
+
+  useEffect(() => {
+    if (info?.elementValue?.imgsrc) {
+      setImagePreview(`/uploads/${info?.elementValue?.imgsrc}`);
+    }
+  }, [info?.elementValue?.imgsrc]);
   useEffect(() => {
     getRatio(imageWatch, setImagePreview)?.then((res) => {
       imgRatioRef.current = res;
@@ -143,7 +149,17 @@ const UploadImage = (info: UploadImageProps) => {
       <div className="uploadimagewrap">
         <div className="upload_image">
           {!info.image ? null : info?.image && imagePreview ? (
-            <NextImage src={imagePreview} alt="" layout="fill" />
+            <label>
+              <NextImage src={imagePreview} alt="" layout="fill" />
+              <Input
+                name="image"
+                accept="image/*"
+                type="file"
+                imgbool="false"
+                required
+                register={register('image')}
+              />
+            </label>
           ) : (
             <label>
               <svg

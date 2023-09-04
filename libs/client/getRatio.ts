@@ -5,6 +5,7 @@ export const getRatio = (
   setImagePreview: Dispatch<SetStateAction<string>>
 ) => {
   if (imageWatch && imageWatch.length > 0) {
+    console.log(imageWatch, 'watch');
     const file = imageWatch[0];
     let ratio = '1';
 

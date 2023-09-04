@@ -33,7 +33,8 @@ const ProductSetting: NextPage = () => {
           elementValue={{
             title: data?.product.title,
             description: data?.product.description,
-            hashtag: data?.product.hashtag.hashtag
+            hashtag: data?.product.hashtag.hashtag,
+            imgsrc: data?.product.image
           }}
         />
       </div>

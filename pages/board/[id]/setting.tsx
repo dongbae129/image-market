@@ -50,6 +50,7 @@ const BoardSetting: NextPage = () => {
           modalOpen={modalOpen}
           setModalOpen={setModalOpen}
           deleteMutation={deleteMutation}
+          modalUse="delete"
         />
       )}
 

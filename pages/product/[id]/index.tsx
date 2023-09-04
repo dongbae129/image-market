@@ -297,13 +297,14 @@ const ProductDetail: NextPage = () => {
               }}
             />
             <div className="hashtagwrap">
-              {data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
-                <span className="hashtag" key={i}>
-                  <span>#</span>
-                  <span>{hash}</span>
-                </span>
-                // <span key={i}>#{hash}</span>
-              ))}
+              {data?.product.hashtag?.hashtag.length > 0 &&
+                data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
+                  <span className="hashtag" key={i}>
+                    <span>#</span>
+                    <span>{hash}</span>
+                  </span>
+                  // <span key={i}>#{hash}</span>
+                ))}
             </div>
             <div className="arrowopen">
               <span>댓글: {chats?.comments.length || 0}개</span>

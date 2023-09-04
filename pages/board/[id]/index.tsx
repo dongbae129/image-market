@@ -87,7 +87,7 @@ const BoardDetail: NextPage = () => {
     }
   );
   const { data: userInfo } = useQuery<BoardUser>(['userInfo']);
-  console.log(userInfo, 'userinfo');
+  console.log(typeof boardDetail?.board?.boardTag[0].hashtag, 'boardertag');
   return (
     <div className="articlewrap">
       <div className="infoline">
@@ -132,6 +132,7 @@ const BoardDetail: NextPage = () => {
         </main>
         <div>
           {boardDetail?.board?.boardTag[0] &&
+            boardDetail?.board?.boardTag[0].hashtag.length > 0 &&
             boardDetail?.board?.boardTag[0].hashtag
               .split(',')
               .map((hashtag, i) => (

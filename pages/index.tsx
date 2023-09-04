@@ -101,7 +101,7 @@ const Home: NextPage = () => {
   // const { data } = useQuery(['getProducts'], getProducts);
   // console.log(data, 'Data');
   // product data 가져오기
-  /*const { data, hasNextPage, fetchNextPage, isLoading, isFetchingNextPage } =
+  const { data, hasNextPage, fetchNextPage, isLoading, isFetchingNextPage } =
     useInfiniteQuery<any>(['getProducts'], getProducts, {
       getNextPageParam: (lastPage, allPage) => {
         const lastPageLength = lastPage.products.length;
@@ -109,7 +109,7 @@ const Home: NextPage = () => {
         return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
       }
     });
-*/
+
   useEffect(() => {
     if (countRef.current) {
       const test = +window
@@ -127,10 +127,10 @@ const Home: NextPage = () => {
     }
     console.log('out');
   }, []);
-  // 다시 주석
-  // useEffect(() => {
-  //   if (inView && hasNextPage) fetchNextPage();
-  // }, [inView, hasNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    if (inView && hasNextPage) fetchNextPage();
+  }, [inView, hasNextPage, fetchNextPage]);
 
   const { data: userInfo } = useQuery<userResponse>(
     ['userInfo'],
@@ -228,95 +228,6 @@ const Home: NextPage = () => {
         </div>
         <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-40 rounded-lg max-lg:hidden overflow-hidden p-5 flex flex-col justify-between">
           <UserCard logedIn={userInfo?.ok} userInfo={userInfo} />
-          {/* <div className="flex h-full">
-            <div className="w-[63px] mr-5 flex items-center">
-              <div className="user_image rounded-[50%] w-full h-[63px] relative">
-                <span className="image_setting absolute w-6 h-6 rounded-[50%] border bottom-0 right-0 bg-white"></span>
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="font-bold">{userInfo?.user?.name}님</div>
-              <div className="text-sm">{userInfo?.user?.email}</div>
-            </div>
-          </div> */}
-
-          {/* <Link href="/signin">
-            <a className="py-4 mt-3 bg-blue-200 block text-center">
-              <i className="mr-2 font-bold text-xl">
-                <span>I-MARKET</span>
-              </i>
-              로그인
-            </a>
-          </Link> */}
-
-          {/* <div className="flex bg-slate-50 font-bold justify-around">
-            <div className="">
-              <Link href={''}>
-                <a className="block text-center text-sm">
-                  <span className="w-full">아이디 찾기</span>
-                </a>
-              </Link>
-            </div>
-            <div className="">
-              <Link href={'#'}>
-                <a className="profile_selection before:left-[-10px] block text-center relative text-sm">
-                  <span className="w-full">비밀번호 찾기</span>
-                </a>
-              </Link>
-            </div>
-            <div className="">
-              <Link href={'#'}>
-                <a className="profile_selection before:left-[-9px] block text-center relative text-sm">
-                  <span className="w-full">회원가입</span>
-                </a>
-              </Link>
-            </div>
-          </div> */}
-
-          {/* <div className="h-4/6">
-            <div className="flex w-full h-full">
-              <div className="w-[80px] flex justify-center items-center ">
-                <div className="w-[64px] h-[64px] rounded-full bg-slate-400"></div>
-              </div>
-              <div className="flex flex-col justify-center flex-1 pt-7 pb-4">
-                <div className="flex-1 font-bold text-lg">
-                  {userInfo?.user?.name}
-                </div>
-                <div className="flex-1 text-sm">{userInfo?.user?.email}</div>
-                <div className="flex text-center flex-1 text-sm font-bold">
-                  <div className="mr-2">
-                    <span>{userInfo?.user?.coin}</span>코인
-                  </div>
-                  <div className="pl-2 profile_selction relative">
-                    <span>{userInfo?.user?.bonusCoupon}</span>쿠폰
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="h-2/6 flex bg-slate-50 font-bold">
-            <div className="flex-1">
-              <Link href={''}>
-                <a className="block py-5 text-center">
-                  <span className="w-full">설정</span>
-                </a>
-              </Link>
-            </div>
-            <div className="flex-1">
-              <Link href={'#'}>
-                <a className="profile_selction block py-5 text-center relative">
-                  <span className="w-full">내정보</span>
-                </a>
-              </Link>
-            </div>
-            <div className="flex-1">
-              <Link href={'#'}>
-                <a className="profile_selction block py-5 text-center relative">
-                  <span className="w-full">로그아웃</span>
-                </a>
-              </Link>
-            </div>
-          </div> */}
         </div>
       </div>
       <div className="product-wrap" ref={countRef}>
@@ -327,7 +238,7 @@ const Home: NextPage = () => {
             /*columnsCount={masonryColumn}*/ gutter="1em"
             className="mas"
           >
-            {/* {data ? (
+            {data ? (
               data.pages.map((products) =>
                 products.products.map((product: Product) => (
                   <div
@@ -366,14 +277,14 @@ const Home: NextPage = () => {
               )
             ) : (
               <></>
-            )} */}
+            )}
           </Masonry>
         </ResponsiveMasonry>
-        {/* {isFetchingNextPage ? (
+        {isFetchingNextPage ? (
           <div>Loading...</div>
         ) : (
           <div ref={ref} style={{ height: '100px' }}></div>
-        )} */}
+        )}
       </div>
 
       {/* <Sidebar /> */}

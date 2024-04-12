@@ -30,7 +30,8 @@ const User = async (
             image: true,
             emailActive: true,
             coin: true,
-            bonusCoupon: true
+            bonusCoupon: true,
+            delete: true
           }
         });
 

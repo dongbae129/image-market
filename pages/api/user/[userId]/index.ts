@@ -132,4 +132,42 @@ userDetail.post(isLogedIn, upLoader, async (req, res) => {
   }
 });
 
+userDetail.delete(isLogedIn, async (req, res) => {
+  try {
+    const auth = req.auth;
+    const decoded = (auth.payload as TokenPayload).id;
+    const User = await client.user.findUnique({
+      where: {
+        id: decoded
+      }
+    });
+    if (!User)
+      return res.json({
+        ok: false,
+        message: 'not user'
+      });
+    if (User.delete)
+      return res.json({
+        ok: false,
+        message: 'already deleted user'
+      });
+    const deletedUser = await client.user.update({
+      where: {
+        id: decoded
+      },
+      data: {
+        delete: true
+      }
+    });
+
+    return res.json({
+      ok: true,
+      deletedUser
+    });
+  } catch (error) {
+    return res.json({
+      message: 'delete test fail'
+    });
+  }
+});
 export default userDetail;

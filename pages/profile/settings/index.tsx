@@ -58,6 +58,9 @@ const SettingHome: NextPage = () => {
   }, [imageWatch]);
   if (!data?.ok) return <div>로그인 해주세요</div>;
 
+  const onDleteClick = () => {
+    newAxios.delete(`/api/user/${data?.user.id}`);
+  };
   return (
     <div className="pfsettingOverwrap">
       <SetSelect />
@@ -117,6 +120,7 @@ const SettingHome: NextPage = () => {
               <Button isLoading={false} text="수정" />
             </div>
           </form>
+          <Button isLoading={false} text="회원탈퇴" onClick={onDleteClick} />
         </div>
       </div>
       <style jsx>{`

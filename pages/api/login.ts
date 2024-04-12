@@ -31,11 +31,21 @@ const Login = async (
         memId: userId
       }
     });
+    const User = await client.user.findUnique({
+      where: {
+        id: user?.userId
+      }
+    });
 
     if (!user) {
-      res.json({
+      res.status(401).json({
         ok: false,
-        error: 'id or password is incorrected'
+        message: 'invalid id or wrong password'
+      });
+    } else if (User?.delete) {
+      return res.status(403).json({
+        ok: false,
+        message: 'Forbidden user'
       });
     } else {
       const comparepassw = await bcrypt.compare(password, user.password);

@@ -23,6 +23,7 @@ model User {
   updatedAt   DateTime      @updatedAt
   coin        Int           @default(0)
   bonusCoupon Int           @default(0)
+  delete      Boolean       @default(false)
   localUser   LocalUser?
   socialUser  SocialUser?
   products    Product[]

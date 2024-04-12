@@ -25,7 +25,10 @@ interface SingInForm {
   password: string;
   formErrors?: string;
 }
-
+interface ErrorType {
+  ok: boolean;
+  meesage: string;
+}
 const Signin: NextPage = () => {
   const redirect_uri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
   const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&redirect_uri=${redirect_uri}&response_type=code`;
@@ -53,8 +56,9 @@ const Signin: NextPage = () => {
   const signInUser = (data: SingInForm) =>
     newAxios.post('/api/login', data).then((res) => res.data);
   const { mutate, isLoading } = useMutation(signInUser, {
-    onError: (error) => {
+    onError: (error: ErrorType) => {
       console.log(error, '%^%^%^');
+      alert(error.meesage);
     },
     onSuccess: (res) => {
       dispatch(setAccessToken(res.accessToken));

@@ -37,6 +37,7 @@ const UserProfile: NextPage = () => {
       // staleTime: 1000 * 60
     }
   );
+  console.log(data, 'data');
 
   return (
     <div className="profile-wrap">

@@ -57,7 +57,7 @@ const Security: NextPage = () => {
                 label="prevPassword"
                 name="prevPassword"
                 type="password"
-                disabled={data?.user.emailActive ? true : false}
+                disabled={data?.user?.emailActive ? true : false}
                 required
                 register={register('prevPassword', { required: true })}
               />
@@ -66,7 +66,7 @@ const Security: NextPage = () => {
                 label="password"
                 name="password"
                 type="password"
-                disabled={data?.user.emailActive ? true : false}
+                disabled={data?.user?.emailActive ? true : false}
                 required
                 register={register('password', { required: true })}
               />
@@ -75,7 +75,7 @@ const Security: NextPage = () => {
                 label="passwordCheck"
                 name="passwordCheck"
                 type="password"
-                disabled={data?.user.emailActive ? true : false}
+                disabled={data?.user?.emailActive ? true : false}
                 required
                 register={register('passwordCheck', { required: true })}
               />
@@ -83,7 +83,7 @@ const Security: NextPage = () => {
                 <Button
                   isLoading={false}
                   text="LOGIN"
-                  disabled={data?.user.emailActive ? true : false}
+                  disabled={data?.user?.emailActive ? true : false}
                 />
               </div>
             </form>

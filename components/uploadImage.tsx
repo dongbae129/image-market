@@ -124,7 +124,7 @@ const UploadImage = (info: UploadImageProps) => {
       console.log(key, val, 'vv');
     });
 
-    // mutate(info.url.includes('product') ? form : formInfo);
+    mutate(info.url.includes('product') ? form : formInfo);
     // mutate(form);
   };
   const onDeleteBoard = () => {

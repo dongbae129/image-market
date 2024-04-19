@@ -20,6 +20,7 @@ import { userResponse } from '@components/headmenu';
 import SvgIcon from '@components/svgIcon';
 import { newAxios } from '@libs/client/fetcher';
 import store from 'reducers/store';
+import { useState } from 'react';
 interface SingInForm {
   userId: string;
   password: string;
@@ -38,6 +39,7 @@ const Signin: NextPage = () => {
   const { data } = useQuery<userResponse>(['userInfo'], {
     enabled: !restoreState
   });
+  const [errorMsg, setErrorMsg] = useState('');
 
   const { google, kakao, naver } = SvgData.SVG;
   if (data?.ok && data.user.id) router.push('/');
@@ -58,6 +60,7 @@ const Signin: NextPage = () => {
   const { mutate, isLoading } = useMutation(signInUser, {
     onError: (error: ErrorType) => {
       console.log(error, '%^%^%^');
+      setErrorMsg(error.meesage);
       alert(error.meesage);
     },
     onSuccess: (res) => {
@@ -154,6 +157,7 @@ const Signin: NextPage = () => {
             </div>
           </form>
         </div>
+        <div className="errormsg">{errorMsg}</div>
       </div>
       <style jsx>{`
         .signwrap {
@@ -205,6 +209,9 @@ const Signin: NextPage = () => {
         }
         form {
           margin-top: 2rem;
+        }
+        .errormsg {
+          color: red;
         }
       `}</style>
     </div>

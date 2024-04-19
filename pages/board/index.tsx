@@ -98,7 +98,7 @@ const Boards: NextPage = () => {
       </div>
       <div className="board-list">
         <ul>
-          {data?.boards.map((board) => (
+          {data?.boards?.map((board) => (
             <li key={board.id} className="board-list_li">
               <div className="board-list__main">
                 <div className="board-list__user">

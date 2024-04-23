@@ -1,17 +1,23 @@
 import Link from 'next/link';
 import { userResponse } from './headmenu';
+import { useQuery } from 'react-query';
 
 interface userCardProps {
   userInfo: userResponse | undefined;
   logedIn: boolean | undefined;
 }
 const UserCard = ({ userInfo, logedIn }: userCardProps) => {
+  const { data } = useQuery<userResponse>(['userInfo']);
+
   return (
     <div className="h-full flex flex-col">
       {logedIn ? (
         <>
           <div className="flex flex-[2]">
             <div className="w-[63px] mr-5 flex items-center">
+              {/* <ImgDiv>
+                <span className="image_setting absolute w-6 h-6 rounded-[50%] border bottom-0 right-0 bg-white"></span>
+              </ImgDiv> */}
               <div className="user_image rounded-[50%] w-full h-[63px] relative">
                 <span className="image_setting absolute w-6 h-6 rounded-[50%] border bottom-0 right-0 bg-white"></span>
               </div>
@@ -115,7 +121,12 @@ const UserCard = ({ userInfo, logedIn }: userCardProps) => {
           margin: auto;
         }
         .user_image {
-          background: url('/localimages/emptyuser2.png') no-repeat center;
+          background: url(${data?.user?.emailActive
+              ? data?.user?.image
+              : data?.user?.image
+              ? `/uploads/${data?.user?.image}`
+              : '/localimages/emptyuser2.png'})
+            no-repeat center;
           background-size: cover;
         }
       `}</style>

@@ -58,7 +58,6 @@ const Pay = async (req: NextApiRequest, res: NextApiResponse<ResponseType>) => {
         pg_provider
       } = paymentData;
 
-      console.log(paymentData, 'paymentData');
       const payProduct = await client?.payProduct.findFirst({
         where: {
           amount

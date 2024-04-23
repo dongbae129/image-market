@@ -2,8 +2,8 @@ import SvgData from 'json/data.json';
 import SvgIcon from '@components/svgIcon';
 // import Link from 'next/link';
 import { useEffect } from 'react';
-import axios from 'axios';
 import { newAxios } from '@libs/client/fetcher';
+import { useRouter } from 'next/router';
 
 interface PaymentWayProps {
   payproduct:
@@ -23,7 +23,8 @@ interface PaymentWayProps {
 const PaymentWay = ({ payproduct }: PaymentWayProps) => {
   const { bonus, pay, coin, coupon } = payproduct;
   const { kakao } = SvgData.SVG;
-  console.log(payproduct, 'pro');
+  const router = useRouter();
+  let routerState = false;
   useEffect(() => {
     const jquery = document.createElement('script');
     jquery.src = 'https://code.jquery.com/jquery-1.12.4.min.js';
@@ -60,16 +61,21 @@ const PaymentWay = ({ payproduct }: PaymentWayProps) => {
     /* 4. 결제 창 호출하기 */
     IMP?.request_pay(data, callback);
   }
-  function callback(response: any) {
+  async function callback(response: any) {
     const { success, merchant_uid, error_msg } = response;
 
     if (success) {
-      newAxios.post('/api/pay', { response });
-      alert('결제 성공');
-      console.log(response, 'success');
-      // router.push('/');
-    } else {
-      alert(`결제 실패: ${error_msg}`);
+      try {
+        await newAxios.post('/api/pay', { response });
+        routerState = true;
+
+        alert('결제성공');
+        if (routerState) {
+          router.push('/');
+        }
+      } catch (error) {
+        alert('결제 실패, 담당자에게 문의 해주세요');
+      }
     }
   }
   return (

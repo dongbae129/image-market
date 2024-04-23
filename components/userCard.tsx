@@ -51,6 +51,10 @@ const UserCard = ({ userInfo, logedIn }: userCardProps) => {
                 </Link>
               </div>
             </div>
+            <div className="flex flex-[0.2] bg-slate-50 rounded font-bold justify-around">
+              <div>코인: {data?.user.coin}</div>
+              <div>쿠폰: {data?.user.bonusCoupon}</div>
+            </div>
           </>
         </>
       ) : (

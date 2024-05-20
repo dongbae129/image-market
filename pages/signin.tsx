@@ -1,6 +1,6 @@
 import Button from '@components/button';
 import Input from '@components/input';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import SvgData from 'json/data.json';
@@ -21,6 +21,7 @@ import SvgIcon from '@components/svgIcon';
 import { newAxios } from '@libs/client/fetcher';
 import store from 'reducers/store';
 import { useState } from 'react';
+
 interface SingInForm {
   userId: string;
   password: string;
@@ -58,10 +59,9 @@ const Signin: NextPage = () => {
   const signInUser = (data: SingInForm) =>
     newAxios.post('/api/login', data).then((res) => res.data);
   const { mutate, isLoading } = useMutation(signInUser, {
-    onError: (error: ErrorType) => {
-      console.log(error, '%^%^%^');
-      setErrorMsg(error.meesage);
-      alert(error.meesage);
+    onError: (error: AxiosError) => {
+      setErrorMsg(error?.response?.data.message);
+      alert(error.response.data.message);
     },
     onSuccess: (res) => {
       dispatch(setAccessToken(res.accessToken));
@@ -69,10 +69,11 @@ const Signin: NextPage = () => {
 
       // axios.defaults.headers.common['authorization'] =
       //   'Bearer ' + res.accessToken;
+      console.log(res, 'component res');
       newAxios.defaults.headers.common['authorization'] =
         'Bearer ' + res.accessToken;
       console.log(axios.defaults.headers, '$$$');
-      store.dispatch(setRestoreState(true));
+      // store.dispatch(setRestoreState(true));
       store.dispatch(setLogedIn(true));
       queryClient.invalidateQueries(['userInfo']);
       router.push('/');
@@ -90,9 +91,10 @@ const Signin: NextPage = () => {
 
   return (
     <div className="signwrap">
+      <input type="text" data-testid="abc" name="abc" />
       <div className="test">
         <div className="sign-head">
-          <h2>환영합니다</h2>
+          <h2 data-testid="testh">환영합니다</h2>
         </div>
         <div className="sign-login">
           <div className="sign-login-sns">
@@ -145,6 +147,7 @@ const Signin: NextPage = () => {
               register={register('userId', { required: true })}
               required
             />
+            {/* <input type="text" name="abc" /> */}
             <Input
               label="password"
               name="password"

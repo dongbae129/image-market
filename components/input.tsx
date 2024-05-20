@@ -29,7 +29,6 @@ const Input = ({
 }: InputProps) => {
   const [value, setV] = useState('');
   // console.log('value:', value, 'inputValue:', inputValue, 'V??');
-  console.log('ee');
   // if (setRegister) {
   //   setRegister('title', value);
   // }

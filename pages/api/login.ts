@@ -31,12 +31,14 @@ const Login = async (
         memId: userId
       }
     });
-    const User = await client.user.findUnique({
-      where: {
-        id: user?.userId
-      }
-    });
-
+    let User;
+    if (user) {
+      User = await client.user.findUnique({
+        where: {
+          id: user?.userId
+        }
+      });
+    }
     if (!user) {
       res.status(401).json({
         ok: false,

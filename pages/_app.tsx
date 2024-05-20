@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import store from 'reducers/store';
 import Layout from '@components/layout';
 import { getFetch } from '@libs/client/fetcher';
+import { MSWComponent } from '@/_component/MSWComponent';
 function MyApp({ Component, pageProps }: AppProps) {
   // const { restoreState } = store.getState().user;
 
@@ -40,6 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <Layout>
+          <MSWComponent />
           {/* <SessionProvider session={pageProps.session}> */}
           <Component {...pageProps} />
           {/* </SessionProvider> */}

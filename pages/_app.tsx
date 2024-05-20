@@ -9,10 +9,21 @@ import { Provider } from 'react-redux';
 import store from 'reducers/store';
 import Layout from '@components/layout';
 import { getFetch } from '@libs/client/fetcher';
-import { MSWComponent } from '@/_component/MSWComponent';
+import MSWComponent from '../mocks/MSWComponent';
+// import worker from '@/mocks/browser';
 function MyApp({ Component, pageProps }: AppProps) {
   // const { restoreState } = store.getState().user;
 
+  // useEffect(() => {
+  //   if (worker) {
+  //     worker
+  //       .start()
+  //       .then(() => console.log('Mock Service Worker started'))
+  //       .catch((error) =>
+  //         console.error('Failed to start Mock Service Worker', error)
+  //       );
+  //   }
+  // }, []);
   const [queryClient] = useState(
     () =>
       new QueryClient({

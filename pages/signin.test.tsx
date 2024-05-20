@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
 import { newAxios } from '@libs/client/fetcher';
 import axios from 'axios';
+import worker from '../mocks/browser';
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ beforeEach(() => {
 afterEach(() => {
   jest.clearAllMocks();
 });
+
 describe('Signin Test', () => {
   it('Signin Render', async () => {
     render(
@@ -104,10 +106,13 @@ describe('Signin Test', () => {
       await userEvent.click(loginButton);
 
       // await waitFor(() => {
-      //   expect(newAxios.post).toHaveBeenCalledWith('/api/login', {
-      //     userId: 'usernametest',
-      //     password: 'passwordtest'
-      //   });
+      //   expect(newAxios.post).toHaveBeenCalledWith(
+      //     'http://localhost:3000/api/login',
+      //     {
+      //       userId: 'usernametest',
+      //       password: 'passwordtest'
+      //     }
+      //   );
       // });
 
       await waitFor(() => {

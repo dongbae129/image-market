@@ -20,7 +20,8 @@ import { userResponse } from '@components/headmenu';
 import SvgIcon from '@components/svgIcon';
 import { newAxios } from '@libs/client/fetcher';
 import store from 'reducers/store';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import worker from '../mocks/browser';
 
 interface SingInForm {
   userId: string;
@@ -60,6 +61,7 @@ const Signin: NextPage = () => {
     newAxios.post('/api/login', data).then((res) => res.data);
   const { mutate, isLoading } = useMutation(signInUser, {
     onError: (error: AxiosError) => {
+      console.log(error.response.data.message, 'eresponse');
       setErrorMsg(error?.response?.data.message);
       alert(error.response.data.message);
     },

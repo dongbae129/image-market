@@ -6,7 +6,7 @@ import store from 'reducers/store';
 import { setAccessToken, setRestoreState } from 'reducers/user';
 
 export const newAxios = axios.create({
-  baseURL: 'http://localhost:9090',
+  baseURL: 'http://localhost:3000',
   headers: {
     'Content-type': 'application/json;charset=UTF-8'
   },

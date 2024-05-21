@@ -162,8 +162,8 @@ const config: Config = {
   testEnvironment: 'jsdom',
   // Options that will be passed to the testEnvironment
   testEnvironmentOptions: {
-    customExportConditions: ['']
-    // url: 'http://localhost:3000'
+    customExportConditions: [''],
+    url: 'http://localhost:3000'
   }
 
   // Adds a location field to test results

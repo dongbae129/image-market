@@ -4,7 +4,7 @@ import axios, { AxiosError } from 'axios';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import SvgData from 'json/data.json';
-
+import cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -74,7 +74,7 @@ const Signin: NextPage = () => {
       console.log(res, 'component res');
       newAxios.defaults.headers.common['authorization'] =
         'Bearer ' + res.accessToken;
-      console.log(axios.defaults.headers, '$$$');
+
       // store.dispatch(setRestoreState(true));
       store.dispatch(setLogedIn(true));
       queryClient.invalidateQueries(['userInfo']);

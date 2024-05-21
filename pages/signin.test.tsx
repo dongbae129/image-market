@@ -84,12 +84,7 @@ describe('Signin Test', () => {
           'Bearer user1_access_token_msw'
         );
       });
-      await waitFor(() => {
-        console.log(Cookies.get('refreshToken'));
-      });
-      // await waitFor(() => {
-      //   expect(Cookies.get('refreshToken')).toBe('user1_refresh_token_msw');
-      // });
+
       await waitFor(() => {
         expect(pushMock).toHaveBeenCalledWith('/');
       });

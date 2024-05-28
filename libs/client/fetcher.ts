@@ -30,7 +30,7 @@ newAxios.interceptors.request.use(
     return config;
   },
   function (error) {
-    console.error(error, 'request interceptor error');
+    // console.error(error, 'request interceptor error');
     return Promise.reject(error);
   }
 );
@@ -52,7 +52,6 @@ newAxios.interceptors.response.use(
     const originalRequest = config;
     // console.log(response, 'err response');
     if (response?.status === 401) {
-      console.log(response, '401');
       if (response?.data?.auth?.checkError) {
         try {
           const { data } = await axios.get('/api/user/restore');

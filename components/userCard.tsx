@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { userResponse } from './headmenu';
 import { useQuery } from 'react-query';
+import { useRouter } from 'next/router';
+import useLogout from '@libs/client/logout';
 
 interface userCardProps {
   userInfo: userResponse | undefined;
@@ -8,7 +10,12 @@ interface userCardProps {
 }
 const UserCard = ({ userInfo, logedIn }: userCardProps) => {
   const { data } = useQuery<userResponse>(['userInfo']);
-
+  const router = useRouter();
+  const logout = useLogout();
+  const onLogout = async () => {
+    console.log('로그아웃');
+    await logout();
+  };
   return (
     <div className="h-full flex flex-col">
       {logedIn ? (
@@ -44,11 +51,29 @@ const UserCard = ({ userInfo, logedIn }: userCardProps) => {
                 </Link>
               </div>
               <div>
-                <Link href={'/logout'}>
-                  <a className="profile_selection before:left-[-9px] block text-center relative text-sm">
-                    <span className="w-full">로그아웃</span>
-                  </a>
-                </Link>
+                {/* <Link href="/logout" data-testid="atest1"> */}
+                {/* <a
+                    // data-testid="atest"
+
+                    className="atest profile_selection before:left-[-9px] block text-center relative text-sm"
+                  > */}
+                <div
+                  className="atest cursor-pointer profile_selection before:left-[-9px] block text-center relative text-sm"
+                  onClick={onLogout}
+                >
+                  로그아웃
+                </div>
+                {/* </a> */}
+                {/* </Link> */}
+                {/* <span
+                  className="w-full"
+                  data-testid="atest"
+                  onClick={() => {
+                    router.push('/logout');
+                  }}
+                >
+                  로그아웃
+                </span> */}
               </div>
             </div>
             <div className="flex flex-[0.2] bg-slate-50 rounded font-bold justify-around">

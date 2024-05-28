@@ -61,7 +61,6 @@ const Signin: NextPage = () => {
     newAxios.post('/api/login', data).then((res) => res.data);
   const { mutate, isLoading } = useMutation(signInUser, {
     onError: (error: AxiosError) => {
-      console.log(error.response.data.message, 'eresponse');
       setErrorMsg(error?.response?.data.message);
       alert(error.response.data.message);
     },
@@ -71,7 +70,6 @@ const Signin: NextPage = () => {
 
       // axios.defaults.headers.common['authorization'] =
       //   'Bearer ' + res.accessToken;
-      console.log(res, 'component res');
       newAxios.defaults.headers.common['authorization'] =
         'Bearer ' + res.accessToken;
 
@@ -83,7 +81,6 @@ const Signin: NextPage = () => {
   });
 
   const onValid = ({ userId, password }: SingInForm) => {
-    console.log(userId, 'user');
     if (isLoading) return;
     if (userId === '' || password === '') {
       return setError('formErrors', { message: 'id and password is required' });
@@ -140,6 +137,10 @@ const Signin: NextPage = () => {
               <span>아이디로 로그인</span>
             </div>
           </div>
+          {/* <span onClick={() => router.push('/register')}>signup test</span> */}
+          {/* <Link href="/register">
+            <a>signup test</a>
+          </Link> */}
 
           <form onSubmit={handleSubmit(onValid)}>
             <Input

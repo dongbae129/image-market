@@ -11,7 +11,7 @@ export const handlers = [
     const user = await request.json();
     const { userId, password } = user as UserType;
     if (userId === 'usernametest' && password === 'passwordtest') {
-      await delay(500);
+      await delay(100);
       return HttpResponse.json(
         {
           ok: true,

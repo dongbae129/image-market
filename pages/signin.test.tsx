@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import store from 'reducers/store';
-// import { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
 import { newAxios } from '@libs/client/fetcher';
 import Link from 'next/link';
@@ -16,26 +16,26 @@ export const Wrapper: React.FC<{ children: ReactNode }> = ({ children }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   </Provider>
 );
-const useRouter = jest.spyOn(require('next/router'), 'useRouter');
+// const useRouter = jest.spyOn(require('next/router'), 'useRouter');
 
-useRouter.mockImplementation(() => ({
-  route: '/',
-  pathname: '',
-  query: '',
-  asPath: '',
-  push: jest.fn().mockResolvedValue(true),
-  replace: jest.fn(),
-  reload: jest.fn(),
-  back: jest.fn(),
-  prefetch: jest.fn(),
-  beforePopState: jest.fn(),
-  events: {
-    on: jest.fn(),
-    off: jest.fn(),
-    emit: jest.fn()
-  },
-  scroll: false
-}));
+// useRouter.mockImplementation(() => ({
+//   route: '/',
+//   pathname: '',
+//   query: '',
+//   asPath: '',
+//   push: jest.fn().mockResolvedValue(true),
+//   replace: jest.fn(),
+//   reload: jest.fn(),
+//   back: jest.fn(),
+//   prefetch: jest.fn(),
+//   beforePopState: jest.fn(),
+//   events: {
+//     on: jest.fn(),
+//     off: jest.fn(),
+//     emit: jest.fn()
+//   },
+//   scroll: false
+// }));
 function createMockRouter() {
   return {
     route: '/',
@@ -55,38 +55,28 @@ function createMockRouter() {
     }
   };
 }
-// jest.mock('@libs/client/fetcher', () => ({
-//   newAxios: {
-//     post: jest.fn(),
-//     defaults: {
-//       headers: {
-//         common: {}
-//       }
-//     }
-//   }
-// }));
 
-// jest.mock('next/router', () => ({
-//   useRouter: jest.fn()
-// }));
-// let pushMock = jest.fn();
-// beforeEach(() => {
-//   pushMock = jest.fn();
-//   (useRouter as jest.Mock).mockReturnValue({
-//     push: pushMock,
-//     prefetch: jest.fn().mockResolvedValue(null),
-//     route: '/',
-//     pathname: '/',
-//     query: {},
-//     asPath: '/',
-//     events: {
-//       on: jest.fn(),
-//       off: jest.fn()
-//     },
-//     beforePopState: jest.fn(() => null),
-//     isFallback: false
-//   });
-// });
+jest.mock('next/router', () => ({
+  useRouter: jest.fn()
+}));
+let pushMock = jest.fn();
+beforeEach(() => {
+  pushMock = jest.fn();
+  (useRouter as jest.Mock).mockReturnValue({
+    push: pushMock,
+    prefetch: jest.fn().mockResolvedValue(null),
+    route: '/',
+    pathname: '/',
+    query: {},
+    asPath: '/',
+    events: {
+      on: jest.fn(),
+      off: jest.fn()
+    },
+    beforePopState: jest.fn(() => null),
+    isFallback: false
+  });
+});
 afterEach(() => {
   jest.clearAllMocks();
 });
@@ -111,13 +101,6 @@ describe('Signin Test', () => {
       </Wrapper>
     );
 
-    // render(
-    //   <div>
-    //     <Link href="/signup">
-    //       <a>signup test</a>
-    //     </Link>
-    //   </div>
-    // );
     userEvent.setup();
 
     const inputId = screen.getByRole<HTMLInputElement>('textbox', {
@@ -132,53 +115,38 @@ describe('Signin Test', () => {
     expect(inputPw.value).toBe('userpassword');
   });
   describe('JWT Token', () => {
-    it.only('success login - [accessToken,router]', async () => {
-      // pushMock = jest.fn();
+    it('success login - [accessToken,router]', async () => {
+      pushMock = jest.fn();
 
-      // (useRouter as jest.Mock).mockImplementation(() => ({
-      //   push: pushMock,
-      //   prefetch: jest.fn().mockResolvedValue(null),
-      //   route: '/',
-      //   pathname: '/',
-      //   query: {},
-      //   asPath: '/',
-      //   events: {
-      //     on: jest.fn(),
-      //     off: jest.fn()
-      //   },
-      //   beforePopState: jest.fn(() => null),
-      //   isFallback: false
-      // }));
+      (useRouter as jest.Mock).mockReturnValue({
+        push: pushMock,
+        prefetch: jest.fn().mockResolvedValue(null),
+        route: '/',
+        pathname: '/',
+        query: {},
+        asPath: '/',
+        events: {
+          on: jest.fn(),
+          off: jest.fn()
+        },
+        beforePopState: jest.fn(() => null),
+        isFallback: false
+      });
       // render(
       //   <Wrapper>
       //     <Signin />
       //   </Wrapper>
       // );
-      const router = createMockRouter();
+      // const router = createMockRouter();
       render(
-        <RouterContext.Provider value={router}>
-          <Wrapper>
-            <Signin />
-          </Wrapper>
-        </RouterContext.Provider>
+        // <RouterContext.Provider value={router}>
+        <Wrapper>
+          <Signin />
+        </Wrapper>
+        // </RouterContext.Provider>
       );
       // window.alert = jest.fn();
       const user = userEvent.setup();
-
-      const atest = screen.getByRole('link', { name: /signup test/i });
-      // expect(atest).toBeInTheDocument();
-      // expect(atest).toHaveAttribute('href', '/register');
-
-      await user.click(atest);
-      await waitFor(() =>
-        expect(router.push).toHaveBeenCalledWith('/register')
-      );
-      // expect(router.push).toHaveBeenCalledWith(
-      //   expect.stringContaining('/register')
-      // );
-      // expect(router.push).toHaveBeenCalledTimes(1);
-      // await user.click(atest);
-      // await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/si'));
 
       // await waitFor(() => {
       //   expect(screen.getByText('회원가입')).toBeInTheDocument();
@@ -196,25 +164,25 @@ describe('Signin Test', () => {
       // await userEvent.click(atest);
       // await waitFor(() => expect(window.location.pathname).toEqual('/si'));
       // await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/signup'));
-      // const inputId = screen.getByRole<HTMLInputElement>('textbox', {
-      //   name: '아이디'
-      // });
-      // const inputPw = screen.getByLabelText<HTMLInputElement>('비밀번호');
-      // const loginButton = screen.getByRole('button', { name: 'LOGIN' });
+      const inputId = screen.getByRole<HTMLInputElement>('textbox', {
+        name: '아이디'
+      });
+      const inputPw = screen.getByLabelText<HTMLInputElement>('비밀번호');
+      const loginButton = screen.getByRole('button', { name: 'LOGIN' });
 
-      // await userEvent.type(inputId, 'usernametest');
-      // await userEvent.type(inputPw, 'passwordtest');
-      // await userEvent.click(loginButton);
+      await userEvent.type(inputId, 'usernametest');
+      await userEvent.type(inputPw, 'passwordtest');
+      await userEvent.click(loginButton);
 
-      // await waitFor(() => {
-      //   expect(newAxios.defaults.headers.common['authorization']).toBe(
-      //     'Bearer user1_access_token_msw'
-      //   );
-      // });
+      await waitFor(() => {
+        expect(newAxios.defaults.headers.common['authorization']).toBe(
+          'Bearer user1_access_token_msw'
+        );
+      });
 
-      // await waitFor(() => {
-      //   expect(pushMock).toHaveBeenCalledWith('/');
-      // });
+      await waitFor(() => {
+        expect(pushMock).toHaveBeenCalledWith('/');
+      });
     });
     it('fail login -[alert]', async () => {
       render(

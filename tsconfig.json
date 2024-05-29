@@ -20,6 +20,7 @@
       "@components/*": ["components/*"],
       "@styles/*": ["styles/*"],
       "@mocks/*": ["mocks/*"],
+      "@reducers/*": ["reducers/*"],
       "@/*": ["./*"]
     }
   },

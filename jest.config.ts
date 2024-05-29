@@ -78,16 +78,7 @@ const config: Config = {
   // ],
 
   // An array of file extensions your modules use
-  // moduleFileExtensions: [
-  //   "js",
-  //   "mjs",
-  //   "cjs",
-  //   "jsx",
-  //   "ts",
-  //   "tsx",
-  //   "json",
-  //   "node"
-  // ],
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
@@ -132,12 +123,16 @@ const config: Config = {
 
   // A list of paths to directories that Jest should use to search for files in
   // roots: ['<rootDir>'],
-  // moduleDirectories: ['node_modules'],
+  moduleDirectories: ['node_modules'],
   modulePaths: ['<rootDir>'],
   moduleNameMapper: {
     '^@components/(.*)': '<rootDir>/components/$1',
-    '^@libs/(.*)': '<rootDir>/libs/$1'
+    '^@libs/(.*)': '<rootDir>/libs/$1',
+    '^@reducers/(.*)': '<rootDir>/reducers/$1'
   },
+  // transform: {
+  //   '^.+\\.(t|j)s$': 'ts-jest'
+  // },
   // testRegex: '.*\\.(test|spec)\\.ts$',
   // Allows you to use a custom runner instead of Jest's default test runner
   // runner: "jest-runner",

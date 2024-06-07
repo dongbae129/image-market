@@ -1,5 +1,4 @@
 import { newAxios } from '@libs/client/fetcher';
-import axios from 'axios';
 import NextImage from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
@@ -18,7 +17,7 @@ export interface UploadForm {
   // description?: string;
   [key: string]: any;
 }
-interface UploadImageProps {
+export interface UploadImageProps {
   image?: string | null;
   url: string;
   buttontext: string[];
@@ -65,28 +64,32 @@ const UploadImage = (info: UploadImageProps) => {
     newAxios.post(`/api/${info.url}`, data).then((res) => res.data);
 
   const { mutate, isLoading } = useMutation(postUploadForm, {
+    onError: (error) => {
+      alert(error.response.data.message);
+    },
     onSuccess: (res) => {
       // console.log(res, 'res');
       const routerId = res.product ? res.product.id : res.board.id;
       // console.log(routerId, 'routerId');
       const originalRoute = info.url.split('/')[0];
-      router.replace(`/${originalRoute}/${routerId ? routerId : ''}`);
+      const url = `/${originalRoute}/${routerId ? routerId : ''}`;
+      router.replace(url);
     }
   });
 
   const imageWatch = watch('image');
-  console.log(inputTitle, 'inputtitle111');
+
   const onValid = (v: UploadForm) => {
     if (isLoading) return;
     const form = new FormData();
     const formInfo: UploadFormData = {};
 
-    console.log(v, 'VVV');
-    console.log(inputTitle, 'inputtitle222');
-    if (info.url.includes('product/upload') && !imagePreview) {
-      alert('이미지를 첨부 하셔야 합니다');
-      return;
-    }
+    // console.log(v, 'VVV');
+    // console.log(inputTitle, 'inputtitle222');
+    // if (info.url.includes('product/upload') && !imagePreview) {
+    //   alert('이미지를 첨부 하셔야 합니다');
+    //   return;
+    // }
 
     for (const key in v) {
       if (key === 'image') {
@@ -106,26 +109,24 @@ const UploadImage = (info: UploadImageProps) => {
         }
         form.append(key, v[key]);
         formInfo[key] = v[key];
-        // formInfo{ [key]: v[key] };
       }
     }
-    form.append('hashtag', hashtag.join(','));
-    form.append('description', editorValue);
-    form.append(
-      'imageOk',
-      JSON.stringify({ imgBoolean: v.image && v.image[0] ? true : false })
-    );
-    formInfo['boardtag'] = hashtag.join(',');
-    formInfo['description'] = editorValue;
-    if (imgRatioRef.current.length > 0)
-      form.append('ratio', imgRatioRef.current);
-    formInfo['ratio'] = imgRatioRef.current;
-    form.forEach((key, val) => {
-      console.log(key, val, 'vv');
-    });
+    // form.append('hashtag', hashtag.join(','));
+    // form.append('description', editorValue);
+    // form.append(
+    //   'imageOk',
+    //   JSON.stringify({ imgBoolean: v.image && v.image[0] ? true : false })
+    // );
+    // formInfo['boardtag'] = hashtag.join(',');
+    // formInfo['description'] = editorValue;
+    // if (imgRatioRef.current.length > 0)
+    //   form.append('ratio', imgRatioRef.current);
+    // formInfo['ratio'] = imgRatioRef.current;
+    // form.forEach((key, val) => {
+    //   console.log(key, val, 'vv');
+    // });
 
     mutate(info.url.includes('product') ? form : formInfo);
-    // mutate(form);
   };
   const onDeleteBoard = () => {
     newAxios
@@ -144,6 +145,9 @@ const UploadImage = (info: UploadImageProps) => {
     });
   }, [imageWatch]);
 
+  useEffect(() => {
+    console.log(imagePreview, 'imagePreview');
+  }, [imagePreview]);
   return (
     <>
       <div className="uploadimagewrap">
@@ -152,6 +156,7 @@ const UploadImage = (info: UploadImageProps) => {
             <label>
               <NextImage src={imagePreview} alt="" layout="fill" />
               <Input
+                label="image"
                 name="image"
                 accept="image/*"
                 type="file"
@@ -161,7 +166,7 @@ const UploadImage = (info: UploadImageProps) => {
               />
             </label>
           ) : (
-            <label>
+            <>
               <svg
                 stroke="currentColor"
                 fill="none"
@@ -175,34 +180,49 @@ const UploadImage = (info: UploadImageProps) => {
                   strokeLinejoin="round"
                 />
               </svg>
-              <Input
-                name="image"
-                accept="image/*"
-                type="file"
-                imgbool="false"
-                required
-                register={register('image')}
-              />
-            </label>
+              <label htmlFor="image" className="image_label">
+                image
+                <Input
+                  label="image"
+                  name="image"
+                  accept="image/*"
+                  type="file"
+                  imgbool="false"
+                  required
+                  register={register('image')}
+                />
+              </label>
+            </>
           )}
         </div>
         {info?.component?.map((v, i) => {
           if (info?.elementType[i] === 'input') {
             return (
               <div className={'inputwrap'} key={v}>
-                {<label htmlFor={v}>{labelOb[v]}</label>}
+                {/* {<label htmlFor={v}>{labelOb[v]}</label>} */}
                 <div className="input-div">
-                  <input
-                    id={v}
+                  {/* <Input
+                    label={v}
+                    name={v}
                     type={v === 'productAuth' ? 'checkbox' : 'text'}
-                    value={v === 'title' ? inputTitle : undefined}
-                    {...register(v)}
-                    onChange={
-                      v === 'title'
-                        ? (e) => setInputTitle(e.target.value)
-                        : register(v).onChange
-                    }
-                  />
+                    register={register(v, { required: true })}
+                    required
+                  /> */}
+                  <label htmlFor={v}>
+                    {labelOb[v]}
+                    <input
+                      id={v}
+                      type={v === 'productAuth' ? 'checkbox' : 'text'}
+                      value={v === 'title' ? inputTitle : undefined}
+                      {...register(v)}
+                      onChange={
+                        v === 'title'
+                          ? (e) => setInputTitle(e.target.value)
+                          : register(v).onChange
+                      }
+                      name={v}
+                    />
+                  </label>
                 </div>
               </div>
 
@@ -285,6 +305,7 @@ const UploadImage = (info: UploadImageProps) => {
           font-weight: 500;
           font-size: 0.875rem;
           line-height: 1.25rem;
+          cursor: pointer;
         }
 
         input {
@@ -316,10 +337,12 @@ const UploadImage = (info: UploadImageProps) => {
           margin: auto;
           margin-bottom: 1rem;
           overflow: hidden;
+          cursor: pointer;
 
           svg {
-            width: 50%;
-            height: 50%;
+            width: 80%;
+            height: 80%;
+            transform: translate(10%, 10%);
           }
 
           img {
@@ -352,6 +375,12 @@ const UploadImage = (info: UploadImageProps) => {
           > div {
             padding: 10px;
           }
+        }
+        .image_label {
+          position: absolute;
+          top: 0;
+          left: 0;
+          opacity: 0;
         }
       `}</style>
     </>

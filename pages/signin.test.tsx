@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
 import Signin from './signin';
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -77,6 +77,7 @@ beforeEach(() => {
     isFallback: false
   });
 });
+
 afterEach(() => {
   jest.clearAllMocks();
 });
@@ -132,6 +133,10 @@ describe('Signin Test', () => {
         beforePopState: jest.fn(() => null),
         isFallback: false
       });
+      // const mockMutate = jest.fn();
+      // (useMutation as jest.Mock).mockReturnValue({
+      //   mutate: mockMutate
+      // });
       // render(
       //   <Wrapper>
       //     <Signin />
@@ -146,7 +151,8 @@ describe('Signin Test', () => {
         // </RouterContext.Provider>
       );
       // window.alert = jest.fn();
-      const user = userEvent.setup();
+      userEvent.setup();
+      // jest.spyOn(newAxios, 'post').mockResolvedValue({ data: { ok: true } });
 
       // await waitFor(() => {
       //   expect(screen.getByText('회원가입')).toBeInTheDocument();
@@ -173,7 +179,10 @@ describe('Signin Test', () => {
       await userEvent.type(inputId, 'usernametest');
       await userEvent.type(inputPw, 'passwordtest');
       await userEvent.click(loginButton);
-
+      // expect(newAxios.post).toHaveBeenCalledWith('/api/login', {
+      //   userId: 'usernametest',
+      //   password: 'passwordtest'
+      // });
       await waitFor(() => {
         expect(newAxios.defaults.headers.common['authorization']).toBe(
           'Bearer user1_access_token_msw'

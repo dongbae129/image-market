@@ -21,6 +21,7 @@
       "@styles/*": ["styles/*"],
       "@mocks/*": ["mocks/*"],
       "@reducers/*": ["reducers/*"],
+      "@pages/*": ["pages/*"],
       "@/*": ["./*"]
     }
   },

@@ -34,5 +34,10 @@ export const handlers = [
         status: 400
       }
     );
+  }),
+  http.post('/api/product/upload', () => {
+    return HttpResponse.json({
+      ok: true
+    });
   })
 ];

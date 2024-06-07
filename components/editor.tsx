@@ -180,5 +180,5 @@ const Editor = ({
     </div>
   );
 };
-
+Editor.displayName = 'Editor';
 export default Editor;

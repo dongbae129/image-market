@@ -43,6 +43,7 @@ const Input = ({
         <input
           id={name}
           required={required}
+          name={name}
           type={type}
           // placeholder={inputValue || ''}
 

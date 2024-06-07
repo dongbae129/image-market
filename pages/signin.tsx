@@ -23,7 +23,7 @@ import store from 'reducers/store';
 import { useEffect, useState } from 'react';
 import worker from '../mocks/browser';
 
-interface SingInForm {
+interface SignInForm {
   userId: string;
   password: string;
   formErrors?: string;
@@ -55,9 +55,9 @@ const Signin: NextPage = () => {
     handleSubmit,
     setError,
     formState: { errors }
-  } = useForm<SingInForm>();
+  } = useForm<SignInForm>();
 
-  const signInUser = (data: SingInForm) =>
+  const signInUser = (data: SignInForm) =>
     newAxios.post('/api/login', data).then((res) => res.data);
   const { mutate, isLoading } = useMutation(signInUser, {
     onError: (error: AxiosError) => {
@@ -80,7 +80,7 @@ const Signin: NextPage = () => {
     }
   });
 
-  const onValid = ({ userId, password }: SingInForm) => {
+  const onValid = ({ userId, password }: SignInForm) => {
     if (isLoading) return;
     if (userId === '' || password === '') {
       return setError('formErrors', { message: 'id and password is required' });

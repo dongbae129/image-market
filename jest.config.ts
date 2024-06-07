@@ -122,13 +122,14 @@ const config: Config = {
   // rootDir: undefined,
 
   // A list of paths to directories that Jest should use to search for files in
-  // roots: ['<rootDir>'],
+  roots: ['<rootDir>'],
   moduleDirectories: ['node_modules'],
   modulePaths: ['<rootDir>'],
   moduleNameMapper: {
     '^@components/(.*)': '<rootDir>/components/$1',
     '^@libs/(.*)': '<rootDir>/libs/$1',
-    '^@reducers/(.*)': '<rootDir>/reducers/$1'
+    '^@reducers/(.*)': '<rootDir>/reducers/$1',
+    '^@pages/(.*)': '<rootDir>/pages/$1'
   },
   // transform: {
   //   '^.+\\.(t|j)s$': 'ts-jest'

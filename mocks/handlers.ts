@@ -39,5 +39,29 @@ export const handlers = [
     return HttpResponse.json({
       ok: true
     });
+  }),
+  http.get('/api/product/5', () => {
+    const data = {
+      ok: true,
+      product: {
+        user: {
+          email: 'infoTest email',
+          name: 'infoTest name'
+        },
+        title: 'info title',
+        hashtag: {
+          hashtag: 'a,b,c,d',
+          id: 1,
+          productId: 1
+        },
+        id: 1,
+        description: 'infoTest descripion',
+        auth: false
+      }
+    };
+    return HttpResponse.json({
+      ok: true,
+      data
+    });
   })
 ];

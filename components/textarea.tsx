@@ -12,7 +12,13 @@ const TextArea = ({ name, label, register, ...rest }: TextAreaProps) => {
     <>
       {label && <label htmlFor={name}>{labelOb[label]}</label>}
 
-      <textarea id={name} {...register} {...rest} placeholder="설명" />
+      <textarea
+        aria-label={name}
+        id={name}
+        {...register}
+        {...rest}
+        placeholder="설명"
+      />
       <style jsx>{`
         textarea {
           resize: none;

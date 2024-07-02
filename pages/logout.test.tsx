@@ -139,6 +139,7 @@ describe('Logout Test', () => {
   });
   it('logout test fail', async () => {
     jest.spyOn(newAxios, 'post').mockRejectedValue(new Error('logout fail'));
+
     const consoleError = jest.spyOn(console, 'log').mockImplementation();
 
     const { result } = renderHook(() => useLogout());

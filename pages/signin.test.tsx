@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import Signin from './signin';
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -7,8 +7,6 @@ import store from 'reducers/store';
 import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
 import { newAxios } from '@libs/client/fetcher';
-import Link from 'next/link';
-import { RouterContext } from 'next/dist/shared/lib/router-context';
 const queryClient = new QueryClient();
 
 export const Wrapper: React.FC<{ children: ReactNode }> = ({ children }) => (
@@ -194,6 +192,9 @@ describe('Signin Test', () => {
       });
     });
     it('fail login -[alert]', async () => {
+      const originalError = console.error;
+      console.error = jest.fn();
+
       render(
         <Wrapper>
           <Signin />
@@ -213,6 +214,7 @@ describe('Signin Test', () => {
       await waitFor(() => {
         expect(window.alert).toHaveBeenCalledWith('login error');
       });
+      console.error = originalError;
     });
     it('login button status text-[LOGIN,Loading...]', async () => {
       render(
@@ -220,6 +222,7 @@ describe('Signin Test', () => {
           <Signin />
         </Wrapper>
       );
+
       window.alert = jest.fn();
       userEvent.setup();
       const inputId = screen.getByRole<HTMLInputElement>('textbox', {

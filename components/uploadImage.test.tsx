@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import userEvent from '@testing-library/user-event';
 import { newAxios } from '@libs/client/fetcher';
 import { Wrapper } from '@pages/signin.test';
+import { setLogger } from 'react-query';
 
 const axiosPostResponse = {
   data: {

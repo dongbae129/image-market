@@ -111,20 +111,17 @@ const UploadImage = (info: UploadImageProps) => {
         formInfo[key] = v[key];
       }
     }
-    // form.append('hashtag', hashtag.join(','));
-    // form.append('description', editorValue);
-    // form.append(
-    //   'imageOk',
-    //   JSON.stringify({ imgBoolean: v.image && v.image[0] ? true : false })
-    // );
-    // formInfo['boardtag'] = hashtag.join(',');
-    // formInfo['description'] = editorValue;
-    // if (imgRatioRef.current.length > 0)
-    //   form.append('ratio', imgRatioRef.current);
-    // formInfo['ratio'] = imgRatioRef.current;
-    // form.forEach((key, val) => {
-    //   console.log(key, val, 'vv');
-    // });
+    form.append('hashtag', hashtag.join(','));
+    form.append('description', editorValue);
+    form.append(
+      'imageOk',
+      JSON.stringify({ imgBoolean: v.image && v.image[0] ? true : false })
+    );
+    formInfo['boardtag'] = hashtag.join(',');
+    formInfo['description'] = editorValue;
+    if (imgRatioRef.current.length > 0)
+      form.append('ratio', imgRatioRef.current);
+    formInfo['ratio'] = imgRatioRef.current;
 
     mutate(info.url.includes('product') ? form : formInfo);
   };
@@ -145,9 +142,6 @@ const UploadImage = (info: UploadImageProps) => {
     });
   }, [imageWatch]);
 
-  useEffect(() => {
-    console.log(imagePreview, 'imagePreview');
-  }, [imagePreview]);
   return (
     <>
       <div className="uploadimagewrap">
@@ -208,7 +202,10 @@ const UploadImage = (info: UploadImageProps) => {
                     register={register(v, { required: true })}
                     required
                   /> */}
-                  <label htmlFor={v}>
+                  <label
+                    htmlFor={v}
+                    className={v === 'productAuth' ? 'charged' : ''}
+                  >
                     {labelOb[v]}
                     <input
                       id={v}
@@ -322,6 +319,16 @@ const UploadImage = (info: UploadImageProps) => {
             outline: 3px solid rgb(127, 193, 255);
           }
         }
+        .charged {
+          display: flex;
+          align-items: center;
+        }
+        .charged > input {
+          margin-left: 5px;
+          width: 24px;
+          height: 24px;
+          outline: 0;
+        }
         .uploadimagewrap {
           max-width: 100%;
           width: 100%;
@@ -366,7 +373,7 @@ const UploadImage = (info: UploadImageProps) => {
           min-height: 150px;
           height: 200px;
           position: relative;
-          margin-bottom: 2rem;
+          margin-bottom: 3rem;
         }
         .buttonwrap {
           display: flex;

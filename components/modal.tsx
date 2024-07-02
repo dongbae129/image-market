@@ -12,7 +12,7 @@ import { UseMutateFunction } from 'react-query';
 interface ModalProps {
   modalOpen: boolean;
   setModalOpen: Dispatch<SetStateAction<boolean>>;
-  deleteMutation?: UseMutateFunction<any, unknown, void, unknown>;
+  deleteMutation?: UseMutateFunction<any, unknown, void, unknown> | null;
   modalUse: 'delete' | 'paidDown';
   productId?: string;
 }

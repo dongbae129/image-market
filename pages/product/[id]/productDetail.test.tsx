@@ -1,23 +1,13 @@
 import { render, screen, waitFor } from '@testing-library/react';
 
-import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-  useQueryClient
-} from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import ProductChat from './_component/ProductChat';
 import { Product } from '@prisma/client';
-import ProductInfo, {
-  ProductDetailType,
-  UserHashtagHit
-} from './_component/ProductInfo';
+import ProductInfo, { UserHashtagHit } from './_component/ProductInfo';
 import ProductImage from './_component/ProductImage';
 import ProductChatForm from './_component/ProductChatForm';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/router';
-import { ReactNode } from 'react';
 
 jest.mock('react-query', () => ({
   useQuery: jest.fn(),

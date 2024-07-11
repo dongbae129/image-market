@@ -1,5 +1,5 @@
-export const timeForToday = (value: any) => {
-  const today = new Date();
+export const timeForToday = (value: any, now = new Date()) => {
+  const today = now;
   const timeValue = new Date(value);
 
   const betweenTime = Math.floor(

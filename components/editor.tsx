@@ -6,7 +6,7 @@ import {
   useCallback
 } from 'react';
 
-import 'react-quill/dist/quill.snow.css';
+// import 'react-quill/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import Button from '@components/button';
@@ -109,6 +109,7 @@ const Editor = ({
 
   const submitText = () => {
     if (isLoading) return;
+    console.log('abqw');
     mutate({ chat });
     setChat('');
   };
@@ -134,6 +135,7 @@ const Editor = ({
           />
         </div>
       </div>
+      {<button onClick={() => console.log('tata')}>test</button>}
       {btntrue && (
         <div className="chatinput_btn">
           <div>

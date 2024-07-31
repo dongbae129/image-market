@@ -135,7 +135,7 @@ const Editor = ({
           />
         </div>
       </div>
-      {<button onClick={() => console.log('tata')}>test</button>}
+
       {btntrue && (
         <div className="chatinput_btn">
           <div>

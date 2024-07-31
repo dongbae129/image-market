@@ -1,37 +1,13 @@
 import type { NextPage } from 'next';
-
-import Link from 'next/link';
-
-import { useInfiniteQuery, useQuery, useQueryClient } from 'react-query';
-import axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
-import { Product, User } from '@prisma/client';
+import { useSelector } from 'react-redux';
+import { Product } from '@prisma/client';
 import NextImage from 'next/future/image';
-import { getFetch, newAxios } from '@libs/client/fetcher';
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useInView } from 'react-intersection-observer';
-
-import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
-
-import Sidebar from '@components/sidebar';
-import HeadMenu, { userResponse } from '@components/headmenu';
-import Image from 'next/future/image';
-
+import { getFetch } from '@libs/client/fetcher';
+import { userResponse } from '@components/headmenu';
 import UserCard from '@components/userCard';
+import ResponsiveProducts from '@components/ResponsiveProducts';
+import { useQuery } from 'react-query';
 
-// const keyStr =
-//   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-// const triplet = (e1: number, e2: number, e3: number) =>
-//   keyStr.charAt(e1 >> 2) +
-//   keyStr.charAt(((e1 & 3) << 4) | (e2 >> 4)) +
-//   keyStr.charAt(((e2 & 15) << 2) | (e3 >> 6)) +
-//   keyStr.charAt(e3 & 63);
-
-// const rgbDataURL = (r: number, g: number, b: number) =>
-//   `data:image/gif;base64,R0lGODlhAQABAPAA${
-//     triplet(0, r, g) + triplet(b, 255, 255)
-//   }/yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==`;
 export interface GetProductsResponse {
   // ok: boolean;
   products: Product[];
@@ -46,91 +22,11 @@ interface IndexProductImageType {
   description: string;
 }
 const Home: NextPage = () => {
-  // const [mousehover, setMouseHover] = useState(false);
-  // const masonryColumn = 4;
-  const divRef = useRef<number[]>([]);
-  const countRef = useRef<HTMLDivElement>(null);
-
-  const queryClient = useQueryClient();
   const { accessToken } = useSelector((state: any) => state.user);
   // const dispatch = useDispatch();
   const header = {
     headers: { authorization: `Bearer ${accessToken}` }
   };
-
-  const { ref, inView } = useInView({
-    threshold: 0.3
-  });
-  const [divWidth, setDivWidth] = useState(0);
-
-  const getProducts = ({ pageParam = 0 }) =>
-    newAxios.get(`/api/product?id=${pageParam}`).then((res) => res.data);
-
-  // const getProducts = async ({ pageParam = 1 }) => {
-  //   const { products } = await axios
-  //     .get(`/api/product?id=${pageParam}`)
-  //     .then((res) => res.data);
-  //   const imagePromise = products.map((product: Product) => {
-  //     return new Promise((resolve, reject) => {
-  //       const blobTest = new Blob();
-  //       blobTest.slice();
-  //       const img = new Image();
-  //       img.src = `/uploads/${product.image}`;
-  //       img.onload = () =>
-  //         resolve({
-  //           // width: countRef.current?.clientWidth / 3,
-  //           width: img.naturalWidth,
-  //           height: img.naturalHeight,
-  //           // height:
-  //           //   ((img.naturalHeight / img.naturalWidth) *
-  //           //     countRef.current?.clientWidth) /
-  //           //   3,
-  //           src: `/uploads/${decodeURIComponent(product.image)}`,
-  //           // src: `/uploads/${product.image}`,
-  //           id: product.id,
-  //           title: product.title,
-  //           description: product.description
-  //         });
-  //       img.onerror = (error) => reject(error);
-  //     });
-  //   });
-  //   const images = await Promise.all(imagePromise);
-  //   return images;
-  // };
-
-  // const { data } = useQuery(['getProducts'], getProducts);
-  // console.log(data, 'Data');
-  // product data 가져오기
-  const { data, hasNextPage, fetchNextPage, isLoading, isFetchingNextPage } =
-    useInfiniteQuery<any>(['getProducts'], getProducts, {
-      getNextPageParam: (lastPage, allPage) => {
-        const lastPageLength = lastPage.products.length;
-        if (lastPageLength === 0 || lastPageLength < 6) return false;
-        return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
-      }
-    });
-
-  useEffect(() => {
-    if (countRef.current) {
-      const test = +window
-        .getComputedStyle(countRef.current)
-        .getPropertyValue('width')
-        .slice(0, -2);
-
-      const size =
-        +window
-          .getComputedStyle(countRef.current)
-          .getPropertyValue('font-size')
-          .slice(0, -2) * 3;
-      setDivWidth((test - size) / 4);
-      console.log('in');
-    }
-    console.log('out');
-  }, []);
-
-  useEffect(() => {
-    if (inView && hasNextPage) fetchNextPage();
-  }, [inView, hasNextPage, fetchNextPage]);
 
   const { data: userInfo } = useQuery<userResponse>(
     ['userInfo'],
@@ -227,66 +123,11 @@ const Home: NextPage = () => {
           <button className='bg-[url("/localimages/right-arrow.svg")] arrow right-0'></button>
         </div>
         <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-40 rounded-lg max-lg:hidden overflow-hidden p-5 flex flex-col justify-between">
-          <UserCard logedIn={userInfo?.ok} userInfo={userInfo} />
+          <UserCard />
         </div>
       </div>
-      <div className="product-wrap" ref={countRef}>
-        <ResponsiveMasonry
-          columnsCountBreakPoints={{ 350: 2, 750: 3, 900: 5, 1200: 6 }}
-        >
-          <Masonry
-            /*columnsCount={masonryColumn}*/ gutter="1em"
-            className="mas"
-          >
-            {data ? (
-              data.pages.map((products) =>
-                products.products.map((product: Product) => (
-                  <div
-                    key={product.id}
-                    className="product"
-                    style={{ height: divWidth * Number(product.ratio) }}
-                    ref={ref}
-                  >
-                    {divWidth ? (
-                      <Link href={`/product/${product.id}`} passHref>
-                        <div className="imgwrap">
-                          <NextImage
-                            alt=""
-                            src={`/uploads/${product.image}`}
-                            // layout="fill"
-                            fill={true}
-                            // width={'100%'}
-                            // height={divWidth * Number(product.ratio)}
-                            sizes="33vw"
-                            // objectFit="contain"
-                            // style={{
-                            //   // width: '100%',
-                            //   height: divWidth * Number(product.ratio),
-                            //   objectFit: 'fill'
-                            // }}
-                            // priority={true}
-                          />
-                        </div>
-                      </Link>
-                    ) : (
-                      <></>
-                    )}
-                    <span className="product-title">{product.title}</span>
-                  </div>
-                ))
-              )
-            ) : (
-              <></>
-            )}
-          </Masonry>
-        </ResponsiveMasonry>
-        {isFetchingNextPage ? (
-          <div>Loading...</div>
-        ) : (
-          <div ref={ref} style={{ height: '100px' }}></div>
-        )}
-      </div>
 
+      <ResponsiveProducts />
       {/* <Sidebar /> */}
       <style jsx>{`
         .arrow {
@@ -302,27 +143,6 @@ const Home: NextPage = () => {
         }
         .main_wrap {
           position: relative;
-        }
-        .product-wrap {
-          width: 94vw;
-          margin: 0 auto;
-          .imgwrap {
-            position: relative;
-            cursor: pointer;
-            display: block;
-            width: 100%;
-            height: 90%;
-            border-radius: 20px;
-            overflow: hidden;
-          }
-
-          .product-title {
-            display: inline-block;
-          }
-        }
-
-        .imgwrap:hover {
-          filter: brightness(60%);
         }
       `}</style>
     </div>

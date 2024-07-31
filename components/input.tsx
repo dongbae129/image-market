@@ -74,6 +74,7 @@ const Input = ({
           font-weight: 500;
           font-size: 0.875rem;
           line-height: 1.25rem;
+          color: rgb(75, 85, 99);
         }
 
         input {

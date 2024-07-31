@@ -35,6 +35,20 @@ export const handlers = [
       }
     );
   }),
+  http.get('/api/user', async () => {
+    return HttpResponse.json({
+      data: {
+        ok: true,
+        user: {
+          id: 1,
+          name: 'usercard name test',
+          email: 'usercard email test',
+          coin: 10000,
+          bonusCoupon: 3
+        }
+      }
+    });
+  }),
   http.post('/api/product/upload', () => {
     return HttpResponse.json({
       ok: true

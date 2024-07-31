@@ -33,10 +33,14 @@ jest.mock('next/router', () => ({
 //   EditorTest.displayName = 'editorTest';
 //   return EditorTest;
 // });
+type MockedQuillProps = {
+  value: string;
+  onChange: (a: string) => void;
+};
 jest.mock('next/dynamic', () => ({
   __esModule: true,
   default: () => {
-    const MockedQuill = ({ value, onChange }) => (
+    const MockedQuill = ({ value, onChange }: MockedQuillProps) => (
       <textarea
         data-testid="mocked-quill"
         value={value}
@@ -164,7 +168,7 @@ describe('BoardDetail Test', () => {
               description: 'description test 1'
             },
             {
-              id: 1,
+              id: 2,
               user: {
                 name: 'name test 2'
               },
@@ -172,7 +176,7 @@ describe('BoardDetail Test', () => {
               description: 'description test 2'
             },
             {
-              id: 1,
+              id: 3,
               user: {
                 name: 'name test 3'
               },

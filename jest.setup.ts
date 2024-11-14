@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import worker from './mocks/browser';
+import worker from './src/mocks/browser';
 
 beforeAll(() => worker.listen());
 afterEach(() => worker.resetHandlers());

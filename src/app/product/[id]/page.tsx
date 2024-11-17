@@ -59,7 +59,7 @@ const ProductDetail: NextPage = ({ params }) => {
         </div>
 
         <style jsx>{`
-          $card_mxh: 80vh;
+          {/* $card_mxh: 80vh; */}
           .productwrapout {
             position: relative;
             margin-top: 30px;
@@ -87,7 +87,7 @@ const ProductDetail: NextPage = ({ params }) => {
           .userInfo {
             position: relative;
             width: 50%;
-            max-height: $card_mxh;
+            max-height: 80vh;
           }
         `}</style>
       </div>

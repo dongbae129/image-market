@@ -56,9 +56,9 @@ function BoardUserInfo({}) {
         {userInfo?.user?.id === boardDetail?.board.user.id ? (
           <div>
             <Link href={`/board/${boardDetail?.board?.id}/setting`}>
-              <a>
+              <div>
                 <Button isLoading={false} text="수정" />
-              </a>
+              </div>
             </Link>
           </div>
         ) : null}

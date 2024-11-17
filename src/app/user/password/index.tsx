@@ -51,13 +51,13 @@ function ModifyPassword() {
         <div>
           <div className="gohome">
             <Link href={'/'}>
-              <a>
+              <div>
                 <NextImage
                   src={'/localimages/emptyuser.png'}
                   height="48px"
                   width="48px"
                 />
-              </a>
+              </div>
             </Link>
           </div>
           <h2>변경하실 비밀번호를 입력해주세요.</h2>

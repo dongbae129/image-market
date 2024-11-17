@@ -14,13 +14,13 @@ function FindEmail({ email, key }: FindEmailProps) {
         <div>
           <div className="gohome">
             <Link href={'/'}>
-              <a>
+              <div>
                 <NextImage
                   src={'/localimages/emptyuser.png'}
                   height="48px"
                   width="48px"
                 />
-              </a>
+              </div>
             </Link>
           </div>
           <h1>계정찾기</h1>

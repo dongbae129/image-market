@@ -14,7 +14,7 @@ function BoardInfo({ board }: BoardInfoProps) {
       <div className="board-list__main">
         <div className="board-list__user">
           <Link href={'#'}>
-            <a>{board.user.name}</a>
+            <div>{board.user.name}</div>
           </Link>
           <span className="board-list__howmanytime">
             {timeForToday(
@@ -25,7 +25,7 @@ function BoardInfo({ board }: BoardInfoProps) {
           </span>
         </div>
         <Link href={`/board/${board.id}`}>
-          <a className="board-list__title">{board.title}</a>
+          <div className="board-list__title">{board.title}</div>
         </Link>
       </div>
       <div className="board-list__subinfo">

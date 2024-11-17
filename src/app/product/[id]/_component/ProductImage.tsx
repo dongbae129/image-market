@@ -24,19 +24,22 @@ function ProductImage({ product }: ProductImageProps) {
               // layout="responsive"
               // sizes="30vw"
               // layout="responsive"
-              layout="fill"
+              // width={400}
+              // height={600}
+              fill={true}
               alt={product.image}
             />
           )}
         </div>
       </div>
       <style jsx>{`
-        $card_mxh: 80vh;
+        {/* $card_mxh: 80vh; */}
         .productInfo {
-          position: relative;
           width: 50%;
+          position: relative;
+
           padding: 1rem;
-          max-height: $card_mxh;
+          max-height: 80vh;
           .imagewrap {
             position: relative;
             border-top-left-radius: 20px;

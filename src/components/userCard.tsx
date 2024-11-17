@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { userResponse } from './headmenu';
 import { useQuery } from '@tanstack/react-query';
 import useLogout from '@libs/client/logout';
-// import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getFetch } from '@libs/client/fetcher';
 
 interface userCardProps {
@@ -10,8 +10,8 @@ interface userCardProps {
   logedIn: boolean | undefined;
 }
 const UserCard = () => {
-  // const { accessToken } = useSelector((state: any) => state.user);
-  const accessToken = '2122';
+  const { accessToken } = useSelector((state: any) => state.user);
+  // const accessToken = '2122';
   // const dispatch = useDispatch();
   const header = {
     headers: { authorization: `Bearer ${accessToken}` }
@@ -76,12 +76,6 @@ const UserCard = () => {
                 </Link>
               </div>
               <div>
-                {/* <Link href="/logout" data-testid="atest1"> */}
-                {/* <a
-                    // data-testid="atest"
-
-                    className="atest profile_selection before:left-[-9px] block text-center relative text-sm"
-                  > */}
                 <div
                   className="atest cursor-pointer profile_selection before:left-[-9px] block text-center relative text-sm"
                   onClick={onLogout}

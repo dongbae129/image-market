@@ -82,7 +82,7 @@ function ResponsiveProducts() {
                   >
                     {divWidth ? (
                       <Link href={`/product/${product.id}`} passHref>
-                        <a className="imgwrap">
+                        <div className="imgwrap">
                           <NextImage
                             alt=""
                             src={`/uploads/${product.image}`}
@@ -99,7 +99,7 @@ function ResponsiveProducts() {
                             // }}
                             // priority={true}
                           />
-                        </a>
+                        </div>
                       </Link>
                     ) : (
                       <></>

@@ -2,6 +2,7 @@ import axios from 'axios';
 import cookie from 'cookie';
 import { sign, verify, JwtPayload, VerifyErrors } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { cookies, headers } from 'next/headers';
 
 export const authLinkCheck = (req: NextApiRequest, res: NextApiResponse) => {
   const urlask = req.url?.includes('/api/oauth/link?linkask=true');
@@ -57,14 +58,9 @@ interface VerifyType {
 // |나쁜 점:
 // |- `verify` 함수는 비동기 함수이지만, `verifyed` 변수에 값을 할당하는 부분이 동기적으로 작성되어 있습니다. 따라서 `verifyed` 변수에는 항상 빈 객체가 할당됩니다. 이 문제를 해결하기 위해서는 `verify` 함수를 Promise를 반환하도록 수정하거나, `verify` 함수의 콜백 함수 내부에서 반환값을 처리해야 합니다.
 // |- `checkAuth` 함수가 반환하는 값의 타입인 `checkAuthResponse`가 정의되어 있지 않습니다. 이를 해결하기 위해서는 `checkAuthResponse`의 타입을 정의해야 합니다.
-export const checkAuth = (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  logintype: number
-): checkAuthResponse => {
-  const clientAccessToken = req.headers['authorization']?.split(' ')[1];
-  // console.log(req.cookies, 'Refresh');
-  // console.log(clientAccessToken, 'api/index');
+export const checkAuth = (): checkAuthResponse => {
+  const headerList = headers();
+  const clientAccessToken = headerList.get('authorization')?.split(' ')[1];
 
   const state = {
     re: false,
@@ -122,14 +118,20 @@ export const createAccessToken = (id: number, type: number) => {
 export const createRefreshToken = (id: number, type: number) =>
   sign({ id, type }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '20m' });
 
-export const sendRefreshToken = (res: any, token: any) => {
-  res.setHeader(
-    'Set-Cookie',
-    cookie.serialize('refreshToken', token, {
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
-      secure: true
-    })
-  );
+export const sendRefreshToken = (token: string) => {
+  cookies().set('refreshToken', token, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/',
+    secure: true
+  });
+  // res.setHeader(
+  //   'Set-Cookie',
+  //   cookie.serialize('refreshToken', token, {
+  //     httpOnly: true,
+  //     maxAge: 60 * 60 * 24 * 7,
+  //     path: '/',
+  //     secure: true
+  //   })
+  // );
 };

@@ -55,33 +55,33 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
             <ul className="sidebar-list">
               <li className="sidebar-list-item" data-icon="setting">
                 <Link href={`/profile/settings`}>
-                  <a className="sidebar-link">
+                  <div className="sidebar-link">
                     <span className="sideiconwrap">
                       <IoMdSettings className="sidebar-icon" size="25" />
                     </span>
                     <div className="hidden-sidebar">Settings</div>
-                  </a>
+                  </div>
                 </Link>
               </li>
               <li className="sidebar-list-item" data-icon="user">
                 <Link href={`/profile/${userInfo.id}`}>
-                  <a className="sidebar-link">
+                  <div className="sidebar-link">
                     <span className="sideiconwrap">
                       <FaUserAlt className="sidebar-icon" size="25" />
                     </span>
 
                     <div className="hidden-sidebar">User</div>
-                  </a>
+                  </div>
                 </Link>
               </li>
               <li className="sidebar-list-item" data-icon="logout">
                 <Link href={'/logout'}>
-                  <a className="sidebar-link">
+                  <div className="sidebar-link">
                     <span className="sideiconwrap">
                       <GrLogout className="sidebar-icon" size="25" />
                     </span>
                     <div className="hidden-sidebar">Logout</div>
-                  </a>
+                  </div>
                 </Link>
               </li>
               {/* <li className="sidebar-list-item">

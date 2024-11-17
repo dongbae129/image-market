@@ -71,7 +71,7 @@ const Signin: NextPage = () => {
 
       // store.dispatch(setRestoreState(true));
       store.dispatch(setLogedIn(true));
-      queryClient.invalidateQueries(['userInfo']);
+      queryClient.invalidateQueries({ queryKey: ['userInfo'] });
       router.push('/');
     }
   });
@@ -123,7 +123,7 @@ const Signin: NextPage = () => {
           </div>
           {/* <span onClick={() => router.push('/register')}>signup test</span> */}
           {/* <Link href="/register">
-            <a>signup test</a>
+            <div>signup test</div>
           </Link> */}
 
           <form onSubmit={handleSubmit(onValid)}>

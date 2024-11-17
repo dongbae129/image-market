@@ -1,0 +1,158 @@
+import client from '@libs/server/client';
+
+// import { ResponseType } from '@libs/server/utils';
+// // import { NextApiRequest, NextApiResponse } from 'next';
+import bcrypt from 'bcrypt';
+import {
+  createAccessToken,
+  sendRefreshToken,
+  createRefreshToken
+} from '@libs/server/auth';
+import { NextRequest, NextResponse } from 'next/server';
+
+export const GET = async (req, { params }) => {
+  console.log(params, 'pppp');
+  return NextResponse.json(
+    {
+      message: 'TEST get'
+    },
+    {
+      status: 400
+    }
+  );
+};
+export const POST = async (req: NextRequest, res: NextResponse) => {
+  const body = await req.json();
+  const { userId, password } = body;
+  if (userId === '' || password === '') {
+    return NextResponse.json({
+      ok: false,
+      error: 'id and password is required!'
+    });
+  }
+  const user = await client.localUser.findFirst({
+    where: {
+      memId: userId
+    }
+  });
+  let User;
+  if (user) {
+    User = await client.user.findUnique({
+      where: {
+        id: user?.userId
+      }
+    });
+  }
+  if (!user) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: 'invalid id or wrong password'
+      },
+      {
+        status: 401
+      }
+    );
+  } else if (User?.delete) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: 'Forbidden user'
+      },
+      {
+        status: 403
+      }
+    );
+  } else {
+    const comparepassw = await bcrypt.compare(password, user.password);
+    if (comparepassw) {
+      const accessToken = createAccessToken(user.userId, 1);
+      const refreshToken = createRefreshToken(user.userId, 1);
+
+      sendRefreshToken(refreshToken);
+      // res.setHeader('Set-Cookie', 'test=aaaTEST');
+      return NextResponse.json({
+        ok: true,
+        message: 'login success',
+        user: user?.id,
+        accessToken
+      });
+    } else {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'id or password is incorrected!!!!'
+        },
+        {
+          status: 401
+        }
+      );
+    }
+  }
+};
+// const Login = async (
+//   req: NextApiRequest,
+//   res: NextApiResponse<ResponseType>
+// ) => {
+//   if (req.method === 'GET') {
+//     console.log(req.query, 'query');
+//     return res.json({
+//       ok: true
+//     });
+//   }
+//   if (req.method === 'POST') {
+//     const { userId, password } = req.body;
+//     if (userId === '' || password === '') {
+//       res.json({
+//         ok: false,
+//         error: 'id and password is required!'
+//       });
+//     }
+//     const user = await client.localUser.findFirst({
+//       where: {
+//         memId: userId
+//       }
+//     });
+//     let User;
+//     if (user) {
+//       User = await client.user.findUnique({
+//         where: {
+//           id: user?.userId
+//         }
+//       });
+//     }
+//     if (!user) {
+//       res.status(401).json({
+//         ok: false,
+//         message: 'invalid id or wrong password'
+//       });
+//     } else if (User?.delete) {
+//       return res.status(403).json({
+//         ok: false,
+//         message: 'Forbidden user'
+//       });
+//     } else {
+//       const comparepassw = await bcrypt.compare(password, user.password);
+//       if (comparepassw) {
+//         const accessToken = createAccessToken(user.userId, 1);
+//         const refreshToken = createRefreshToken(user.userId, 1);
+
+//         sendRefreshToken(res, refreshToken);
+//         // res.setHeader('Set-Cookie', 'test=aaaTEST');
+//         res.json({
+//           ok: true,
+//           message: 'login success',
+//           user: user?.id,
+//           accessToken
+//         });
+//       } else {
+//         res.json({
+//           ok: false,
+//           error: 'id or password is incorrected!!!!'
+//         });
+//       }
+//     }
+//   }
+// };
+
+// export default Login;

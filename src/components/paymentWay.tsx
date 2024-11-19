@@ -1,9 +1,10 @@
+'use client';
 import SvgData from '@/json/data.json';
 import SvgIcon from '@/components/svgIcon';
 // import Link from 'next/link';
 import { useEffect } from 'react';
 import { newAxios } from '@libs/client/fetcher';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface PaymentWayProps {
   payproduct:
@@ -66,7 +67,7 @@ const PaymentWay = ({ payproduct }: PaymentWayProps) => {
 
     if (success) {
       try {
-        await newAxios.post('/api/pay', { response });
+        await newAxios.post('/api/pay', { imp_uid: response.imp_uid });
         routerState = true;
 
         alert('결제성공');

@@ -36,7 +36,7 @@ const KakaoHandler: NextPage = () => {
               `Bearer ${res.data.accessToken}`;
 
             const lintResponse = await axios.get(
-              `/api/oauth/link?type=kakao&user=${res.data.userId}`
+              `/api/oauth/link?linkask=true&type=kakao&user=${res.data.userId}`
             );
             // console.log(queryClient, 'query');
 
@@ -54,7 +54,7 @@ const KakaoHandler: NextPage = () => {
           `Bearer ${res.data.accessToken}`;
         store.dispatch(setRestoreState(true));
         store.dispatch(setLogedIn(true));
-        queryClient.invalidateQueries(['userInfo']);
+        queryClient.invalidateQueries({ queryKey: ['userInfo'] });
         res.data.userInfo ? router.push('/') : null;
       });
   }, []);

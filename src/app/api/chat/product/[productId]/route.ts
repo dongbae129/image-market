@@ -1,15 +1,14 @@
-import { ResponseType, TokenPayload, dbNow } from '@libs/server/utils';
-import { NextApiRequest, NextApiResponse } from 'next';
-import client from '@libs/server/client';
 import { checkAuth } from '@libs/server/auth';
-import { NextResponse } from 'next/server';
+import client from '@libs/server/client';
+import { dbNow, TokenPayload } from '@libs/server/utils';
+import { NextRequest, NextResponse } from 'next/server';
 
 type Props = {
   params: {
     productId: string;
   };
 };
-export const GET = async (req, { params }: Props) => {
+export const GET = async ({ params }: Props) => {
   const { productId } = params;
   if (!productId)
     return NextResponse.json(
@@ -46,51 +45,57 @@ export const GET = async (req, { params }: Props) => {
   });
 };
 
-// export const POST = async (req, {params}:Props)=>{
+export const POST = async (req: NextRequest, { params }: Props) => {
+  const { productId } = params;
+  const searchParams = req.nextUrl.searchParams;
+  const chatQuery = searchParams.get('chat');
+  if (!chatQuery || chatQuery === '')
+    return NextResponse.json({
+      ok: false,
+      message: 'need to any chat'
+    });
 
-//         if (req.body.chat === '')
-//           return res.json({
-//             ok: false,
-//             message: 'need to any chat'
-//           });
-//         console.log(productId, req.body, 'productId');
-//         const auth = checkAuth(req, res, 0);
-//         if (auth?.checkError)
-//           return res.json({
-//             ok: false,
-//             message: 'need to login for chat',
-//             auth
-//           });
-//         const userId = (auth.payload as TokenPayload).id;
+  const auth = checkAuth();
+  if (auth?.checkError)
+    return NextResponse.json({
+      ok: false,
+      message: 'need to login for chat',
+      auth
+    });
+  const userId = (auth.payload as TokenPayload).id;
 
-//         try {
-//           const now = dbNow();
-//           const chat = await client.chat.create({
-//             data: {
-//               description: req.body.chat,
-//               userId,
-//               productId: +productId.toString(),
-//               createdAt: now,
-//               updatedAt: now
-//             },
-//             include: {
-//               user: {
-//                 select: {
-//                   name: true
-//                 }
-//               }
-//             }
-//           });
-//           return res.json({
-//             ok: true,
-//             chat
-//           });
-//         } catch (error) {
-//           console.error(error, `/api/chat/${productId}, post, create chat error`);
-//           return res.json({
-//             ok: false,
-//             meesage: `/api/chat/${productId}, post, create chat error`
-//           });
-//         }
-
-// }
+  try {
+    const now = dbNow();
+    const chat = await client.chat.create({
+      data: {
+        description: chatQuery,
+        userId,
+        productId: +productId.toString(),
+        createdAt: now,
+        updatedAt: now
+      },
+      include: {
+        user: {
+          select: {
+            name: true
+          }
+        }
+      }
+    });
+    return NextResponse.json({
+      ok: true,
+      chat
+    });
+  } catch (error) {
+    console.error(error, `/api/chat/${productId}, post, create chat error`);
+    return NextResponse.json(
+      {
+        ok: false,
+        meesage: 'chat product fail'
+      },
+      {
+        status: 500
+      }
+    );
+  }
+};

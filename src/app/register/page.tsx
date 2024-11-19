@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { userResponse } from '@components/headmenu';
-import { getTest } from './_lib/getTest';
 
 interface RegisterForm {
   name: string;
@@ -32,10 +31,6 @@ const Register: NextPage = () => {
     setError,
     formState: { errors }
   } = useForm<RegisterForm>();
-  const { data: testData } = useQuery({
-    queryKey: ['test'],
-    queryFn: getTest
-  });
 
   const { data } = useQuery<userResponse>({ queryKey: ['userInfo'] });
   if (data?.ok && data.user.id) router.push('/');
@@ -53,7 +48,7 @@ const Register: NextPage = () => {
       .mutateAsync({ name, userId, password, email })
       .then((res: RegisterResponse) => {
         console.log(res, '^%^%^%^');
-        res.ok ? router.push('/signin') : null;
+        return res.ok ? router.push('/signin') : null;
         // res.ok ? router.push('/signin') : null;
         // if (res.data.error) setError('formErrors', { message: res.data.error });
       });

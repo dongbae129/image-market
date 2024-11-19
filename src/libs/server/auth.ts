@@ -1,37 +1,23 @@
 import axios from 'axios';
-import cookie from 'cookie';
 import { sign, verify, JwtPayload, VerifyErrors } from 'jsonwebtoken';
-import { NextApiRequest, NextApiResponse } from 'next';
 import { cookies, headers } from 'next/headers';
 
-export const authLinkCheck = (req: NextApiRequest, res: NextApiResponse) => {
-  const urlask = req.url?.includes('/api/oauth/link?linkask=true');
-  if (urlask) {
-    const urlAccessToken = req.headers['authorization']?.split(' ')[1];
-    if (urlAccessToken) {
-      try {
-        const tokenState = verify(
-          urlAccessToken,
-          process.env.ACCESS_TOKEN_SECRET
-        );
-        return tokenState;
-      } catch (e) {
-        return res.json({
-          ok: false,
-          error: 'not verified accesstoken'
-        });
-      }
-    } else {
-      return res.json({
-        ok: false,
-        error: 'no have accesstoken'
-      });
+export const authLinkCheck = () => {
+  const urlAccessToken = headers().get('authorization');
+  // const urlAccessToken = req.headers['authorization']?.split(' ')[1];
+  if (urlAccessToken) {
+    try {
+      const tokenState = verify(
+        urlAccessToken,
+        process.env.ACCESS_TOKEN_SECRET
+      );
+      return tokenState;
+    } catch (error) {
+      console.error(error, 'fail link');
+      return 'not verified accesstoken';
     }
   } else {
-    return res.json({
-      ok: false,
-      error: 'invalid access link'
-    });
+    return 'no have accesstoken';
   }
 };
 export interface checkAuthResponse {

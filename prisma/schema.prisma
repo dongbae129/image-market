@@ -1,23 +1,11 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
-  // previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// planetscale mysql
-// datasource db {
-//   provider     = "mysql"
-//   url          = env("DATABASE_URL")
-//   relationMode = "prisma"
-//   // referentialIntegrity = "prisma"
-// }
 
 model User {
   id          Int           @id @default(autoincrement())
@@ -30,15 +18,15 @@ model User {
   coin        Int           @default(0)
   bonusCoupon Int           @default(0)
   delete      Boolean       @default(false)
-  localUser   LocalUser?
-  socialUser  SocialUser?
-  products    Product[]
   boards      Board[]
-  Chat        Chat[]
   boardChat   BoardChat[]
-  productAuth ProductAuth[]
+  Chat        Chat[]
+  localUser   LocalUser?
   pay         PayDetail[]
-  payUsage    PayUsage[]
+  payUsage    PayUsage?
+  products    Product[]
+  productAuth ProductAuth[]
+  socialUser  SocialUser?
 }
 
 model SocialUser {
@@ -47,8 +35,8 @@ model SocialUser {
   type         String
   accessToken  String?
   refreshToken String?
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       Int     @unique
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model LocalUser {
@@ -56,8 +44,8 @@ model LocalUser {
   memId    String
   email    String
   password String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int    @unique
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model PayUsage {
@@ -65,8 +53,8 @@ model PayUsage {
   createdAt DateTime @default(now())
   coin      Int      @default(0)
   coupon    Int      @default(0)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model PayDetail {
@@ -77,8 +65,8 @@ model PayDetail {
   pg_provider  String
   buyer_name   String
   buyer_email  String
+  userId       Int
   user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       Int    @unique
 }
 
 model PayProduct {
@@ -99,12 +87,12 @@ model Product {
   ratio       String        @default("1")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   chats       Chat[]
+  hashtag     HashTag?
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   productAuth ProductAuth[]
   productHit  ProductHit?
-  hashtag     HashTag?
 
   @@index([userId])
 }
@@ -112,14 +100,14 @@ model Product {
 model Board {
   id          Int         @id @default(autoincrement())
   title       String
-  description String      @db.Text
+  description String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   boardChat   BoardChat[]
   boardHit    BoardHit?
-  boardTag    BoardTag[]
+  boardTag    BoardTag?
 
   @@index([userId])
 }
@@ -129,10 +117,10 @@ model Chat {
   description String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId   Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@index([userId])
@@ -143,10 +131,10 @@ model BoardChat {
   description String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  board       Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId     Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
+  board       Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([boardId])
   @@index([userId])
@@ -154,10 +142,10 @@ model BoardChat {
 
 model ProductAuth {
   id        Int     @id @default(autoincrement())
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@index([userId])
@@ -166,27 +154,27 @@ model ProductAuth {
 model ProductHit {
   id        Int     @id @default(autoincrement())
   hit       Int     @default(0)
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int     @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model BoardHit {
   id      Int   @id @default(autoincrement())
   hit     Int   @default(0)
-  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId Int   @unique
+  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
 
 model HashTag {
   id        Int     @id @default(autoincrement())
   hashtag   String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int     @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model BoardTag {
   id      Int    @id @default(autoincrement())
   hashtag String
-  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId Int    @unique
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }

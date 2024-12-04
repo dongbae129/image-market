@@ -16,7 +16,7 @@ export const GET = async (req: NextRequest, res) => {
     lastId = +id.toString();
 
     const products = await client.product.findMany({
-      take: 6,
+      take: 3,
       skip: lastId ? 1 : 0,
       ...(lastId && { cursor: { id: lastId } }),
       where: {

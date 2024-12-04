@@ -7,6 +7,7 @@ import {
   dbNow,
   upLoader
 } from '@libs/server/utils';
+import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
 export const config = {

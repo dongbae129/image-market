@@ -1,9 +1,10 @@
+'use client';
 import { newAxios } from '@libs/client/fetcher';
 import NextImage from 'next/image';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import Button from './button';
 import Editor from './editor';
 import InputHashtag from './hashtag';
@@ -35,9 +36,9 @@ interface UploadFormData {
   [key: string]: string | boolean | undefined;
 }
 
-const UploadImage = (info: UploadImageProps) => {
+const UploadImage = (info: UploadImageProps, { searchParams }) => {
   const router = useRouter();
-  const routerId = router.query.id;
+  // const routerId = router.query.id;
 
   const [imagePreview, setImagePreview] = useState('');
   const [editorValue, setEditorValue] = useState('');
@@ -48,6 +49,19 @@ const UploadImage = (info: UploadImageProps) => {
   const imgRatioRef = useRef('');
   const { register, handleSubmit, watch, setValue, getValues } =
     useForm<UploadForm>();
+
+  // const { data: urlData, isSuccess } = useQuery({
+  //   queryKey: ['test'],
+  //   queryFn: () =>
+  //     fetch('/api/product/upload', {
+  //       method: 'GET'
+  //     }).then(async (res) => {
+  //       const urlRes = await res.json();
+  //       setImgTest(urlRes);
+  //       return urlRes;
+  //     })
+  // });
+  // console.log(urlData, 'urlData');
 
   useEffect(() => {
     if (info.elementValue?.hashtag)
@@ -61,16 +75,26 @@ const UploadImage = (info: UploadImageProps) => {
     if (info?.elementValue?.title) setInputTitle(info?.elementValue?.title);
   }, [info?.elementValue?.title]);
   const postUploadForm = (data: FormData | UploadFormData) =>
-    newAxios.post(`/api/${info.url}`, data).then((res) => res.data);
+    newAxios
+      .post(`/api/${info.url}`, data, {
+        // headers: {
+        //   'Content-Type': 'multipart/form-data'
+        // }
+      })
+      .then((res) => res.data);
 
   const { mutate, isPending } = useMutation({
     mutationFn: postUploadForm,
     onSuccess: (res) => {
+      console.log(res, 'img res');
+      console.log(res.data, 'res data');
+      console.log(info, 'infooo');
       // console.log(res, 'res');
       const routerId = res.product ? res.product.id : res.board.id;
       // console.log(routerId, 'routerId');
       const originalRoute = info.url.split('/')[0];
       const url = `/${originalRoute}/${routerId ? routerId : ''}`;
+
       router.replace(url);
     }
   });
@@ -79,26 +103,24 @@ const UploadImage = (info: UploadImageProps) => {
 
   const onValid = (v: UploadForm) => {
     if (isPending) return;
+
     const form = new FormData();
     const formInfo: UploadFormData = {};
 
     // console.log(v, 'VVV');
     // console.log(inputTitle, 'inputtitle222');
-    // if (info.url.includes('product/upload') && !imagePreview) {
-    //   alert('이미지를 첨부 하셔야 합니다');
-    //   return;
-    // }
+    if (info.url.includes('product/upload') && !imagePreview) {
+      alert('이미지를 첨부 하셔야 합니다');
+      return;
+    }
 
     for (const key in v) {
       if (key === 'image') {
         form.append('file', v[key][0]);
       } else {
         if (key === 'productAuth') {
-          form.append(
-            'productAuth',
-            JSON.stringify({ productBoolean: v[key] })
-          );
-          formInfo['productAuth'] = JSON.stringify({ productBoolean: v[key] });
+          form.append('productAuth', v[key]);
+          formInfo['productAuth'] = v[key];
           continue;
         } else if (key === 'title') {
           form.append('title', inputTitle);
@@ -110,24 +132,23 @@ const UploadImage = (info: UploadImageProps) => {
       }
     }
     form.append('hashtag', hashtag.join(','));
-    form.append('description', editorValue);
-    form.append(
-      'imageOk',
-      JSON.stringify({ imgBoolean: v.image && v.image[0] ? true : false })
-    );
+    form.append('description', '111eee');
+    form.append('imageOk', v.image && v.image[0] ? 'true' : 'false');
     formInfo['boardtag'] = hashtag.join(',');
     formInfo['description'] = editorValue;
     if (imgRatioRef.current.length > 0)
       form.append('ratio', imgRatioRef.current);
     formInfo['ratio'] = imgRatioRef.current;
-
+    for (const [key, value] of form.entries()) {
+      console.log(`${key}: ${value}`);
+    }
     mutate(info.url.includes('product') ? form : formInfo);
   };
-  const onDeleteBoard = () => {
-    newAxios
-      .delete(`/api/${info.url}/${routerId}`)
-      .then(() => router.push('/board'));
-  };
+  // const onDeleteBoard = () => {
+  //   newAxios
+  //     .delete(`/api/${info.url}/${routerId}`)
+  //     .then(() => router.push('/board'));
+  // };
 
   useEffect(() => {
     if (info?.elementValue?.imgsrc) {
@@ -143,10 +164,13 @@ const UploadImage = (info: UploadImageProps) => {
   return (
     <>
       <div className="uploadimagewrap">
+        {/* <img
+          src={`${process.env.NEXT_R2_DEV_PUBLIC_URL}/VeQYOl2Y4iSRJdE163f9PK-0071718699935612.jpg`}
+        /> */}
         <div className="upload_image">
           {!info.image ? null : info?.image && imagePreview ? (
             <label>
-              <NextImage src={imagePreview} alt="" layout="fill" />
+              <NextImage src={imagePreview} alt="" width={200} height={200} />
               <Input
                 label="image"
                 name="image"
@@ -348,11 +372,6 @@ const UploadImage = (info: UploadImageProps) => {
             width: 80%;
             height: 80%;
             transform: translate(10%, 10%);
-          }
-
-          img {
-            width: 50%;
-            height: 50%;
           }
 
           label {

@@ -26,9 +26,13 @@ export interface checkAuthResponse {
   checkError?: boolean;
   message?: string;
   err?: object;
-  payload?: string | JwtPayload | undefined;
+  payload?: {
+    id: number;
+    type: number;
+    iat: number;
+    exp: number;
+  };
 }
-
 interface VerifyType {
   err?: VerifyErrors;
   checkError?: boolean;

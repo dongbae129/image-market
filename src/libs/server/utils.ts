@@ -1,7 +1,7 @@
 import { JwtPayload } from 'jsonwebtoken';
 import multer from 'multer';
 import { NextApiRequest, NextApiResponse } from 'next';
-import nextConnect, { NextHandler } from 'next-connect';
+// import  { NextHandler } from 'next-connect';
 import path from 'path';
 import { checkAuth, checkAuthResponse } from '@libs/server/auth';
 import dayjs from 'dayjs';
@@ -82,17 +82,17 @@ export const imgDelete = (url: string) => {
   return state;
 };
 
-export const nc = nextConnect({
-  onError: (err, req: Request, res: NextApiResponse<ResponseType>) => {
-    console.error(err.stack);
-    res.statusCode = 500;
-    res.statusMessage = 'Something broke';
-  },
-  onNoMatch: (req, res) => {
-    res.statusCode = 404;
-    res.statusMessage = 'Page is not found';
-  }
-});
+// export const nc = nextConnect({
+//   onError: (err, req: Request, res: NextApiResponse<ResponseType>) => {
+//     console.error(err.stack);
+//     res.statusCode = 500;
+//     res.statusMessage = 'Something broke';
+//   },
+//   onNoMatch: (req, res) => {
+//     res.statusCode = 404;
+//     res.statusMessage = 'Page is not found';
+//   }
+// });
 interface LogedInType extends NextApiRequest {
   auth: checkAuthResponse;
 }
@@ -114,8 +114,8 @@ export const isLogedIn = (req: LogedInType, res: any, next: () => void) => {
 
 export const upLoader = (
   req: Request,
-  res: Response<ResponseType>,
-  next: NextHandler
+  res: Response<ResponseType>
+  // next: NextHandler
 ) => {
   upload.single('file')(req, res, (err) => {
     if (err) {
@@ -125,7 +125,7 @@ export const upLoader = (
         message: 'multer error'
       });
     }
-    next();
+    // next();
   });
 };
 
@@ -154,4 +154,11 @@ export const timeForToday = (value: any) => {
   }
 
   return `${Math.floor(betweenTimeDay / 365)}년전`;
+};
+export const validateFormData = (
+  formData: FormData,
+  requiredFields: string[]
+): string[] => {
+  const missingFields = requiredFields.filter((field) => !formData.get(field));
+  return missingFields;
 };

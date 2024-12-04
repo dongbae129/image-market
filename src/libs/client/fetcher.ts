@@ -7,9 +7,9 @@ import { setAccessToken, setRestoreState } from '@reducers/user';
 
 export const newAxios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: {
-    'Content-type': 'application/json;charset=UTF-8'
-  },
+  // headers: {
+  //   'Content-type': 'application/json;charset=UTF-8'
+  // },
   withCredentials: true
 });
 newAxios.interceptors.request.use(

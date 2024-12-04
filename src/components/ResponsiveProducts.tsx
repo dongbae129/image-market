@@ -24,8 +24,8 @@ function ResponsiveProducts() {
       initialPageParam: 0,
       getNextPageParam: (lastPage, allPage) => {
         const lastPageLength = lastPage.products.length;
-        if (lastPageLength === 0 || lastPageLength < 6) return false;
-        return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
+        if (lastPageLength === 0 || lastPageLength < 3) return undefined;
+        return lastPageLength >= 3 && lastPage.products[lastPageLength - 1].id;
       }
     });
   // useInfiniteQuery({
@@ -85,7 +85,8 @@ function ResponsiveProducts() {
                         <div className="imgwrap">
                           <NextImage
                             alt=""
-                            src={`/uploads/${product.image}`}
+                            src="/localimages/emptyuser.png"
+                            // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${product.image}`}
                             // layout="fill"
                             fill={true}
                             // width={'100%'}

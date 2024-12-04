@@ -10,7 +10,7 @@ import {
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import Button from '@/components/button';
-import { UseMutateFunction } from 'react-query';
+import { UseMutateFunction } from '@tanstack/react-query';
 
 /*
  * Quill editor formats

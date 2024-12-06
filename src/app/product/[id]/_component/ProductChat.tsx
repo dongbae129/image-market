@@ -36,7 +36,7 @@ function ProductChat({ data }: ProductChatProps) {
   return (
     <>
       <div className="arrowopen">
-        <span data-testid="test">댓글: {chats?.comments.length || 0}개</span>
+        <span data-testid="test">댓글: {chats?.comments?.length || 0}개</span>
         <span
           ref={arrowRef}
           onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.9)')}
@@ -51,7 +51,7 @@ function ProductChat({ data }: ProductChatProps) {
         </span>
       </div>
       <div className="chatwrap">
-        {chats?.comments.map((comment) => (
+        {chats?.comments?.map((comment) => (
           <div data-testid="chat" key={comment?.id}>
             <div className="chatInfo">
               <div>
@@ -68,11 +68,13 @@ function ProductChat({ data }: ProductChatProps) {
         ))}
       </div>
       <style jsx>{`
-        $img_inner: 32px;
+        :root {
+          --img_inner: 32px;
+        }
 
         .chatuserimage_inner {
-          width: $img_inner;
-          height: $img_inner;
+          width: var(--img_inner);
+          height: var(--img_inner);
           margin-right: 5px;
         }
         .chatuserimage {
@@ -117,7 +119,7 @@ function ProductChat({ data }: ProductChatProps) {
               display: flex;
 
               .chatuserInfo {
-                width: calc(100% - (#{$img_inner} + 5px));
+                width: calc(100% - (var(--img_inner) + 5px));
               }
 
               .chatusername {

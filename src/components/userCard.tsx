@@ -103,7 +103,7 @@ const UserCard = () => {
         </>
       ) : (
         <>
-          <div className="flex flex-[2]">
+          <div className="flex-1">
             <Link href="/signin">
               <div className="bg-blue-200 text-center w-full flex items-center justify-center h-[80%] rounded">
                 <i className="font-bold text-xl">

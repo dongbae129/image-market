@@ -40,10 +40,11 @@ const HeadMenu: NextPage = () => {
   };
   const onValid = ({ search }: HeadSearch) => {
     // searchElementRef.current?.click();
-    router.push({
-      pathname: '/product/search',
-      query: { find: search }
-    });
+    router.push(`/product?search=${search}`);
+    // router.push({
+    //   pathname: '/product/search',
+    //   query: { find: search }
+    // });
   };
   const { data: userInfo } = useQuery<userResponse>({
     queryKey: ['userInfo'],

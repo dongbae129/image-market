@@ -36,7 +36,13 @@ export type ProductDetailType = {
     }
   };
 */
-const ProductDetail: NextPage = ({ params }) => {
+type Props = {
+  params: {
+    id: string;
+  };
+};
+const ProductDetail = ({ params }: Props) => {
+  console.log(params, 'params');
   const router = useRouter();
   // const arrowRef = useRef<HTMLSpanElement>(null);
 

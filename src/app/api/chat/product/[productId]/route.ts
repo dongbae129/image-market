@@ -8,8 +8,9 @@ type Props = {
     productId: string;
   };
 };
-export const GET = async ({ params }: Props) => {
+export const GET = async (req: NextRequest, { params }: Props) => {
   const { productId } = params;
+  console.log(params, 'product params');
   if (!productId)
     return NextResponse.json(
       {

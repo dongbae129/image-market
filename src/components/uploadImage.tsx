@@ -132,16 +132,16 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
       }
     }
     form.append('hashtag', hashtag.join(','));
-    form.append('description', '111eee');
+    form.append('description', editorValue);
     form.append('imageOk', v.image && v.image[0] ? 'true' : 'false');
     formInfo['boardtag'] = hashtag.join(',');
     formInfo['description'] = editorValue;
     if (imgRatioRef.current.length > 0)
       form.append('ratio', imgRatioRef.current);
     formInfo['ratio'] = imgRatioRef.current;
-    for (const [key, value] of form.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // for (const [key, value] of form.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
     mutate(info.url.includes('product') ? form : formInfo);
   };
   // const onDeleteBoard = () => {
@@ -170,7 +170,7 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
         <div className="upload_image">
           {!info.image ? null : info?.image && imagePreview ? (
             <label>
-              <NextImage src={imagePreview} alt="" width={200} height={200} />
+              <NextImage src={imagePreview} alt="" fill sizes="200px 200px" />
               <Input
                 label="image"
                 name="image"
@@ -197,7 +197,6 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
                 />
               </svg>
               <label htmlFor="image" className="image_label">
-                image
                 <Input
                   label="image"
                   name="image"
@@ -405,6 +404,9 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
           top: 0;
           left: 0;
           opacity: 0;
+        }
+        label {
+          position: relative;
         }
       `}</style>
     </>

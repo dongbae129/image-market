@@ -12,11 +12,7 @@ function UserImage({ user }: UserImageProps) {
     <>
       <div className="useraccountinfo">
         <div className="userimage">
-          <Image
-            src="/localimages/emptyuser.png"
-            layout="fill"
-            alt="userImage"
-          />
+          <img src="/localimages/emptyuser.png" alt="userImage" />
         </div>
         <div className="useremail">{user.email}</div>
       </div>

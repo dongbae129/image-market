@@ -13,21 +13,17 @@ function ProductImage({ product }: ProductImageProps) {
         <div className="imagewrap">
           {product && (
             <Image
-              src={
-                product.auth
-                  ? `/watermark/watermark_${product.image}`
-                  : `/uploads/${product.image}`
-              }
-              // priority={true}
-              // width={400}
-              // height={600}
-              // layout="responsive"
-              // sizes="30vw"
-              // layout="responsive"
-              // width={400}
-              // height={600}
+              // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${product.image}`}
+              src="/localimages/emptyuser.png"
+              // src={
+              //   product.auth
+              //     ? `/watermark/watermark_${product.image}`
+              //     : `/uploads/${product.image}`
+              // }
+              sizes="(max-width: 493px) 33vw"
               fill={true}
               alt={product.image}
+              priority
             />
           )}
         </div>

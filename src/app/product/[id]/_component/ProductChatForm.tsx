@@ -120,12 +120,9 @@ function ProductChatForm({ data }: ProductChatFormProps) {
         </form>
       </div>
       <style jsx>{`
-        $img_inner: 32px;
-        $img_outer: 50px;
-        $userimg-out_mgr: 8px;
         .chatuserimage_outer {
-          width: $img_outer;
-          height: $img_outer;
+          width: 50px;
+          height: 50px;
           margin-right: 8px;
         }
         .chatuserimage {
@@ -137,7 +134,7 @@ function ProductChatForm({ data }: ProductChatFormProps) {
           margin-right: 5px;
         }
         .chat-textareawrap {
-          width: calc(100% - (#{$img_outer} + #{$userimg-out_mgr}));
+          width: calc(100% - 130px);
         }
         .registerbtn_wrap {
           display: flex;

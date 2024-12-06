@@ -1,8 +1,9 @@
+'use client';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
 import { Product } from '@prisma/client';
 import { useEffect } from 'react';
 import MasonryProduct from '@components/masonryProduct';
@@ -21,9 +22,8 @@ interface InfinteProducts {
   };
 }
 const Search: NextPage = () => {
-  const router = useRouter();
-  const search = router.query.find?.toString();
-  console.log(search, 'SS');
+  const searchParams = useSearchParams();
+  const search = searchParams.get('search');
   const getSearchData = ({ pageParam = 0 }) =>
     axios
       .get(`/api/product?id=${pageParam}&search=${search}`)
@@ -41,20 +41,19 @@ const Search: NextPage = () => {
 
     hasNextPage,
     fetchNextPage,
-    isLoading,
+
     isFetchingNextPage
-  } = useInfiniteQuery<any, any, InfinteProducts>(
-    ['getSearchProducts', search],
-    getSearchData,
-    {
-      getNextPageParam: (lastPage, allPage) => {
-        const lastPageLength = lastPage.products.length;
-        if (lastPageLength === 0 || lastPageLength < 6) return false;
-        return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
-      },
-      enabled: !!search
-    }
-  );
+  } = useInfiniteQuery({
+    queryKey: ['getSearchProducts', search],
+    queryFn: getSearchData,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPage) => {
+      const lastPageLength = lastPage.products.length;
+      if (lastPageLength === 0 || lastPageLength < 3) return undefined;
+      return lastPageLength >= 3 && lastPage.products[lastPageLength - 1].id;
+    },
+    enabled: !!search
+  });
   const { ref, inView } = useInView({
     threshold: 0.3
   });

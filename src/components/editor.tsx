@@ -1,3 +1,4 @@
+'use client';
 import {
   useState,
   Dispatch,
@@ -6,21 +7,30 @@ import {
   useCallback
 } from 'react';
 
-// import 'react-quill/dist/quill.snow.css';
+import 'react-quill/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import Button from '@/components/button';
 import { UseMutateFunction } from '@tanstack/react-query';
+import ReactQuill, { ReactQuillProps } from 'react-quill';
 
 /*
  * Quill editor formats
  * See https://quilljs.com/docs/formats/
  */
 
-const QuillNoSSRWrapper = dynamic(import('react-quill'), {
-  ssr: false,
-  loading: () => <p>Loading ...</p>
-});
+const QuillNoSSRWrapper = dynamic(
+  async () => {
+    const { default: QuillComponent } = await import('react-quill');
+    const Quill = ({ ...props }) => <QuillComponent {...props} />;
+    return Quill;
+  },
+  { loading: () => <div>...loading</div>, ssr: false }
+);
+// const QuillNoSSRWrapper = dynamic(import('react-quill'), {
+//   ssr: false,
+//   loading: () => <p>Loading ...</p>
+// });
 interface EditorProps {
   mutate: UseMutateFunction<any, any, any>;
   // mutate: UseMutateFunction<UploadChatResponse, any, boardChat>;

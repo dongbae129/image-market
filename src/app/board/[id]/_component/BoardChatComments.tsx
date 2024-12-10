@@ -1,10 +1,8 @@
 import React from 'react';
-import NextImage from 'next/image';
 import { timeForToday } from '@libs/client/timeForToday';
 import Dompurify from 'dompurify';
 import { useQuery } from '@tanstack/react-query';
 import { getFetch } from '@libs/client/fetcher';
-import { useRouter } from 'next/router';
 import { Chat } from '@prisma/client';
 interface chatWithUser extends Chat {
   user: {
@@ -17,9 +15,10 @@ export interface UploadChatResponse {
   error?: string;
   message?: string;
 }
-function BoardChatComments() {
-  const { id: boardId } = useRouter().query;
-  console.log(boardId, 'boardIdboardIdboardId');
+type Props = {
+  boardId: string;
+};
+function BoardChatComments({ boardId }: Props) {
   const { data } = useQuery<UploadChatResponse>({
     queryKey: ['getChats'],
     queryFn: getFetch(`/api/chat/board/${boardId}`),
@@ -32,11 +31,7 @@ function BoardChatComments() {
         <div key={comment.id} className="comment_list" role="listitem">
           <div>
             <div className="userimage">
-              <NextImage
-                src="/localimages/emptyuser.png"
-                layout="fill"
-                alt="userImage"
-              />
+              <img src="/localimages/emptyuser.png" alt="userimage" />
             </div>
             <div>
               <div className="comment_list_name">{comment.user.name}</div>
@@ -68,6 +63,11 @@ function BoardChatComments() {
           margin-right: 5px;
           overflow: hidden;
           position: relative;
+
+          img {
+            width: 100%;
+            height: 100%;
+          }
         }
         .comment_list {
           border-bottom: 1px solid rgba(0, 0, 0, 0.16);

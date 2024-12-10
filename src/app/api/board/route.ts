@@ -1,10 +1,11 @@
 // import { dbNow, ResponseType, TokenPayload } from '@libs/server/utils';
 // import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
-// import { checkAuth } from '@libs/server/auth';
+import { checkAuth } from '@libs/server/auth';
 // // import { decode } from 'jsonwebtoken';
 // import { PostBoardInfo } from './[boardId]';
 import { NextRequest, NextResponse } from 'next/server';
+import { dbNow, TokenPayload } from '@libs/server/utils';
 
 export const GET = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
@@ -59,7 +60,92 @@ export const GET = async (req: NextRequest) => {
     );
   }
 };
-
+export const POST = async (req: NextRequest) => {
+  try {
+    const auth = checkAuth();
+    console.log(auth, 'res');
+    if (auth?.checkError) {
+      return NextResponse.json(
+        {
+          ok: false,
+          auth
+        },
+        {
+          status: 401
+        }
+      );
+    }
+    if (auth.payload) {
+      const decoded = auth.payload as TokenPayload;
+      console.log(decoded, 'decoded');
+      const body = await req.json();
+      const { title, description, boardtag } = body;
+      console.log(title, description, boardtag, 'Body');
+      if (title === '' || description === '')
+        return NextResponse.json(
+          {
+            ok: false,
+            error: 'input board informations'
+          },
+          {
+            status: 401
+          }
+        );
+      if (decoded.id) {
+        const Id = decoded.id;
+        console.log(Id, 'IID');
+        const now = dbNow();
+        const board = await client.board.create({
+          data: {
+            title,
+            description,
+            userId: Id,
+            createdAt: now,
+            updatedAt: now
+          }
+        });
+        console.log(board, 'Boardsd');
+        await client.boardHit.create({
+          data: {
+            hit: 0,
+            boardId: board.id
+          }
+        });
+        await client.boardTag.create({
+          data: {
+            boardId: board.id,
+            hashtag: boardtag
+          }
+        });
+        return NextResponse.json({
+          ok: true,
+          message: 'create the board',
+          board
+        });
+      } else
+        return NextResponse.json(
+          {
+            ok: false,
+            message: 'need to login , /api/board/index, post'
+          },
+          {
+            status: 403
+          }
+        );
+    }
+  } catch (error) {
+    console.log(error, 'board create error');
+    return NextResponse.json(
+      {
+        ok: false,
+        message: error
+      },
+      {
+        status: 500
+      }
+    );
+  }
+};
 // const Board = async (
 //   req: NextApiRequest,
 //   res: NextApiResponse<ResponseType>

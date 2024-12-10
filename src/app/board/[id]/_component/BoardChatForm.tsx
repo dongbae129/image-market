@@ -2,7 +2,6 @@ import React from 'react';
 import NextImage from 'next/image';
 import Editor from '@components/editor';
 import { getFetch, newAxios } from '@libs/client/fetcher';
-import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Chat, User } from '@prisma/client';
 interface chatWithUser extends Chat {
@@ -23,13 +22,13 @@ interface BoardUser {
   ok: boolean;
   user: User;
 }
-function BoardChatForm() {
-  const router = useRouter();
-
-  const { id: boardId } = router.query;
+type Props = {
+  boardId: string;
+};
+function BoardChatForm({ boardId }: Props) {
   const chatting = (data: boardChat) =>
     newAxios.post(`/api/chat/board/${boardId}`, data).then((res) => res.data);
-  const { mutate, isLoading } = useMutation<UploadChatResponse, any, boardChat>(
+  const { mutate, isPending } = useMutation<UploadChatResponse, any, boardChat>(
     {
       mutationFn: chatting,
 
@@ -70,7 +69,7 @@ function BoardChatForm() {
             >
               <Editor
                 mutate={mutate}
-                isLoading={isLoading}
+                isLoading={isPending}
                 btntrue={true}
                 btnActive={userInfo?.user ? false : true}
                 chatValue={''}

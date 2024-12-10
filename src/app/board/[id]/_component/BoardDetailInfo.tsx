@@ -1,6 +1,5 @@
 import { getFetch } from '@libs/client/fetcher';
 import { Board, User } from '@prisma/client';
-import { useRouter } from 'next/router';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Dompurify from 'dompurify';
@@ -16,8 +15,10 @@ interface boardDetailResponse {
     }[];
   };
 }
-function BoardDetailInfo() {
-  const boardId = useRouter().query.id;
+type Props = {
+  boardId: string;
+};
+function BoardDetailInfo({ boardId }: Props) {
   const { data: boardDetail } = useQuery<boardDetailResponse>({
     queryKey: ['getBoard'],
     queryFn: getFetch(`/api/board/${boardId}`),

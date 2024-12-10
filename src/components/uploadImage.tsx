@@ -95,7 +95,7 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
       const originalRoute = info.url.split('/')[0];
       const url = `/${originalRoute}/${routerId ? routerId : ''}`;
 
-      router.replace(url);
+      // router.replace(url);
     }
   });
 

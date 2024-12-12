@@ -16,15 +16,27 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@libs/*": ["libs/*"],
-      "@components/*": ["components/*"],
-      "@styles/*": ["styles/*"],
-      "@mocks/*": ["mocks/*"],
-      "@reducers/*": ["reducers/*"],
-      "@pages/*": ["pages/*"],
-      "@/*": ["./*"]
-    }
+      "@libs/*": ["src/libs/*"],
+      "@components/*": ["src/components/*"],
+      "@styles/*": ["src/styles/*"],
+      "@mocks/*": ["src/mocks/*"],
+      "@reducers/*": ["src/reducers/*"],
+      "@pages/*": ["src/pages/*"],
+      "@app/*": ["src/app/*"],
+      "@/*": ["src/*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

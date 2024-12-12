@@ -17,7 +17,7 @@ const BoardUpload: NextPage = () => {
   const router = useRouter();
   useEffect(() => {
     if ((data && !data?.ok) || (data && !data?.user.id)) {
-      // router.push('/board');
+      router.push('/board');
     }
   }, []);
 

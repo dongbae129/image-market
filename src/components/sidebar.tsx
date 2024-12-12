@@ -1,9 +1,11 @@
+'use client';
 import { IoMdSettings } from 'react-icons/io';
 import { FaUserAlt } from 'react-icons/fa';
 import { GrClose, GrMenu, GrLogout } from 'react-icons/gr';
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { User } from '@prisma/client';
+import useLogout from '@libs/client/logout';
 
 interface SidebarUser {
   userInfo: User;
@@ -15,6 +17,7 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
     setMenuState((prev) => !prev);
     // sidebarRef.current?.classList.toggle('open');
   };
+  const onLogout = useLogout();
 
   return (
     <div className="sidebarwrap">
@@ -38,7 +41,7 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
         </button>
       </header>
 
-      <div className={menuState ? 'container open' : 'container'}>
+      <div className={menuState ? 'mainwrap open' : 'mainwrap'}>
         <aside
           className={menuState ? 'sidebar open' : 'sidebar'}
           data-sidebar
@@ -74,15 +77,17 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
                   </div>
                 </Link>
               </li>
-              <li className="sidebar-list-item" data-icon="logout">
-                <Link href={'/logout'}>
-                  <div className="sidebar-link">
-                    <span className="sideiconwrap">
-                      <GrLogout className="sidebar-icon" size="25" />
-                    </span>
-                    <div className="hidden-sidebar">Logout</div>
-                  </div>
-                </Link>
+              <li
+                className="sidebar-list-item"
+                data-icon="logout"
+                onClick={onLogout}
+              >
+                <div className="sidebar-link">
+                  <span className="sideiconwrap">
+                    <GrLogout className="sidebar-icon" size="25" />
+                  </span>
+                  <div className="hidden-sidebar">Logout</div>
+                </div>
               </li>
               {/* <li className="sidebar-list-item">
                 <a href="#" className="sidebar-link">
@@ -229,7 +234,6 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
         </aside>
       </div>
       <style jsx>{`
-        $content_opacity: 1s;
         .sidebarwrap {
           position: fixed;
           right: 0;
@@ -282,7 +286,7 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
         .sidebar .hidden-sidebar {
           opacity: 0;
           width: 0;
-          transition: opacity $content_opacity ease-in-out;
+          transition: opacity 1s ease-in-out;
         }
 
         .sidebar.open .hidden-sidebar {
@@ -326,7 +330,7 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
           width: 100%;
         }
 
-        .container {
+        .mainwrap {
           background-color: #e9ecef;
           position: absolute;
           display: flex;
@@ -421,7 +425,7 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
 
         .sidebar .top-sidebar {
           height: 30px;
-          transition: height $content_opacity ease-in-out;
+          transition: height 1s ease-in-out;
         }
 
         .sidebar.open .top-sidebar {

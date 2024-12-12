@@ -8,7 +8,7 @@ import { ImagePanel } from './ImagePanel';
 import { MouseEvent, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Product, User } from '@prisma/client';
 import { PreventDragClick } from '@libs/client/PreventDragClick';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 
 type ImgSphereType = {
@@ -125,8 +125,8 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
         i === 0
           ? (bookOuter.rotation.x = v)
           : i === 1
-          ? (bookOuter.rotation.y = v)
-          : (bookOuter.rotation.z = v);
+            ? (bookOuter.rotation.y = v)
+            : (bookOuter.rotation.z = v);
       });
       bookOuter.scale.set(...outerScale);
       (bookOuter.material as MaterialWithColor).color.set(
@@ -144,8 +144,8 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
         i === 0
           ? (imgMesh.rotation.x = v)
           : i === 1
-          ? (imgMesh.rotation.y = v)
-          : (imgMesh.rotation.z = v);
+            ? (imgMesh.rotation.y = v)
+            : (imgMesh.rotation.z = v);
       });
       scene.add(imgMesh);
 
@@ -166,8 +166,8 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
           i === 0
             ? (textmesh.rotation.x = v)
             : i === 1
-            ? (textmesh.rotation.y = v)
-            : (textmesh.rotation.z = v);
+              ? (textmesh.rotation.y = v)
+              : (textmesh.rotation.z = v);
         });
         scene.add(textmesh);
       });

@@ -1,3 +1,4 @@
+'use client';
 import type { NextPage } from 'next';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { getFetch, newAxios } from '@libs/client/fetcher';
@@ -17,8 +18,7 @@ interface SettingForm {
   password: string;
   image: FileList;
   passwordCheck: string;
-
-  [key: string]: any;
+  // [key: string]: any;
 }
 const SettingHome: NextPage = () => {
   const [imagePreview, setImagePreview] = useState('');

@@ -1,5 +1,4 @@
-import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
+'use client';
 import { useQuery } from '@tanstack/react-query';
 import { getFetch } from '@libs/client/fetcher';
 
@@ -15,17 +14,19 @@ interface ProfileResponse {
   })[];
   user: User;
 }
-const UserProfile: NextPage = () => {
-  const router = useRouter();
+type Props = {
+  params: {
+    name: string;
+  };
+};
+const UserProfile = ({ params }: Props) => {
   const [hashtag, setHashtag] = useState(new Set<string>());
-
-  const hashtags: string[] = Array.from(hashtag);
-  console.log(router, 'router');
+  const { name } = params;
   const { data } = useQuery<ProfileResponse>({
-    queryKey: ['userInfo', router.query.name],
-    queryFn: getFetch(`/api/user/${router.query.name}`),
+    queryKey: ['userInfo', name],
+    queryFn: getFetch(`/api/user/${name}`),
 
-    enabled: !!router.query.name,
+    enabled: !!name,
     select: (res) => {
       console.log(res, 'Res');
       res.products?.forEach((tag) => {

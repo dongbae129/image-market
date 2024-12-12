@@ -1,3 +1,1 @@
--변경점-
-
-1. next.js 및 기타 패키지들 버전 업그레이드 전 저장
+migrate all libraries

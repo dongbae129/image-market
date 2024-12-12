@@ -17,6 +17,7 @@
 #image file
 /public/uploads
 /public/watermark
+/public/jsons/image-market-f1cd8-firebase-adminsdk-lfx94-04238d8822.json
 # misc
 .DS_Store
 *.pem

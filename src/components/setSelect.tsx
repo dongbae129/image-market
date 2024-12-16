@@ -3,7 +3,10 @@ import Link from 'next/link';
 interface SvgProps {
   [key: string]: any;
 }
-const SetSelect = () => {
+interface Props {
+  userId: string;
+}
+const SetSelect = ({ userId }: Props) => {
   const SvgComponent = (props: SvgProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +75,7 @@ const SetSelect = () => {
           </Link>
         </li>
         <li>
-          <Link href="/profile/settings">
+          <Link href={`/profile/settings/security/leave?userId=${userId}`}>
             <div className="svgwrap">
               <div>
                 <UserDeleteSvg />

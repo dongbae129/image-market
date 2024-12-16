@@ -63,14 +63,14 @@ const SettingHome: NextPage = () => {
   };
   return (
     <div className="pfsettingOverwrap">
-      <SetSelect />
+      <SetSelect userId={data.user.name!} />
       <div className="test">
         <div className="pfsettingwrap">
           <div className="pfsetting-myinfo">
             <div className="myinfo_img-wrap">
               <div className="myinfo_img">{data?.user?.name?.slice(0, 1)}</div>
             </div>
-            <h1>{data.user.name}님, 환영합니다</h1>
+            {/* <h1>{data.user.name}님, 환영합니다</h1> */}
           </div>
           <form onSubmit={handleSubmit(onValid)}>
             <div className="upload_image">
@@ -117,10 +117,14 @@ const SettingHome: NextPage = () => {
                   register={register('name')}
                 />
               </div>
-              <Button isLoading={false} text="수정" />
+              <div className="modify_btn-wrap">
+                <Button isLoading={false} text="수정" />
+              </div>
             </div>
           </form>
-          <Button isLoading={false} text="회원탈퇴" onClick={onDleteClick} />
+          {/* <div className="buttonwrap">
+            <Button isLoading={false} text="회원탈퇴" onClick={onDleteClick} />
+          </div> */}
         </div>
       </div>
       <style jsx>{`
@@ -175,14 +179,10 @@ const SettingHome: NextPage = () => {
           margin: auto;
           margin-top: 2rem;
           padding: 2.5rem;
-          padding-bottom: 10px;
+          padding-bottom: 2rem;
           padding-top: 2rem;
         }
-        @media (min-width: 1024px) {
-          .pfsettingwrap {
-            margin-left: min($numbers: 300px) auto;
-          }
-        }
+
         .upload_image-wrap {
           display: flex;
         }
@@ -221,6 +221,9 @@ const SettingHome: NextPage = () => {
         .upload_input {
           margin-top: 1.5rem;
           width: 300px;
+        }
+        .upload_input_inputwrap {
+          margin-bottom: 1.75rem;
         }
       `}</style>
     </div>

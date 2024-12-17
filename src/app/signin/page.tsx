@@ -86,36 +86,54 @@ const Signin: NextPage = () => {
 
   return (
     <div className="signwrap">
-      <input type="text" data-testid="abc" name="abc" />
       <div className="test">
-        <div className="sign-head">
+        <Link href="/">
+          <img
+            className="mx-auto h-12"
+            src="/localimages/emptyuser2.png"
+            alt="logo"
+          />
+        </Link>
+        <div className="mt-6 sign-head text-2xl font-bold">
           <h2 data-testid="testh">환영합니다</h2>
         </div>
         <div className="sign-login">
           <div className="sign-login-sns">
-            <span>SNS 로그인</span>
+            <span className="text-sm font-medium">SNS 로그인</span>
             <div className="sign-login-sns_main">
-              <Link href={KAKAO_AUTH_URL} className="sns_main_link">
-                <div style={{ width: '25px', height: '25px', margin: 'auto' }}>
-                  <SvgIcon svgInfo={kakao} viewBox="0 0 25 25" />
-                  {/* <RiKakaoTalkFill /> */}
-                </div>
-              </Link>
-              <Link href={'#'} className="sns_main_link">
-                <div style={{ width: '25px', height: '25px', margin: 'auto' }}>
-                  <SvgIcon svgInfo={naver} viewBox="0 0 25 25" />
-                  {/* <SiNaver /> */}
-                </div>
-              </Link>
-              <Link href={'#'} className="sns_main_link">
-                <div style={{ width: '25px', height: '25px', margin: 'auto' }}>
-                  <SvgIcon svgInfo={google} viewBox="0 0 48 48" />
-                </div>
-                {/* <FcGoogle size={25} /> */}
-              </Link>
+              <span className="sns_wrap sns_main_link">
+                <Link href={KAKAO_AUTH_URL}>
+                  <div
+                    style={{ width: '25px', height: '25px', margin: 'auto' }}
+                  >
+                    <SvgIcon svgInfo={kakao} viewBox="0 0 25 25" />
+                    {/* <RiKakaoTalkFill /> */}
+                  </div>
+                </Link>
+              </span>
+              <span className="sns_wrap sns_main_link">
+                <Link href={'#'}>
+                  <div
+                    style={{ width: '25px', height: '25px', margin: 'auto' }}
+                  >
+                    <SvgIcon svgInfo={naver} viewBox="0 0 25 25" />
+                    {/* <SiNaver /> */}
+                  </div>
+                </Link>
+              </span>
+              <span className="sns_wrap sns_main_link">
+                <Link href={'#'}>
+                  <div
+                    style={{ width: '25px', height: '25px', margin: 'auto' }}
+                  >
+                    <SvgIcon svgInfo={google} viewBox="0 0 48 48" />
+                  </div>
+                  {/* <FcGoogle size={25} /> */}
+                </Link>
+              </span>
               {/* <a href={KAKAO_AUTH_URL}>
               <button>kakaoLogin</button>
-            </a> */}
+            </a> 'Tailwind CSS IntelliSense', 'ESLint', 'styled-jsx Language Server', 'Auto Import - ES6, TS, JSX, TSX''(구성)에서 코드 동작을 가져오는 중입니다.*/}
             </div>
             <div className="sign-login-local_text">
               <span>아이디로 로그인</span>
@@ -142,7 +160,7 @@ const Signin: NextPage = () => {
               register={register('password', { required: true })}
               required
             />
-            <div>
+            <div className="mt-8">
               <Button isLoading={isPending} text="LOGIN" />
             </div>
           </form>

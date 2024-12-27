@@ -10,9 +10,16 @@ import { dbNow, TokenPayload } from '@libs/server/utils';
 export const GET = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
   const searchQuery = searchParams.get('search');
-  console.log(searchQuery, 'board query');
+  const id = searchParams.get('id');
+
+  console.log(searchQuery, id, 'board query');
+  let lastId: number | null = 0;
+  lastId = id ? +id.toString() : null;
   try {
     const boards = await client.board.findMany({
+      take: 4,
+      skip: lastId ? 1 : 0,
+      ...(lastId && { cursor: { id: lastId } }),
       where: {
         ...(searchQuery
           ? {
@@ -33,6 +40,11 @@ export const GET = async (req: NextRequest) => {
             hit: true
           }
         },
+        boardTag: {
+          select: {
+            hashtag: true
+          }
+        },
         _count: {
           select: {
             boardChat: true
@@ -43,9 +55,11 @@ export const GET = async (req: NextRequest) => {
         updatedAt: 'desc'
       }
     });
+    const boardCount = await client.board.count();
     return NextResponse.json({
       ok: true,
-      boards
+      boards,
+      boardCount
     });
   } catch (error) {
     console.log(error, 'boards get error');

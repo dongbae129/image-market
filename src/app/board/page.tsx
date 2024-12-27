@@ -8,6 +8,7 @@ import { useState } from 'react';
 import BoardList from './_component/BoardList';
 import BoardHead from './_component/BoardHead';
 import { GetComponentData } from './_lib/getComponentData';
+import BoardPaging from '@app/board/_component/BoardPaging';
 interface BoardWithUser extends Board {
   user: User;
   boardHit: {
@@ -24,16 +25,23 @@ interface BoardResponse {
 
 const Boards: NextPage = () => {
   const [boardSearch, setBoardSearch] = useState<string>('');
-  const { isLoading, error, isSuccess } =
-    GetComponentData<BoardResponse>(boardSearch);
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = 100;
+  // const { isLoading, error, isSuccess } =
+  //   GetComponentData<BoardResponse>(boardSearch);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error...</div>;
+  // if (isLoading) return <div>Loading...</div>;
+  // if (error) return <div>Error...</div>;
 
   return (
     <div className="board">
       <BoardHead boardSearch={boardSearch} setBoardSearch={setBoardSearch} />
-      {isSuccess && <BoardList boardSearch={boardSearch} />}
+      {<BoardList boardSearch={boardSearch} />}
+      <BoardPaging
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
       <style jsx>{`
         .board {
           width: 60%;

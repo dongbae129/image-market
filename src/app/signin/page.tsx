@@ -91,22 +91,26 @@ const Signin: NextPage = () => {
         <SnsSign snsMessage="로그인" separationMessage="아이디로 로그인" />
         <div className="sign-login">
           <form onSubmit={handleSubmit(onValid)}>
-            <Input
-              label="id"
-              name="userId"
-              type="text"
-              register={register('userId', { required: true })}
-              required
-            />
+            <div className="mt-1 mb-3">
+              <Input
+                label="id"
+                name="userId"
+                type="text"
+                register={register('userId', { required: true })}
+                required
+              />
+            </div>
             {/* <input type="text" name="abc" /> */}
-            <Input
-              label="password"
-              name="password"
-              type="password"
-              register={register('password', { required: true })}
-              required
-            />
-            <div className="mt-8">
+            <div className="mt-1 mb-3">
+              <Input
+                label="password"
+                name="password"
+                type="password"
+                register={register('password', { required: true })}
+                required
+              />
+            </div>
+            <div className="mt-8 h-10">
               <Button isLoading={isPending} text="LOGIN" />
             </div>
           </form>

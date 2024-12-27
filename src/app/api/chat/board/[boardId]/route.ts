@@ -63,14 +63,14 @@ export const POST = async (req: NextRequest, { params }: Props) => {
       ok: false,
       message: 'not comments'
     });
-  const searchParams = req.nextUrl.searchParams;
-  const chatQuery = searchParams.get('chat');
+  const body = await req.json();
+  const chatQuery = body.chat;
   if (!chatQuery || chatQuery === '')
     return NextResponse.json({
       ok: false,
       message: 'need to any chat'
     });
-  console.log(boardId, 'BO!!', req.body, 'BOAA');
+
   const auth = checkAuth();
   if (auth.checkError)
     return NextResponse.json(

@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import Link from 'next/link';
 import Button from '@components/button';
-import NextImage from 'next/image';
+
 interface boardDetailResponse {
   ok: boolean;
   board: Board & {
@@ -39,12 +39,7 @@ function BoardUserInfo({ boardId }: Props) {
       <div className="userwrap">
         <div className="useraccountinfo">
           <div className="userimage">
-            <NextImage
-              src="/localimages/emptyuser.png"
-              fill
-              alt="userImage"
-              sizes="40px 40px"
-            />
+            <img src="/localimages/emptyuser2.png" alt="avt" />
           </div>
           <div className="userinfo">
             <span>{boardDetail?.board?.user?.email}</span>

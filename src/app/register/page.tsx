@@ -62,34 +62,42 @@ const Register: NextPage = () => {
         separationMessage="회원가입에 필요한 기본정보를 입력해주세요."
       />
       <form onSubmit={handleSubmit(onValid)}>
-        <Input
-          label="name"
-          name="name"
-          type="text"
-          register={register('name', { required: true })}
-          required
-        />
-        <Input
-          label="id"
-          name="userId"
-          type="text"
-          register={register('userId', { required: true })}
-          required
-        />
-        <Input
-          label="password"
-          name="password"
-          type="password"
-          register={register('password', { required: true })}
-          required
-        />
-        <Input
-          label="email"
-          name="email"
-          type="email"
-          register={register('email', { required: true })}
-          required
-        />
+        <div className="mt-1 mb-3">
+          <Input
+            label="name"
+            name="name"
+            type="text"
+            register={register('name', { required: true })}
+            required
+          />
+        </div>
+        <div className="mt-1 mb-3">
+          <Input
+            label="id"
+            name="userId"
+            type="text"
+            register={register('userId', { required: true })}
+            required
+          />
+        </div>
+        <div className="mt-1 mb-3">
+          <Input
+            label="password"
+            name="password"
+            type="password"
+            register={register('password', { required: true })}
+            required
+          />
+        </div>
+        <div className="mt-1 mb-3">
+          <Input
+            label="email"
+            name="email"
+            type="email"
+            register={register('email', { required: true })}
+            required
+          />
+        </div>
         {errors.formErrors ? <span>{errors.formErrors.message}</span> : null}
         <div className="mt-8">
           <Button isLoading={signupMutate.isPending} text="회원가입" />

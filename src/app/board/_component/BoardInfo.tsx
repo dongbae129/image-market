@@ -3,19 +3,21 @@ import Link from 'next/link';
 import React from 'react';
 import { BiCommentDetail } from 'react-icons/bi';
 import { GrView } from 'react-icons/gr';
-import { BoardWithUser } from './BoardList';
-import DOMPurify from 'dompurify';
+import { BoardWithUser } from './BoardContainer';
+// import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
-type BoardInfoProps = {
+type BoardProps = {
   board: BoardWithUser;
 };
-function BoardInfo({ board }: BoardInfoProps) {
+
+function BoardInfo({ board }: BoardProps) {
   return (
     <>
       <div>
         <div className="w-16 h-16 border-gray-400 border rounded-md text-center pt-4 leading-4">
           <span className="text-gray-500">답변</span>
-          <div className="mt-1">{board._count.boardChat}</div>
+          <div className="mt-1">{board?._count.boardChat}</div>
         </div>
       </div>
       <div className="board-list__main">
@@ -24,30 +26,30 @@ function BoardInfo({ board }: BoardInfoProps) {
             <img src="localimages/emptyuser3.png" alt="avatar" />
           </Link>
           <Link href={'#'}>
-            <div className="t_h">{board.user.name}</div>
+            <div className="t_h">{board?.user.name}</div>
           </Link>
           <span className="board-list__howmanytime">
             {timeForToday(
-              board.createdAt
+              board?.createdAt
                 .toString()
-                .slice(0, board.createdAt.toString().indexOf('.'))
+                .slice(0, board?.createdAt.toString().indexOf('.'))
             )}
           </span>
         </div>
-        <Link href={`/board/${board.id}`} className="mt-2">
+        <Link href={`/board/${board?.id}`} className="mt-2">
           <div className="flex flex-col gap-y-3">
             <div className="board-list__title font-semibold text-lg text-gray-900 t_h">
-              {board.title}
+              {board?.title}
             </div>
             <div
               className="t_h line-clamp-2 text-sm text-gray-500 font-normal"
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(board?.description)
+                __html: DOMPurify.sanitize(board.description)
               }}
             />
             <div>
-              {board.boardTag[0].hashtag.length > 0 &&
-                board.boardTag[0].hashtag.split(',').map((hashtag, i) => (
+              {board?.boardTag[0].hashtag.length > 0 &&
+                board?.boardTag[0].hashtag.split(',').map((hashtag, i) => (
                   <span className="hashtag" key={i} role="hashtag">
                     <span>#</span>
                     <span>{hashtag}</span>
@@ -62,13 +64,13 @@ function BoardInfo({ board }: BoardInfoProps) {
           <span>
             <GrView size={20} />
           </span>
-          <span>{board.boardHit.hit}</span>
+          <span>{board?.boardHit.hit}</span>
         </div>
         <div>
           <span>
             <BiCommentDetail size={20} />
           </span>
-          <span>{board._count.boardChat}</span>
+          <span>{board?._count.boardChat}</span>
         </div>
       </div>
 

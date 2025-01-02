@@ -1,53 +1,24 @@
-'use client';
 import type { NextPage } from 'next';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient
+} from '@tanstack/react-query';
+import { getBoardsServer } from '@app/board/_lib/getBoardsServer';
+import BoardContainer from '@app/board/_component/BoardContainer';
 
-import { Board, User } from '@prisma/client';
-
-import { useState } from 'react';
-
-import BoardList from './_component/BoardList';
-import BoardHead from './_component/BoardHead';
-import { GetComponentData } from './_lib/getComponentData';
-import BoardPaging from '@app/board/_component/BoardPaging';
-interface BoardWithUser extends Board {
-  user: User;
-  boardHit: {
-    hit: number;
-  };
-  _count: {
-    boardChat: number;
-  };
-}
-interface BoardResponse {
-  ok: boolean;
-  boards: BoardWithUser[];
-}
-
-const Boards: NextPage = () => {
-  const [boardSearch, setBoardSearch] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 100;
-  // const { isLoading, error, isSuccess } =
-  //   GetComponentData<BoardResponse>(boardSearch);
-
-  // if (isLoading) return <div>Loading...</div>;
-  // if (error) return <div>Error...</div>;
-
+const Boards: NextPage = async () => {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ['boards', 1, ''],
+    queryFn: getBoardsServer
+  });
+  const dehydratedState = dehydrate(queryClient);
   return (
-    <div className="board">
-      <BoardHead boardSearch={boardSearch} setBoardSearch={setBoardSearch} />
-      {<BoardList boardSearch={boardSearch} />}
-      <BoardPaging
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
-      <style jsx>{`
-        .board {
-          width: 60%;
-          margin: auto;
-        }
-      `}</style>
+    <div className="board w-[60%] m-auto">
+      <HydrationBoundary state={dehydratedState}>
+        <BoardContainer />
+      </HydrationBoundary>
     </div>
   );
 };

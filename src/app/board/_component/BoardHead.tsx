@@ -1,32 +1,44 @@
+'use client';
 import Button from '@components/button';
 import Input from '@components/input';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { IoIosSearch } from 'react-icons/io';
 import { GetComponentData } from '../_lib/getComponentData';
 import { useQuery } from '@tanstack/react-query';
-import { BoardWithUser } from '@app/board/_component/BoardList';
+import { BoardWithUser } from '@app/board/_component/BoardContainer';
+import { useRouter } from 'next/navigation';
 
 type BoardSearch = {
   search: string;
 };
 type BoardHeadProps = {
+  setBoardSearch: (search: string) => void;
+  setCurrentPage: (page: number) => void;
+  currentPage: number;
   boardSearch: string;
-  setBoardSearch: Dispatch<SetStateAction<string>>;
 };
 interface BoardResponse {
   ok: boolean;
   boards: BoardWithUser[];
   boardCount: number;
 }
-function BoardHead({ boardSearch, setBoardSearch }: BoardHeadProps) {
-  // const { isLoading } = GetComponentData(boardSearch);
+function BoardHead({
+  setBoardSearch,
+  setCurrentPage,
+  currentPage,
+  boardSearch
+}: BoardHeadProps) {
+  const router = useRouter();
+
   const { register, handleSubmit } = useForm<BoardSearch>();
   const onValid = ({ search }: BoardSearch) => {
     // if (isLoading) return;
     console.log(search);
     setBoardSearch(search);
+    setCurrentPage(1);
+    router.push(`?page=1${search && `&search=${search}`}`);
     // mutate({ search });
   };
   // const { data } = GetComponentData<BoardResponse>(boardSearch);
@@ -60,9 +72,8 @@ function BoardHead({ boardSearch, setBoardSearch }: BoardHeadProps) {
               name="search"
               type="text"
               paddingleft="3rem"
-              register={register('search', { required: true })}
+              register={register('search')}
               classame="search__input"
-              required
             />
             <div className="search__button">
               <IoIosSearch size={'100%'} strokeWidth={2} />

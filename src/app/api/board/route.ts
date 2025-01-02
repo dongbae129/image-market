@@ -12,14 +12,26 @@ export const GET = async (req: NextRequest) => {
   const searchQuery = searchParams.get('search');
   const id = searchParams.get('id');
 
-  console.log(searchQuery, id, 'board query');
   let lastId: number | null = 0;
   lastId = id ? +id.toString() : null;
+
   try {
+    if (!lastId)
+      return NextResponse.json(
+        {
+          ok: false
+        },
+        {
+          status: 404
+        }
+      );
+    const takeCount = 2;
+    const skip = (lastId - 1) * takeCount;
     const boards = await client.board.findMany({
-      take: 4,
-      skip: lastId ? 1 : 0,
-      ...(lastId && { cursor: { id: lastId } }),
+      take: takeCount,
+      skip: skip,
+      // skip: lastId ? takeCount * lastId : 0,
+      // ...(lastId && { cursor: { id: takeCount * lastId } }),
       where: {
         ...(searchQuery
           ? {
@@ -55,7 +67,17 @@ export const GET = async (req: NextRequest) => {
         updatedAt: 'desc'
       }
     });
-    const boardCount = await client.board.count();
+    const boardCount = await client.board.count({
+      where: {
+        ...(searchQuery
+          ? {
+              title: {
+                contains: searchQuery.toString()
+              }
+            }
+          : {})
+      }
+    });
     return NextResponse.json({
       ok: true,
       boards,

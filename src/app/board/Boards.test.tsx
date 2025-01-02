@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { useQuery } from '@tanstack/react-query';
 import BoardHead from './_component/BoardHead';
 import userEvent from '@testing-library/user-event';
-import BoardList from './_component/BoardList';
+import BoardList from './_component/BoardContainer';
 
 jest.mock('@tanstack/react-query', () => ({
   useQuery: jest.fn()

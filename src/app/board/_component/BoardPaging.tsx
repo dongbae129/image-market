@@ -16,7 +16,7 @@ export default function Pagination({
   setCurrentPage
 }: PaginationProps) {
   const router = useRouter();
-  const boardShowCount = 2;
+  const boardShowCount = Number(process.env.NEXT_PUBLIC_POST_COUNT);
   const total = Math.ceil(totalPages / boardShowCount);
 
   console.log(totalPages, 'totalPages');

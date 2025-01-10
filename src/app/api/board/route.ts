@@ -25,8 +25,9 @@ export const GET = async (req: NextRequest) => {
           status: 404
         }
       );
-    const takeCount = 2;
+    const takeCount = Number(process.env.NEXT_PUBLIC_POST_COUNT);
     const skip = (lastId - 1) * takeCount;
+    console.log(lastId, 'lastId');
     const boards = await client.board.findMany({
       take: takeCount,
       skip: skip,
@@ -64,7 +65,7 @@ export const GET = async (req: NextRequest) => {
         }
       },
       orderBy: {
-        updatedAt: 'desc'
+        createdAt: 'desc'
       }
     });
     const boardCount = await client.board.count({

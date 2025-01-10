@@ -53,6 +53,7 @@ function BoardContainer() {
         setCurrentPage={setCurrentPage}
         currentPage={currentPage}
         boardSearch={boardSearch}
+        totalPage={data?.boardCount}
       />
       <BoardList boards={data?.boards} />
       <BoardPaging

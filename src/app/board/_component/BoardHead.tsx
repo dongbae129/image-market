@@ -18,6 +18,7 @@ type BoardHeadProps = {
   setCurrentPage: (page: number) => void;
   currentPage: number;
   boardSearch: string;
+  totalPage: number | undefined;
 };
 interface BoardResponse {
   ok: boolean;
@@ -28,19 +29,20 @@ function BoardHead({
   setBoardSearch,
   setCurrentPage,
   currentPage,
-  boardSearch
+  totalPage = 10
 }: BoardHeadProps) {
   const router = useRouter();
+  const boardShowCount = Number(process.env.NEXT_PUBLIC_POST_COUNT);
 
   const { register, handleSubmit } = useForm<BoardSearch>();
   const onValid = ({ search }: BoardSearch) => {
-    // if (isLoading) return;
     console.log(search);
     setBoardSearch(search);
     setCurrentPage(1);
     router.push(`?page=1${search && `&search=${search}`}`);
     // mutate({ search });
   };
+  const total = Math.ceil(totalPage / boardShowCount);
   // const { data } = GetComponentData<BoardResponse>(boardSearch);
   return (
     <>
@@ -81,6 +83,9 @@ function BoardHead({
           </form>
         </div>
         <div className="board__pagecount">
+          <span>
+            {currentPage} / {total} 페이지
+          </span>
           {/* {data?.boardCount ? `1/${Math.ceil(data?.boardCount / 5)}` : '0/0'} */}
         </div>
       </div>
@@ -103,7 +108,6 @@ function BoardHead({
             height: 25px;
           }
           .board__pagecount {
-            border: 1px solid black;
             width: 100px;
             height: 90%;
           }

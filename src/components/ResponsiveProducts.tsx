@@ -10,11 +10,19 @@ import { useInView } from 'react-intersection-observer';
 
 function ResponsiveProducts() {
   const [divWidth, setDivWidth] = useState(0);
-  const getProducts = ({ pageParam = 0 }) =>
-    newAxios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/api/product?id=${pageParam}`)
-      .then((res) => res.data);
-
+  // const getProducts = ({ pageParam = 0 }) =>
+  //   newAxios
+  //     .get(`${process.env.NEXT_PUBLIC_API_URL}/api/product?id=${pageParam}`)
+  //     .then((res) => res.data);
+  const getProducts = async ({ pageParam = 0 }) => {
+    const data = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/product?id=${pageParam}`,
+      {
+        cache: 'no-store'
+      }
+    );
+    return data.json();
+  };
   const countRef = useRef<HTMLDivElement>(null);
 
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =

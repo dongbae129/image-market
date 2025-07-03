@@ -69,6 +69,11 @@ export const GET = async (req: NextRequest, { params }: Props) => {
     console.error(error, 'getProductError');
   }
 };
+export const PUT = async (req) => {
+  return NextResponse.json({
+    message: '???'
+  });
+};
 // const Product = async (
 //   req: NextApiRequest,
 //   res: NextApiResponse<ResponseType>

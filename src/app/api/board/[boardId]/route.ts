@@ -113,12 +113,11 @@ export const POST = async (req: NextRequest, { params }: Props) => {
       }
     );
   }
-  const { searchParams } = new URL(req.url);
-  const paramsObject = Object.fromEntries(searchParams.entries());
-  const { title, description, boardtag } = paramsObject;
+  const body = await req.json();
+  const { title, description, boardtag } = body;
   const { boardId } = params;
 
-  if (!boardId)
+  if (!boardId || !title || !description)
     return NextResponse.json(
       {
         ok: false,

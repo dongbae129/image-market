@@ -20,25 +20,24 @@ type Props = {
   };
 };
 const UserProfile = ({ params }: Props) => {
-  const [hashtag, setHashtag] = useState(new Set<string>());
+  // const [hashtag, setHashtag] = useState(new Set<string>());
   const { name } = params;
   const { data } = useQuery<ProfileResponse>({
     queryKey: ['userInfo', name],
     queryFn: getFetch(`/api/user/${name}`),
 
-    enabled: !!name,
-    select: (res) => {
-      console.log(res, 'Res');
-      res.products?.forEach((tag) => {
-        tag.hashtag?.hashtag
-          .split(',')
-          .forEach((v) => setHashtag((prev) => prev.add(v)));
-      });
-      return res;
-    }
+    enabled: !!name
+    // select: (res) => {
+    //   console.log(res, 'Res');
+    //   res.products?.forEach((tag) => {
+    //     tag.hashtag?.hashtag
+    //       .split(',')
+    //       .forEach((v) => setHashtag((prev) => prev.add(v)));
+    //   });
+    //   return res;
+    // }
     // staleTime: 1000 * 60
   });
-  console.log(data, 'data');
 
   return (
     <div className="profile-wrap">

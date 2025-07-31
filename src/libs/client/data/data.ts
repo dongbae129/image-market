@@ -9,7 +9,8 @@ export const labelOb: LabelType = {
   id: '아이디',
   prevPassword: '현재비밀번호',
   password: '비밀번호',
-  passwordCheck: '비밀번호 확인',
+  password_change: '새 비밀번호',
+  passwordCheck: '새 비밀번호 확인',
   productAuth: '유료',
   hash: '태그'
 };

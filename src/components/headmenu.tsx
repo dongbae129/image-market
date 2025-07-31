@@ -59,7 +59,7 @@ const HeadMenu: NextPage = () => {
           <span className="golinkinhead">HOME</span>
         </Link>
 
-        <Link href={'/board'}>
+        <Link href={'/board?id=1'}>
           <span className="golinkinhead">BOARD</span>
         </Link>
       </div>

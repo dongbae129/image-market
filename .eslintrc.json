@@ -26,7 +26,9 @@
       {
         "endOfLine": "auto"
       }
-    ]
+    ],
+    "@next/next/no-img-element": "off"
+
     // "arrow-body-style": "off",
     // "prefer-arrow-callback": "off",
     // "react/react-in-jsx-scope": "off",

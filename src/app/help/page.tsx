@@ -1,3 +1,4 @@
+'use client';
 import Button from '@components/button';
 import Input from '@components/input';
 import React, { useState } from 'react';
@@ -40,8 +41,8 @@ function FindAccount() {
                 <div>
                   <NextImage
                     src={'/localimages/emptyuser.png'}
-                    height="48px"
-                    width="48px"
+                    height={48}
+                    width={48}
                   />
                 </div>
               </Link>

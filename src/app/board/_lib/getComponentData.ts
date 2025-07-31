@@ -5,7 +5,7 @@ export const GetComponentData = <T>(boardSearch: string) => {
   return useQuery<T>({
     queryKey: ['boards', boardSearch],
     queryFn: getFetch(
-      `/api/board${boardSearch === '' ? '' : '?search=' + boardSearch}`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/board${boardSearch === '' ? '' : '?search=' + boardSearch}`
     ),
 
     staleTime: 60000

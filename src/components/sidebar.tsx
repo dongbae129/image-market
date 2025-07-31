@@ -388,6 +388,7 @@ const Sidebar = ({ userInfo }: SidebarUser) => {
         .sidebar-list-item {
           position: relative;
           width: 100%;
+          cursor: pointer;
         }
 
         .sidebar-list-item.active {

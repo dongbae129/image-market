@@ -67,8 +67,6 @@ const Input = ({
         }
         .input-div {
           height: 100%;
-          margin-top: 0.25rem;
-          margin-bottom: 1rem;
         }
         label {
           font-weight: 500;

@@ -1,5 +1,4 @@
 import React from 'react';
-import NextImage from 'next/image';
 import Editor from '@components/editor';
 import { getFetch, newAxios } from '@libs/client/fetcher';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -53,11 +52,7 @@ function BoardChatForm({ boardId }: Props) {
       <div className="chatformwrap">
         <div className="chatform">
           <div className="userimage">
-            <NextImage
-              src="/localimages/emptyuser.png"
-              layout="fill"
-              alt="userImage"
-            />
+            <img src="/localimages/emptyuser2.png" alt="avt" />
           </div>
           <div className="chatinput">
             <div

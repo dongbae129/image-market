@@ -21,11 +21,10 @@ const Button = ({
           background-color: ${color || '#228be6'};
           color: ${color ? '#000' : '#fff'};
           border: none;
-          padding: 0.5rem;
           width: 100%;
+          height: 100%;
           min-width: 90px;
           font-weight: 600;
-          font-size: 1.25rem;
           border-radius: 4px;
           letter-spacing: 2px;
           :hover:not(:disabled) {

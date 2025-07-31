@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { userResponse } from '@components/headmenu';
+import SnsSign from '@components/snsSign';
 
 interface RegisterForm {
   name: string;
@@ -56,44 +57,57 @@ const Register: NextPage = () => {
 
   return (
     <div className="registerwrap">
-      <h2>회원가입</h2>
+      <SnsSign
+        snsMessage="회원가입"
+        separationMessage="회원가입에 필요한 기본정보를 입력해주세요."
+      />
       <form onSubmit={handleSubmit(onValid)}>
-        <Input
-          label="name"
-          name="name"
-          type="text"
-          register={register('name', { required: true })}
-          required
-        />
-        <Input
-          label="id"
-          name="userId"
-          type="text"
-          register={register('userId', { required: true })}
-          required
-        />
-        <Input
-          label="password"
-          name="password"
-          type="password"
-          register={register('password', { required: true })}
-          required
-        />
-        <Input
-          label="email"
-          name="email"
-          type="email"
-          register={register('email', { required: true })}
-          required
-        />
+        <div className="mt-1 mb-3">
+          <Input
+            label="name"
+            name="name"
+            type="text"
+            register={register('name', { required: true })}
+            required
+          />
+        </div>
+        <div className="mt-1 mb-3">
+          <Input
+            label="id"
+            name="userId"
+            type="text"
+            register={register('userId', { required: true })}
+            required
+          />
+        </div>
+        <div className="mt-1 mb-3">
+          <Input
+            label="password"
+            name="password"
+            type="password"
+            register={register('password', { required: true })}
+            required
+          />
+        </div>
+        <div className="mt-1 mb-3">
+          <Input
+            label="email"
+            name="email"
+            type="email"
+            register={register('email', { required: true })}
+            required
+          />
+        </div>
         {errors.formErrors ? <span>{errors.formErrors.message}</span> : null}
-        <Button isLoading={signupMutate.isPending} text="회원가입" />
+        <div className="mt-8">
+          <Button isLoading={signupMutate.isPending} text="회원가입" />
+        </div>
       </form>
       <style jsx>{`
         .registerwrap {
           max-width: 28rem;
           margin: auto;
-          margin-top: 8rem;
+          margin-top: 4rem;
         }
         h2 {
           text-align: center;

@@ -1,13 +1,13 @@
-import { TokenPayload, isLogedIn, upLoader } from '@libs/server/utils';
+// import { TokenPayload, isLogedIn, upLoader } from '@libs/server/utils';
 import client from '@libs/server/client';
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export const config = {
-  api: {
-    bodyParser: false
-  }
-};
+// export const config = {
+//   api: {
+//     bodyParser: false
+//   }
+// };
 
 type Props = {
   params: {

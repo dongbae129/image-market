@@ -1,3 +1,4 @@
+'use client';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -40,9 +41,13 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
   const getImageMesh = (image: string) => {
     const width = 0.4;
     const height = 0.4;
+    console.log(image, 'image');
     const planegeo = new THREE.PlaneGeometry(width, height);
     const planemat = new THREE.MeshStandardMaterial({
-      map: new THREE.TextureLoader().load(`/uploads/${image}`)
+      map: new THREE.TextureLoader().load(
+        '/uploads/1732169291612_20241120_115124.jpg'
+        // `${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${image}`
+      )
       // side: DoubleSide,
       // color: "red",
     });
@@ -379,8 +384,9 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
         const planemat = new THREE.MeshStandardMaterial({
           map: new THREE.TextureLoader().load(
             user.image
-              ? `/uploads/${user.image}`
-              : '/uploads/이미지21670169826661.jpg'
+              ? '/uploads/1732169291612_20241120_115124.jpg'
+              : // ? `${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${user.image}`
+                '/localimages/emptyuser2.png'
             // user.image || '/uploads/이미지21670169826661.jpg'
           ),
           side: THREE.DoubleSide
@@ -421,8 +427,9 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
           imageSrc:
             // i < 213 ? `/uploads/0${Math.ceil(Math.random() * 5)}.jpg` : null,
             i / 3 < products.length
-              ? `/uploads/${products[i / 3].image}`
-              : null,
+              ? `/uploads/1732169291612_20241120_115124.jpg`
+              : // ? `${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${products[i / 3].image}`
+                null,
           x: spherePositionArray[i],
           y: spherePositionArray[i + 1],
           z: spherePositionArray[i + 2]

@@ -16,6 +16,7 @@ import SvgIcon from '@components/svgIcon';
 import { newAxios } from '@libs/client/fetcher';
 import store from '@reducers/store';
 import { useState } from 'react';
+import SnsSign from '@components/snsSign';
 
 interface SignInForm {
   userId: string;
@@ -86,63 +87,30 @@ const Signin: NextPage = () => {
 
   return (
     <div className="signwrap">
-      <input type="text" data-testid="abc" name="abc" />
       <div className="test">
-        <div className="sign-head">
-          <h2 data-testid="testh">환영합니다</h2>
-        </div>
+        <SnsSign snsMessage="로그인" separationMessage="아이디로 로그인" />
         <div className="sign-login">
-          <div className="sign-login-sns">
-            <span>SNS 로그인</span>
-            <div className="sign-login-sns_main">
-              <Link href={KAKAO_AUTH_URL} className="sns_main_link">
-                <div style={{ width: '25px', height: '25px', margin: 'auto' }}>
-                  <SvgIcon svgInfo={kakao} viewBox="0 0 25 25" />
-                  {/* <RiKakaoTalkFill /> */}
-                </div>
-              </Link>
-              <Link href={'#'} className="sns_main_link">
-                <div style={{ width: '25px', height: '25px', margin: 'auto' }}>
-                  <SvgIcon svgInfo={naver} viewBox="0 0 25 25" />
-                  {/* <SiNaver /> */}
-                </div>
-              </Link>
-              <Link href={'#'} className="sns_main_link">
-                <div style={{ width: '25px', height: '25px', margin: 'auto' }}>
-                  <SvgIcon svgInfo={google} viewBox="0 0 48 48" />
-                </div>
-                {/* <FcGoogle size={25} /> */}
-              </Link>
-              {/* <a href={KAKAO_AUTH_URL}>
-              <button>kakaoLogin</button>
-            </a> */}
-            </div>
-            <div className="sign-login-local_text">
-              <span>아이디로 로그인</span>
-            </div>
-          </div>
-          {/* <span onClick={() => router.push('/register')}>signup test</span> */}
-          {/* <Link href="/register">
-            <div>signup test</div>
-          </Link> */}
-
           <form onSubmit={handleSubmit(onValid)}>
-            <Input
-              label="id"
-              name="userId"
-              type="text"
-              register={register('userId', { required: true })}
-              required
-            />
+            <div className="mt-1 mb-3">
+              <Input
+                label="id"
+                name="userId"
+                type="text"
+                register={register('userId', { required: true })}
+                required
+              />
+            </div>
             {/* <input type="text" name="abc" /> */}
-            <Input
-              label="password"
-              name="password"
-              type="password"
-              register={register('password', { required: true })}
-              required
-            />
-            <div>
+            <div className="mt-1 mb-3">
+              <Input
+                label="password"
+                name="password"
+                type="password"
+                register={register('password', { required: true })}
+                required
+              />
+            </div>
+            <div className="mt-8 h-10">
               <Button isLoading={isPending} text="LOGIN" />
             </div>
           </form>
@@ -154,48 +122,6 @@ const Signin: NextPage = () => {
           max-width: 28rem;
           margin: auto;
           margin-top: 8rem;
-        }
-        .sign-head {
-          text-align: center;
-        }
-        .sign-login-sns > span {
-          font-weight: 500;
-          line-height: 1.25rem;
-        }
-        .sign-login-sns_main {
-          margin-top: 0.5rem;
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 0.75rem;
-        }
-        .sns_main_link {
-          box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-          text-align: center;
-          border-radius: 5px;
-          padding: 0.5rem;
-        }
-        .sign-login-local_text {
-          display: flex;
-          justify-content: center;
-          margin-top: 1.75rem;
-          position: relative;
-          > span {
-            background-color: white;
-            color: rgba(0, 0, 0, 0.45);
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-            font-weight: 600;
-          }
-          > span::before {
-            content: '';
-            position: absolute;
-
-            z-index: -1;
-            width: 100%;
-            top: 50%;
-            left: 0;
-            border-top: 1px solid rgba(0, 0, 0, 0.16);
-          }
         }
         form {
           margin-top: 2rem;

@@ -1,6 +1,6 @@
 'use client';
-import Button from '@components/button';
-import Input from '@components/input';
+import Button from '@app/_components/button';
+import Input from '@app/_components/input';
 import { User } from '@prisma/client';
 import axios from 'axios';
 import type { NextPage } from 'next';
@@ -8,8 +8,8 @@ import type { NextPage } from 'next';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { userResponse } from '@components/headmenu';
-import SnsSign from '@components/snsSign';
+import { userResponse } from '@app/_components/headmenu';
+import SnsSign from '@app/_components/snsSign';
 
 interface RegisterForm {
   name: string;

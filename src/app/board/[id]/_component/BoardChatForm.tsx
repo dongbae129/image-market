@@ -1,5 +1,5 @@
 import React from 'react';
-import Editor from '@components/editor';
+import Editor from '@app/_components/editor';
 import { getFetch, newAxios } from '@libs/client/fetcher';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Chat, User } from '@prisma/client';

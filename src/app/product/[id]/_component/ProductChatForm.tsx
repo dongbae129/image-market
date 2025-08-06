@@ -1,5 +1,5 @@
-import Button from '@components/button';
-import TextArea from '@components/textarea';
+import Button from '@app/_components/button';
+import TextArea from '@app/_components/textarea';
 import { newAxios } from '@libs/client/fetcher';
 import { Chat } from '@prisma/client';
 import React from 'react';

@@ -1,12 +1,12 @@
 'use client';
-import { userResponse } from '@components/headmenu';
-import Input from '@components/input';
+import { userResponse } from '@app/_components/headmenu';
+import Input from '@app/_components/input';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import Button from '@components/button';
-import SetSelect from '@components/setSelect';
+import Button from '@app/_components/button';
+import SetSelect from '@app/_components/setSelect';
 
 interface UserCheck {
   password_change: string;

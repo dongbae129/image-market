@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 
 import { getFetch } from '@libs/client/fetcher';
-import UploadImage from '@components/uploadImage';
+import UploadImage from '@app/_components/uploadImage';
 import { ProductDetailType } from './_component/ProductInfo';
 
 const ProductSetting: NextPage = () => {

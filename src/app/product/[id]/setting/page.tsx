@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 
 import { getFetch } from '@libs/client/fetcher';
-import UploadImage from '@components/uploadImage';
+import UploadImage from '@app/_components/uploadImage';
 import { ProductDetailType } from '@app/product/[id]/page';
 
 type SettingProps = {

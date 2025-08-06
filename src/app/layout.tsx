@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import ReactQueryProvider from './utils/ReactQueryProvider';
+import ReactQueryProvider from './_utils/ReactQueryProvider';
 import './globals.css';
-import HeadMenu from '@components/headmenu';
+import HeadMenu from '@app/_components/headmenu';
 export const metadata: Metadata = {
   title: 'image-market'
 };

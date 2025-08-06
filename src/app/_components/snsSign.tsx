@@ -1,4 +1,4 @@
-import SvgIcon from '@components/svgIcon';
+import SvgIcon from '@app/_components/svgIcon';
 import Link from 'next/link';
 import SvgData from '@/json/data.json';
 

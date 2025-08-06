@@ -1,4 +1,4 @@
-import ImgSphere from '@components/imgSphere';
+import ImgSphere from '@app/_components/imgSphere';
 import type { NextPage } from 'next';
 
 const Imgspheretest: NextPage = () => {

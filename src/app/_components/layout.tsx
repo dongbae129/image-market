@@ -1,4 +1,4 @@
-import HeadMenu from '@/components/headmenu';
+import HeadMenu from '@app/_components/headmenu';
 interface LayoutProps {
   children: React.ReactNode;
 }

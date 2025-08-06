@@ -5,9 +5,9 @@ import './home.css';
 import { Product } from '@prisma/client';
 import NextImage from 'next/image';
 import { getFetch } from '@libs/client/fetcher';
-import { userResponse } from '@components/headmenu';
-import UserCard from '@components/userCard';
-import ResponsiveProducts from '@components/ResponsiveProducts';
+import { userResponse } from '@app/_components/headmenu';
+import UserCard from '@app/_components/userCard';
+import ResponsiveProducts from '@app/_components/ResponsiveProducts';
 import { useQuery } from '@tanstack/react-query';
 
 export interface GetProductsResponse {

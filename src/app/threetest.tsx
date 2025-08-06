@@ -5,7 +5,7 @@ import * as CANNON from 'cannon-es';
 import { PreventDragClick } from '@libs/client/PreventDragClick';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { useRef } from 'react';
-import { TextG } from '@components/TextG';
+import { TextG } from '@app/_components/TextG';
 
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';

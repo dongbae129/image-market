@@ -1,4 +1,4 @@
-import Modal from '@components/modal';
+import Modal from '@app/_components/modal';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import React, { Dispatch, SetStateAction } from 'react';

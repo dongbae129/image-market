@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import NextImage from 'next/image';
-import Input from '@components/input';
+import Input from '@app/_components/input';
 import { useForm } from 'react-hook-form';
-import Button from '@components/button';
+import Button from '@app/_components/button';
 import axios from 'axios';
 
 type ModifyPassword = {

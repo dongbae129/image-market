@@ -2,10 +2,10 @@ import type { NextPage } from 'next';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getFetch, newAxios } from '@libs/client/fetcher';
 import { useState } from 'react';
-import UploadImage from '@components/uploadImage';
+import UploadImage from '@app/_components/uploadImage';
 import { useRouter } from 'next/router';
 // import axios from 'axios';
-import Modal from '@components/modal';
+import Modal from '@app/_components/modal';
 import { Board } from '@prisma/client';
 
 interface BoardTag {

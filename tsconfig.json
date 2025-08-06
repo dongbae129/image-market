@@ -17,7 +17,7 @@
     "baseUrl": ".",
     "paths": {
       "@libs/*": ["src/libs/*"],
-      "@components/*": ["src/components/*"],
+      "@components/*": ["src/app/_components/*"],
       "@styles/*": ["src/styles/*"],
       "@mocks/*": ["src/mocks/*"],
       "@reducers/*": ["src/reducers/*"],

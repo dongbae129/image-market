@@ -1,8 +1,8 @@
-import UserCard from '@components/userCard';
+import UserCard from '@app/_components/userCard';
 import { render, screen } from '@testing-library/react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
-import ResponsiveProducts from '@components/ResponsiveProducts';
+import ResponsiveProducts from '@app/_components/ResponsiveProducts';
 import { useInView } from 'react-intersection-observer';
 
 jest.mock('react-query', () => ({

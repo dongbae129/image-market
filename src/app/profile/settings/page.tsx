@@ -2,14 +2,14 @@
 import type { NextPage } from 'next';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { getFetch, newAxios } from '@libs/client/fetcher';
-import { userResponse } from '@components/headmenu';
+import { userResponse } from '@app/_components/headmenu';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import Input from '@components/input';
+import Input from '@app/_components/input';
 import Image from 'next/image';
-import Button from '@components/button';
+import Button from '@app/_components/button';
 
-import SetSelect from '@components/setSelect';
+import SetSelect from '@app/_components/setSelect';
 import store from '@/reducers/store';
 
 interface SettingForm {

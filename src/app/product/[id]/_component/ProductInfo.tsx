@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import UserImage from './UserImage';
 import ProductBtnModifty from './ProductBtnModifty';
-import Input from '@components/input';
+import Input from '@app/_components/input';
 import DOMPurify from 'dompurify';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';

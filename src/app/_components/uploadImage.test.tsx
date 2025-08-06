@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 
-import UploadImage, { UploadImageProps } from '@/components/uploadImage';
+import UploadImage, { UploadImageProps } from '@app/_components/uploadImage';
 import { useRouter } from 'next/router';
 import userEvent from '@testing-library/user-event';
 import { newAxios } from '@libs/client/fetcher';

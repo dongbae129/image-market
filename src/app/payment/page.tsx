@@ -1,7 +1,7 @@
 'use client';
 import type { NextPage } from 'next';
 import { useState } from 'react';
-import PaymentCard from '@components/paymentCard';
+import PaymentCard from '@app/_components/paymentCard';
 
 const Index: NextPage = () => {
   const [cardNumber, setCardNumber] = useState('0');

@@ -5,7 +5,7 @@ import { getFetch } from '@libs/client/fetcher';
 import { useState } from 'react';
 import { HashTag, Product, ProductHit, User } from '@prisma/client';
 
-import ImgSphere from '@components/imgSphere';
+import ImgSphere from '@app/_components/imgSphere';
 interface ProfileResponse {
   ok: boolean;
   products: (Product & {

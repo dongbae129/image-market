@@ -1,6 +1,6 @@
 'use client';
 import SvgData from '@/json/data.json';
-import SvgIcon from '@/components/svgIcon';
+import SvgIcon from '@app/_components/svgIcon';
 // import Link from 'next/link';
 import { useEffect } from 'react';
 import { newAxios } from '@libs/client/fetcher';

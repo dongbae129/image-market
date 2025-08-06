@@ -6,7 +6,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { Product } from '@prisma/client';
 import { useEffect } from 'react';
-import MasonryProduct from '@components/masonryProduct';
+import MasonryProduct from '@app/_components/masonryProduct';
 import { useInView } from 'react-intersection-observer';
 
 interface SearchProductData {

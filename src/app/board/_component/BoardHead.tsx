@@ -1,6 +1,6 @@
 'use client';
-import Button from '@components/button';
-import Input from '@components/input';
+import Button from '@app/_components/button';
+import Input from '@app/_components/input';
 import Link from 'next/link';
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import { useForm } from 'react-hook-form';

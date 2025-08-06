@@ -1,16 +1,16 @@
-'use client';
 import Input from '@app/_components/input';
+import style from './headmenu.module.css';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+// import { useForm } from 'react-hook-form';
 import { IoIosSearch } from 'react-icons/io';
-import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { getFetch } from '@libs/client/fetcher';
+// import { useRouter } from 'next/navigation';
+// import { useQuery } from '@tanstack/react-query';
+// import { getFetch } from '@libs/client/fetcher';
 // import { useSelector } from 'react-redux';
 import { User } from '@prisma/client';
-import Sidebar from './sidebar';
-import store from '@/reducers/store';
+// import Sidebar from './sidebar';
+// import store from '@/reducers/store';
 
 interface HeadSearch {
   search: string;
@@ -27,8 +27,8 @@ interface UploadProductForm {
   ratio: number;
 }
 const HeadMenu: NextPage = () => {
-  const router = useRouter();
-  const { register, handleSubmit } = useForm<HeadSearch>();
+  // const router = useRouter();
+  // const { register, handleSubmit } = useForm<HeadSearch>();
 
   // const { accessToken } = useSelector((state: any) => state.user);
   const accessToken = 'qwdqf';
@@ -38,33 +38,46 @@ const HeadMenu: NextPage = () => {
   const header = {
     headers: { authorization: `Bearer ${accessToken}` }
   };
-  const onValid = ({ search }: HeadSearch) => {
-    // searchElementRef.current?.click();
-    router.push(`/product?search=${search}`);
-    // router.push({
-    //   pathname: '/product/search',
-    //   query: { find: search }
-    // });
-  };
-  const { data: userInfo } = useQuery<userResponse>({
-    queryKey: ['userInfo'],
-    queryFn: getFetch('/api/user'),
+  // const onValid = ({ search }: HeadSearch) => {
+  //   // searchElementRef.current?.click();
+  //   router.push(`/product?search=${search}`);
+  //   // router.push({
+  //   //   pathname: '/product/search',
+  //   //   query: { find: search }
+  //   // });
+  // };
+  // const { data: userInfo } = useQuery<userResponse>({
+  //   queryKey: ['userInfo'],
+  //   queryFn: getFetch('/api/user'),
 
-    enabled: !store.getState().user.restoreState
-  });
+  //   enabled: !store.getState().user.restoreState
+  // });
   return (
-    <div className="headmenuwrap z-10 bg-white relative">
-      <div className="golinkwrap">
+    <div className={`${style.headmenuwrap} z-10 bg-white relative`}>
+      <div className={style.golinkwrap}>
         <Link href={'/'}>
-          <span className="golinkinhead">HOME</span>
+          <span className={style.golinkwrap}>HOME</span>
         </Link>
 
         <Link href={'/board?id=1'}>
-          <span className="golinkinhead">BOARD</span>
+          <span className={style.golinkwrap}>BOARD</span>
         </Link>
       </div>
-      <div className="searchform">
-        <form onSubmit={handleSubmit(onValid)}>
+      <div className={style.searchform}>
+        <form action={'/product'} method="GET">
+          <div className={style.searchbutton}>
+            <IoIosSearch size={'100%'} />
+          </div>
+          <input
+            // label="search"
+            name="search"
+            type="text"
+            // paddingleft="3rem"
+            required
+            // style={{ width: '100%' }}
+          />
+        </form>
+        {/* <form onSubmit={handleSubmit(onValid)}>
           <Input
             // label="search"
             name="search"
@@ -77,33 +90,33 @@ const HeadMenu: NextPage = () => {
           <div className="searchbutton">
             <IoIosSearch size={'100%'} />
           </div>
-        </form>
+        </form> */}
       </div>
-      {userInfo?.ok ? (
-        <div className="golinkwrap right">
-          <Link href={'/payment'}>
-            <span className="golinkinhead">PAY</span>
-          </Link>
-          <Link href={'/upload'}>
-            <span className="golinkinhead">UPLOAD</span>
-          </Link>
-          <Sidebar userInfo={userInfo.user} />
-        </div>
-      ) : (
+      {/* {userInfo?.ok ? ( */}
+      <div className={`${style.golinkwrap} right`}>
+        <Link href={'/payment'}>
+          <span className={style.golinkwrap}>PAY</span>
+        </Link>
+        <Link href={'/upload'}>
+          <span className={style.golinkwrap}>UPLOAD</span>
+        </Link>
+        {/* <Sidebar userInfo={userInfo.user} /> */}
+      </div>
+      {/* ) : (
         <div className="golinkwrap">
           <Link href={'/payment'}>
-            <span className="golinkinhead">PAY</span>
+            <span className={style.golinkwrap}>PAY</span>
           </Link>
           <Link href={'/signin'}>
-            <span className="golinkinhead">SIGNIN</span>
+            <span className={style.golinkwrap}>SIGNIN</span>
           </Link>
           <Link href={'/register'}>
-            <span className="golinkinhead">SIGNUP</span>
+            <span className={style.golinkwrap}>SIGNUP</span>
           </Link>
         </div>
-      )}
+      )} */}
 
-      <style jsx>{`
+      {/* <style jsx>{`
         .headmenuwrap {
           display: flex;
           justify-content: space-around;
@@ -173,7 +186,7 @@ const HeadMenu: NextPage = () => {
           top: 50%;
           transform: translateY(-50%);
         }
-      `}</style>
+      `}</style> */}
     </div>
   );
 };

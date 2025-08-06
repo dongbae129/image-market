@@ -1,4 +1,4 @@
-import SvgIcon from '@components/svgIcon';
+import SvgIcon from '@app/_components/svgIcon';
 import { Product } from '@prisma/client';
 import Link from 'next/link';
 import React, { useState } from 'react';

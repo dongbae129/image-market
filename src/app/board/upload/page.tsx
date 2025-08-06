@@ -1,8 +1,8 @@
 'use client';
-import UploadImage from '@components/uploadImage';
+import UploadImage from '@app/_components/uploadImage';
 import type { NextPage } from 'next';
 import { useQuery } from '@tanstack/react-query';
-import { userResponse } from '@components/headmenu';
+import { userResponse } from '@app/_components/headmenu';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { getFetch } from '@libs/client/fetcher';

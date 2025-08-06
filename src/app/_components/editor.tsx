@@ -10,7 +10,7 @@ import {
 import 'react-quill/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
-import Button from '@/components/button';
+import Button from '@app/_components/button';
 import { UseMutateFunction } from '@tanstack/react-query';
 import ReactQuill, { ReactQuillProps } from 'react-quill';
 

@@ -1,6 +1,6 @@
 'use client';
-import Button from '@components/button';
-import Input from '@components/input';
+import Button from '@app/_components/button';
+import Input from '@app/_components/input';
 import { AxiosError } from 'axios';
 import type { NextPage } from 'next';
 import Link from 'next/link';
@@ -11,12 +11,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { setAccessToken, setLogedIn } from '@reducers/user';
 
-import { userResponse } from '@components/headmenu';
-import SvgIcon from '@components/svgIcon';
+import { userResponse } from '@app/_components/headmenu';
+import SvgIcon from '@app/_components/svgIcon';
 import { newAxios } from '@libs/client/fetcher';
 import store from '@reducers/store';
 import { useState } from 'react';
-import SnsSign from '@components/snsSign';
+import SnsSign from '@app/_components/snsSign';
 
 interface SignInForm {
   userId: string;

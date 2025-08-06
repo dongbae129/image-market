@@ -7,7 +7,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Product } from '@prisma/client';
 import axios from 'axios';
 
-import UploadImage from '@components/uploadImage';
+import UploadImage from '@app/_components/uploadImage';
 
 interface UploadProductForm {
   image: FileList;

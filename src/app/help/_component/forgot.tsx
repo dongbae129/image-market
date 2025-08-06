@@ -1,5 +1,5 @@
 // src/ForgotPassword.js
-import Button from '@components/button';
+import Button from '@app/_components/button';
 import Link from 'next/link';
 import React from 'react';
 

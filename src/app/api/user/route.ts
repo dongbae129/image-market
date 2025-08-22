@@ -6,6 +6,10 @@ import client from '@libs/server/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async (req: NextRequest, res: NextResponse) => {
+  // return NextResponse.json({
+  //   ok: true,
+  //   message: 'AAABB'
+  // });
   const auth = checkAuth(req, res, 0);
   console.log(auth, 'user auth test');
   if (auth?.checkError)

@@ -1,14 +1,19 @@
 // import type { NextPage } from 'next';
-'use client';
+
 // import { useSelector } from 'react-redux';
-import './home.css';
+// import './home.css';
 import { Product } from '@prisma/client';
-import NextImage from 'next/image';
+import Main from '@components/Main';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient
+} from '@tanstack/react-query';
 import { getFetch } from '@libs/client/fetcher';
-import { userResponse } from '@app/_components/headmenu';
-import UserCard from '@app/_components/userCard';
-import ResponsiveProducts from '@app/_components/ResponsiveProducts';
-import { useQuery } from '@tanstack/react-query';
+import { getUserServer } from '@app/_libs/getUserServer';
+// import { useSelector } from 'react-redux';
+// import { cookies } from 'next/headers';
+// import { useQuery } from '@tanstack/react-query';
 
 export interface GetProductsResponse {
   // ok: boolean;
@@ -23,134 +28,69 @@ interface IndexProductImageType {
   title: string;
   description: string;
 }
-const Home = () => {
+type Props = { pageParam?: number };
+
+export default async function Home() {
+  console.log('MainTest');
+  // const toekn = cookies();
+
   // const { accessToken } = useSelector((state: any) => state.user);
-  const accessToken = 'abcdefg';
-  // const dispatch = useDispatch();
-  const header = {
-    headers: { authorization: `Bearer ${accessToken}` }
-  };
+  // const accessToken = 'abcdefg';
+  // const header = {
+  //   headers: { authorization: `Bearer ${accessToken}` }
+  // };
+  async function getTest() {
+    const res = await fetch('/api/user', {
+      next: {
+        tags: ['userInfo']
+      },
+      credentials: 'include',
+      // headers: {
+      //   Authorization: `Bearer ${toekn.get('accesToken')}`
+      // }
+      cache: 'no-store'
+    });
+    // The return value is *not* serialized
+    // You can return Date, Map, Set, etc.
 
-  const { data: userInfo } = useQuery<userResponse>({
+    if (!res.ok) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error('Failed to fetch data');
+    }
+    return res.json();
+  }
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
     queryKey: ['userInfo'],
-    queryFn: getFetch('/api/user', header)
+    queryFn: getUserServer
   });
-
+  const dehydratedState = dehydrate(queryClient);
+  console.log(queryClient.getQueryData(['userInfo']), 'userTest');
   return (
-    <div className="main_wrap">
-      {/* <div className="menu">
-        <div>
-          <Head>
-            <title>이름 못정했어</title>
-            <meta name="description" content="Main Title" />
-          </Head>
-
-          <Link href={'/register'}>
-            <a>
-              <button>SIGNUP</button>
-            </a>
-          </Link>
-          <Link href={'/signin'}>
-            <a>
-              <button>SIGNIN</button>
-            </a>
-          </Link>
-
-          <Link href={'/test'}>
-            <a>
-              <button>logout</button>
-            </a>
-          </Link>
-          <Link href={'/imgspheretest'}>
-            <a>
-              <button>imgsphere</button>
-            </a>
-          </Link>
-
-          <Link href={'/logouttest'}>
-            <a>
-              <button>Logout Test</button>
-            </a>
-          </Link>
-          <Link href={'/products'}>
-            <a>
-              <button>Products</button>
-            </a>
-          </Link>
-          <Link href={'/upload'}>
-            <a>
-              <button>Product Upload</button>
-            </a>
-          </Link>
-          <Link href={'/board'}>
-            <a>
-              <button>Board</button>
-            </a>
-          </Link>
-          <Link href={'/payment'}>
-            <a>
-              <button>Pay</button>
-            </a>
-          </Link>
-          <Link href={'/certification'}>
-            <a>
-              <button>certification</button>
-            </a>
-          </Link>
-          <Link href={'/threetest'}>
-            <a>
-              <button>threejs</button>
-            </a>
-          </Link>
-          <Link href={'/thtest'}>
-            <a>
-              <button>fiber</button>
-            </a>
-          </Link>
-        </div>
-        <div>
-          <Link href={`/profile/${userInfo?.user?.id}`}>
-            <button>User</button>
-          </Link>
-       
-        </div>
-      </div> */}
-
-      <div className="main_header flex w-[94vw] h-[500px] m-auto mb-12">
-        <div className="banner rounded-lg overflow-hidden border border-[#e3e5e8] shadow-md w-[75%] max-lg:w-full relative">
-          <button className='bg-[url("/localimages/left-arrow.svg")] arrow'></button>
-          <NextImage
-            src={'/localimages/banner.webp'}
-            alt="banner"
-            fill={true}
-          />
-          <button className='bg-[url("/localimages/right-arrow.svg")] arrow right-0'></button>
-        </div>
-        <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-40 rounded-lg max-lg:hidden overflow-hidden p-5 flex flex-col justify-between">
-          <UserCard />
-        </div>
-      </div>
-
-      <ResponsiveProducts />
-      {/* <Sidebar /> */}
-      <style jsx>{`
-        .arrow {
-          z-index: 2;
-          width: 6.67vw;
-          height: 6.67vw;
-          background-repeat: no-repeat;
-          background-position: center;
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          color: transparent;
-        }
-        .main_wrap {
-          position: relative;
-        }
-      `}</style>
+    <div>
+      <HydrationBoundary state={dehydratedState}>
+        <Main />
+      </HydrationBoundary>
     </div>
-  );
-};
+    // <div className="main_wrap">
+    //   <div className="main_header flex w-[94vw] h-[500px] m-auto mb-12">
+    //     <div className="banner rounded-lg overflow-hidden border border-[#e3e5e8] shadow-md w-[75%] max-lg:w-full relative">
+    //       <button className='bg-[url("/localimages/left-arrow.svg")] arrow'></button>
+    //       <NextImage
+    //         src={'/localimages/banner.webp'}
+    //         alt="banner"
+    //         fill={true}
+    //       />
+    //       <button className='bg-[url("/localimages/right-arrow.svg")] arrow right-0'></button>
+    //     </div>
+    //     <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-40 rounded-lg max-lg:hidden overflow-hidden p-5 flex flex-col justify-between">
+    //       <UserCard />
+    //     </div>
+    //   </div>
 
-export default Home;
+    //   <ResponsiveProducts />
+    //   {/* <Sidebar /> */}
+
+    // </div>
+  );
+}

@@ -1,6 +1,7 @@
+'use client';
 import Link from 'next/link';
 import { userResponse } from './headmenu';
-import { useQuery } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import useLogout from '@libs/client/logout';
 import { useSelector } from 'react-redux';
 import { getFetch } from '@libs/client/fetcher';
@@ -9,8 +10,33 @@ interface userCardProps {
   userInfo: userResponse | undefined;
   logedIn: boolean | undefined;
 }
+
 const UserCard = () => {
   const { accessToken } = useSelector((state: any) => state.user);
+  const query = new QueryClient();
+  const test = query.getQueryData(['userInfo']);
+  console.log(test, 'TTT');
+  console.log(accessToken, 'ACCTest');
+  async function getTest2() {
+    const res = await fetch('/api/user', {
+      next: {
+        tags: ['userInfo']
+      },
+      credentials: 'include',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+      // cache: 'no-store'
+    });
+    // The return value is *not* serialized
+    // You can return Date, Map, Set, etc.
+
+    if (!res.ok) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error('Failed to fetch data');
+    }
+    return res.json();
+  }
   // const accessToken = '2122';
   // const dispatch = useDispatch();
   const header = {
@@ -19,7 +45,8 @@ const UserCard = () => {
 
   const { data } = useQuery<userResponse>({
     queryKey: ['userInfo'],
-    queryFn: getFetch('/api/user', header)
+    // queryFn: getFetch('/api/user', header)
+    queryFn: getTest2
   });
   // const data = {
   //   ok: true,
@@ -47,9 +74,6 @@ const UserCard = () => {
         <>
           <div className="flex flex-[2]">
             <div className="w-[63px] mr-5 flex items-center">
-              {/* <ImgDiv>
-                <span className="image_setting absolute w-6 h-6 rounded-[50%] border bottom-0 right-0 bg-white"></span>
-              </ImgDiv> */}
               <div className="user_image rounded-[50%] w-full h-[63px] relative">
                 <span className="image_setting absolute w-6 h-6 rounded-[50%] border bottom-0 right-0 bg-white"></span>
               </div>
@@ -82,17 +106,6 @@ const UserCard = () => {
                 >
                   로그아웃
                 </div>
-                {/* </a> */}
-                {/* </Link> */}
-                {/* <span
-                  className="w-full"
-                  data-testid="atest"
-                  onClick={() => {
-                    router.push('/logout');
-                  }}
-                >
-                  로그아웃
-                </span> */}
               </div>
             </div>
             <div className="flex flex-[0.2] bg-slate-50 rounded font-bold justify-around">
@@ -123,13 +136,6 @@ const UserCard = () => {
               </Link>
             </div>
 
-            {/* <div className="">
-              <Link href={'/help/pw'}>
-                <a className="profile_selection before:left-[-10px] block text-center relative text-sm">
-                  <span className="w-full">비밀번호 찾기</span>
-                </a>
-              </Link>
-            </div> */}
             <div className="">
               <Link href={'/register'}>
                 <div className="profile_selection before:left-[-41px] block text-center relative text-sm">
@@ -140,6 +146,7 @@ const UserCard = () => {
           </div>
         </>
       )}
+
       <style jsx>{`
         .profile_selection::before {
           content: '';

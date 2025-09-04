@@ -108,6 +108,13 @@ export const createAccessToken = (id: number, type: number) => {
 export const createRefreshToken = (id: number, type: number) =>
   sign({ id, type }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '20m' });
 
+export const sendAccesToken = (token: string) => {
+  cookies().set('accesToken', token, {
+    httpOnly: true,
+    maxAge: 60 * 10,
+    secure: true
+  });
+};
 export const sendRefreshToken = (token: string) => {
   cookies().set('refreshToken', token, {
     httpOnly: true,

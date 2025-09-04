@@ -6,7 +6,8 @@ import bcrypt from 'bcrypt';
 import {
   createAccessToken,
   sendRefreshToken,
-  createRefreshToken
+  createRefreshToken,
+  sendAccesToken
 } from '@libs/server/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -70,6 +71,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       const refreshToken = createRefreshToken(user.userId, 1);
 
       sendRefreshToken(refreshToken);
+      sendAccesToken(accessToken);
       // res.setHeader('Set-Cookie', 'test=aaaTEST');
       return NextResponse.json({
         ok: true,

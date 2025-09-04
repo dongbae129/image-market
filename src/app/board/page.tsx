@@ -14,6 +14,7 @@ const Boards: NextPage = async () => {
     queryFn: getBoardsServer
   });
   const dehydratedState = dehydrate(queryClient);
+  console.log(queryClient.getQueryData(['boards', 1, '']), '!!!!');
   return (
     <div className="board w-[60%] m-auto">
       <HydrationBoundary state={dehydratedState}>

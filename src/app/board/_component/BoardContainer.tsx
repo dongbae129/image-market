@@ -1,7 +1,7 @@
 'use client';
 import { Board, User } from '@prisma/client';
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { newAxios } from '@libs/client/fetcher';
 import BoardPaging from './BoardPaging';
 import { useSearchParams } from 'next/navigation';

@@ -16,7 +16,7 @@ const getEmailContent = (email: string, token: string) => {
     <table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto;">
         <tr>
             <td align="center" style="padding: 20px;">
-                <img src="http://localhost:3000/localimages/emptyuser.png" alt="User Icon" width="48" height="48" style="display: block;">
+                <img src="https://localhost:3000/localimages/emptyuser.png" alt="User Icon" width="48" height="48" style="display: block;">
             </td>
         </tr>
         <tr>
@@ -36,7 +36,7 @@ const getEmailContent = (email: string, token: string) => {
         </tr>
         <tr>
             <td align="center" style="padding: 0 20px 20px;">
-                <a href="http://localhost:3000/user/password?key=${token}" style="background-color: #4CAF50; border: none; color: #ffffff; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;">
+                <a href="https://localhost:3000/user/password?key=${token}" style="background-color: #4CAF50; border: none; color: #ffffff; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;">
                     비밀번호 변경하기
                 </a>
             </td>
@@ -98,7 +98,7 @@ export const POST = async (req: NextRequest) => {
     html: emailContent
   };
   try {
-    const mailtest = await transporter.sendMail(mailOptions, (error, info) => {
+    const mailtest = await transporter.sendMail(mailOptions, (error) => {
       if (error) {
         console.error(error);
       } else {

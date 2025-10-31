@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charSet="UTF-8"/>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+        <title>Pinterest</title>
+        <script nonce="a84167130ff7a49b41fa78bcdc320a3f">
+            (function loadApp(fetchRequestHeader, bufferEndMarker) {
+                if (new URL(window.location.href).pathname === '/quick-instant-loading-indicator-app-shell.html') {
+                    // dont allow infinite loops
+                    return;
+                }
+
+                // set a flag so we know we came from the instant loading indicator app shell
+                window.isFromInstantLoadingIndicatorAppShell = true;
+                window.performance.mark('instantLoadingIndicator.fetchStart');
+                fetch(window.location.href, {
+                    headers: {
+                        [fetchRequestHeader]: '1'
+                    }
+                })// eslint-disable-next-line github/no-then
+                .then(response => {
+                    window.performance.mark('instantLoadingIndicator.responseStart');
+                    const {headers} = response;
+                    const cspHeader = headers.get('Content-Security-Policy');
+                    const incomingNonce = cspHeader?.match(/'nonce-([^']+)/)?.[1] ?? '';
+                    if (!incomingNonce) {
+                        throw new Error('error parsing incoming nonce');
+                    }
+                    const originalNonce = document.getElementsByTagName('script')[0]?.nonce ?? '';
+                    if (!originalNonce) {
+                        throw new Error('error parsing current nonce');
+                    }
+                    if (!response.body) {
+                        throw new Error('missing response body');
+                    }
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let documentWritten = false;
+                    let endBuffer = false;
+                    let buffer = '';
+                    let wroteTemporaryHead = false;
+                    let responseEnded = false;
+
+                    // Buffer, then write document as a stream instead of waiting for the whole response
+                    const stream = new ReadableStream({
+                        start(controller) {
+                            function push() {
+                                // eslint-disable-next-line github/no-then
+                                reader.read().then( ({done, value}) => {
+                                    let text = decoder.decode(value, {
+                                        stream: true
+                                    });
+                                    if (!responseEnded && done) {
+                                        responseEnded = true;
+                                        window.performance.mark('instantLoadingIndicator.responseEnd');
+                                    }
+                                    function writeDocument() {
+                                        endBuffer = true;
+                                        text = (buffer + text).replaceAll(incomingNonce, originalNonce);
+                                        buffer = '';
+                                        if (!documentWritten) {
+                                            window.performance.mark('instantLoadingIndicator.writeDocument');
+                                            document.open();
+                                            documentWritten = true;
+                                        }
+                                        document.write(text);
+                                        push();
+                                    }
+                                    function onDone() {
+                                        if (buffer) {
+                                            // If we never received signal to end buffering,
+                                            // write the document at end of stream
+                                            writeDocument();
+                                        }
+                                        try {
+                                            document.close();
+                                            controller.close();
+                                            window.performance.mark('instantLoadingIndicator.done');
+                                        } catch (e) {// ignore if controller is already closed
+                                        }
+                                    }
+                                    function writeTemporaryHead() {
+                                        if (!(!wroteTemporaryHead && !documentWritten && buffer.includes('</head>'))) {
+                                            return;
+                                        }
+                                        window.performance.mark('instantLoadingIndicator.writeHead');
+                                        wroteTemporaryHead = true;
+                                        // eslint-disable-next-line redos-detector/no-unsafe-regex -- See https://redosdetector.com/ for more details on why this regex is unsafe. Please replace with a safer regex or remove if possible.
+                                        const headContentMatch = buffer.match(/<head>(.*?)<\/head>/is);
+                                        if (!headContentMatch) {
+                                            return;
+                                        }
+                                        const headContent = headContentMatch[1].trim();
+                                        // This is a detached (non-executed) temporary parsing container
+                                        const tempParsingContainer = document.createElement('div');
+                                        tempParsingContainer.innerHTML = headContent;
+                                        while (tempParsingContainer.firstChild) {
+                                            const node = tempParsingContainer.firstChild;
+                                            tempParsingContainer.removeChild(node);
+                                            // Defer scripts will inadvertently execute prematurely in temporary head, so convert them to preload links
+                                            const shouldConvertDeferScriptToPreloadLink = node.tagName === 'SCRIPT' && node.hasAttribute('defer');
+                                            if (shouldConvertDeferScriptToPreloadLink) {
+                                                const preloadLink = document.createElement('link');
+                                                preloadLink.rel = 'preload';
+                                                preloadLink.as = 'script';
+                                                preloadLink.href = node.src;
+                                                for (const attr of node.attributes) {
+                                                    if (attr.name !== 'src' && attr.name !== 'defer') {
+                                                        preloadLink.setAttribute(attr.name, attr.value);
+                                                    }
+                                                }
+                                                document.head.appendChild(preloadLink);
+                                            } else {
+                                                document.head.appendChild(node);
+                                            }
+                                        }
+                                    }
+                                    function writeBuffer() {
+                                        buffer += text;
+                                        writeTemporaryHead();
+                                        push();
+                                    }
+
+                                    // Continue buffering until first chunk *after* initial document shell is completed
+                                    const bufferEndMarkerFound = bufferEndMarker.test(text);
+                                    if (bufferEndMarkerFound && !endBuffer) {
+                                        // mark the first time we detect the buffer end marker
+                                        window.performance.mark('instantLoadingIndicator.bufferEndMarkerFound');
+                                        text = text.replace(bufferEndMarker, '');
+                                    }
+                                    const shouldContinueBuffer = !endBuffer;
+                                    endBuffer = endBuffer || bufferEndMarkerFound;
+                                    if (done) {
+                                        onDone();
+                                    } else if (shouldContinueBuffer) {
+                                        writeBuffer();
+                                    } else {
+                                        writeDocument();
+                                    }
+                                }
+                                );
+                            }
+                            push();
+                        }
+                    });
+                    return new Response(stream,{
+                        headers: {
+                            'Content-Type': 'text/html'
+                        }
+                    });
+                }
+                )// eslint-disable-next-line github/no-then
+                .catch( () => {
+                    // Errors here are potentially fatal (user could be stuck with a broken service worker)
+                    // To handle, we should unregister service worker, establish a signal to not re-register, and reload page without service worker
+                    // eslint-disable-next-line no-restricted-globals
+                    localStorage.setItem(app_const_localStorage__WEBPACK_IMPORTED_MODULE_5__ /* .LOCALSTORAGE_BROKEN_INSTANT_LOADING */
+                    .V7, 'true');
+                    if ('serviceWorker'in navigator) {
+                        // eslint-disable-next-line github/no-then
+                        navigator.serviceWorker.getRegistrations().then(registrations => {
+                            registrations.forEach(registration => {
+                                registration.unregister();
+                            }
+                            );
+                        }
+                        );
+                    }
+                    window.location.reload();
+                }
+                );
+            }
+            )('x-instant-loading-indicator', /<template id="__PWS_INITIAL_SHELL_RENDERED__"><\/template>/)
+        </script>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+
+            .svg-container svg {
+                width: 100px;
+                height: auto;
+            }
+
+            @keyframes sequence {
+                0% {
+                    transform: scale(1);
+                }
+
+                15% {
+                    transform: scale(0.5);
+                }
+
+                30% {
+                    transform: scale(1.2);
+                }
+
+                60% {
+                    transform: scale(1);
+                }
+
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            .animatedLogo {
+                animation: sequence 2s cubic-bezier(0.45, 0.1, 0.25, 1.2) infinite;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <div class="svg-container">
+                <svg class="animatedLogo" fill="none" height="80" id="logo" viewBox="0 0 80 80" width="80" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" fill="white" r="40"></circle>
+                    <path d="M25.157 77.1057C24.6609 72.5645 25.013 68.2151 26.0052 64.0096L30.006 46.7719C29.3499 44.6772 28.8538 42.2786 28.8538 39.8801C28.8538 34.2834 31.5583 30.2858 35.7992 30.2858C38.7437 30.2858 40.9042 32.3326 40.9042 36.2822C40.9042 37.5295 40.6481 38.9366 40.152 40.5357L38.4077 46.2762C38.0556 47.3796 37.9116 48.4189 37.9116 49.3304C37.9116 53.328 40.9682 55.5827 44.857 55.5827C51.8024 55.5827 56.7634 48.387 56.7634 39.0486C56.7634 28.6548 49.962 22.0028 39.912 22.0028C28.7097 22.0028 21.6043 29.2944 21.6043 39.4483C21.6043 43.5419 22.8526 47.3476 25.3011 49.938C24.5009 51.2812 23.6527 51.5371 22.3565 51.5371C18.3557 51.5371 14.5469 45.8925 14.5469 38.2011C14.5469 24.9131 25.205 14.3114 40.152 14.3114C55.8512 14.3114 65.7091 25.2489 65.7091 38.7448C65.7091 52.3366 56.1072 62.5385 45.7531 62.5385C41.6563 62.5385 38.0556 60.7955 35.5431 57.6454L33.4947 65.9444C32.3905 70.2459 30.7421 74.2914 28.0856 78.1931C31.8304 79.3444 35.5431 80 39.992 80C62.0924 80 80 62.1067 80 40.024C80 17.9412 62.1084 0 40.008 0C17.9076 0 0 17.8933 0 39.976C0 56.718 10.3061 71.1573 25.157 77.1057Z" fill="#E60023"></path>
+                </svg>
+            </div>
+        </div>
+        <script nonce="a84167130ff7a49b41fa78bcdc320a3f">
+            (function renderLogo() {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const logo = document.getElementById('logo');
+                    if (logo) {
+                        logo.classList.add('animatedLogo');
+                        setInterval( () => {
+                            logo.classList.remove('animatedLogo');
+                            // eslint-disable-next-line no-void
+                            void logo.offsetWidth;
+                            // Trigger reflow to reset animation state
+                            logo.classList.add('animatedLogo');
+                        }
+                        , 750);
+                        // Duration of one full animation cycle
+                    }
+                }
+                );
+            }
+            )()
+        </script>
+    </body>
+</html>

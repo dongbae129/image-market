@@ -13,8 +13,8 @@ function ProductImage({ product }: ProductImageProps) {
         <div className="imagewrap">
           {product && (
             <Image
-              // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${product.image}`}
-              src="/localimages/emptyuser.png"
+              src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${product.image}`}
+              // src="/localimages/emptyuser.png"
               // src={
               //   product.auth
               //     ? `/watermark/watermark_${product.image}`

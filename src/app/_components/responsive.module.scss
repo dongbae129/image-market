@@ -1,0 +1,10 @@
+/* masonry.css (요약) */
+.masonry_placeholder .m_item { width:100%; margin-bottom:16px; }
+html.cols-1 .masonry_placeholder { column-count:1; column-gap:16px; }
+html.cols-2 .masonry_placeholder { column-count:2; column-gap:16px; }
+html.cols-3 .masonry_placeholder { column-count:3; column-gap:16px; }
+html.cols-6 .masonry_placeholder { column-count:6; column-gap:16px; }
+.m_item .card, .m_item-real .card { background:#fff; border-radius:8px; overflow:hidden; }
+.thumbnail { background:linear-gradient(90deg,#eee,#ddd); width:100%; }
+.meta { padding:8px; font-size:14px; }
+.m_item_real, .m_item { transition: transform 120ms ease, top 120ms ease, left 120ms ease; }

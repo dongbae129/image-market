@@ -6,6 +6,9 @@ import { useEffect } from 'react';
 import { newAxios } from '@libs/client/fetcher';
 import { useRouter } from 'next/navigation';
 
+declare const window: {
+  IMP: any
+} & Window
 interface PaymentWayProps {
   payproduct:
     | {
@@ -62,6 +65,7 @@ const PaymentWay = ({ payproduct }: PaymentWayProps) => {
     /* 4. 결제 창 호출하기 */
     IMP?.request_pay(data, callback);
   }
+  
   async function callback(response: any) {
     const { success, merchant_uid, error_msg } = response;
 

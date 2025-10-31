@@ -1,6 +1,4 @@
 'use client';
-import type { NextPage } from 'next';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { getFetch } from '@libs/client/fetcher';
 import { Chat } from '@prisma/client';

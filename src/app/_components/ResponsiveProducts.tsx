@@ -1,30 +1,16 @@
 'use client';
+import style from './ResponsiveProducts.module.scss';
 import Link from 'next/link';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
-import NextImage from 'next/image';
 import { Product } from '@prisma/client';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { newAxios } from '@libs/client/fetcher';
 import { useInView } from 'react-intersection-observer';
-
+import { getProducts } from '@app/_libs/getProducts';
+import { normalizeRatio } from '@app/_libs/normalizeRatio';
+import style2 from './responsive.module.scss';
 function ResponsiveProducts() {
-  const [divWidth, setDivWidth] = useState(0);
-  // const getProducts = ({ pageParam = 0 }) =>
-  //   newAxios
-  //     .get(`${process.env.NEXT_PUBLIC_API_URL}/api/product?id=${pageParam}`)
-  //     .then((res) => res.data);
-  const getProducts = async ({ pageParam = 0 }) => {
-    const data = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/product?id=${pageParam}`,
-      {
-        cache: 'no-store'
-      }
-    );
-    return data.json();
-  };
-  const countRef = useRef<HTMLDivElement>(null);
-
+  const [count, setCount] = useState(0);
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey: ['getProducts'],
@@ -32,10 +18,13 @@ function ResponsiveProducts() {
       initialPageParam: 0,
       getNextPageParam: (lastPage, allPage) => {
         const lastPageLength = lastPage.products.length;
-        if (lastPageLength === 0 || lastPageLength < 3) return undefined;
-        return lastPageLength >= 3 && lastPage.products[lastPageLength - 1].id;
+        if (lastPageLength === 0 || lastPageLength < 6) return undefined;
+        return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
       }
     });
+  const pages = data?.pages ?? [];
+  const items = pages.flatMap((p: any) => p.products ?? []);
+
   // useInfiniteQuery({
   //   queryKey: ['getProducts'],
   // queryFn: getProducts,
@@ -46,89 +35,102 @@ function ResponsiveProducts() {
   // }
   // });
 
+  const breakpoints = {
+    0: count, // 0-639 -> 1
+    640: 2, // 640-1023 -> 2
+    1024: 3, // 1024-1439 -> 3
+    1440: 6 // 1440+ -> 6
+  };
+
+  useLayoutEffect(() => {
+    const width = window.innerWidth;
+
+    if (width < 640) setCount(1);
+    else if (width < 1024) setCount(2);
+    else if (width < 1440) setCount(3);
+    else setCount(6);
+  }, []);
+
   const { ref, inView } = useInView({
     threshold: 0.3
   });
-  useEffect(() => {
-    if (countRef.current) {
-      const test = +window
-        .getComputedStyle(countRef.current)
-        .getPropertyValue('width')
-        .slice(0, -2);
-
-      const size =
-        +window
-          .getComputedStyle(countRef.current)
-          .getPropertyValue('font-size')
-          .slice(0, -2) * 3;
-      setDivWidth((test - size) / 4);
-      console.log('in');
-    }
-    console.log('out');
-  }, []);
   useEffect(() => {
     if (inView && hasNextPage) fetchNextPage();
   }, [inView, hasNextPage, fetchNextPage]);
   return (
     <>
-      <div className="product-wrap" ref={countRef}>
+      <div className={style.product_wrap}>
         <ResponsiveMasonry
-          columnsCountBreakPoints={{ 350: 2, 750: 3, 900: 5, 1200: 6 }}
+          columnsCountBreakPoints={{
+            0: 5
+            // 350: 2,
+            // 750: 3,
+            // 900: 5,
+            // 1200: 6
+          }}
+          // columnsCountBreakPoints={breakpoints}
         >
-          <Masonry
-            /*columnsCount={masonryColumn}*/ gutter="1em"
-            className="mas"
-          >
-            {data ? (
-              data.pages.map((products) =>
-                products.products.map((product: Product) => (
+          <Masonry gutter="1em" className="mas">
+            {data?.pages?.map((products) =>
+              products.products.map((product: Product) => (
+                <div key={product.id}>
                   <div
-                    key={product.id}
                     className="product"
-                    style={{ height: divWidth * Number(product.ratio) }}
-                    ref={ref}
+                    style={{
+                      aspectRatio: 1 / normalizeRatio(+product.ratio)
+                    }}
                   >
-                    {divWidth ? (
-                      <Link href={`/product/${product.id}`} passHref>
-                        <div className="imgwrap">
-                          <NextImage
-                            alt=""
-                            src="/localimages/emptyuser.png"
-                            // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${product.image}`}
-                            // layout="fill"
-                            fill={true}
-                            // width={'100%'}
-                            // height={divWidth * Number(product.ratio)}
-                            sizes="33vw"
-                            // objectFit="contain"
-                            // style={{
-                            //   // width: '100%',
-                            //   height: divWidth * Number(product.ratio),
-                            //   objectFit: 'fill'
-                            // }}
-                            // priority={true}
-                          />
-                        </div>
-                      </Link>
-                    ) : (
-                      <></>
-                    )}
-                    <span className="product-title">{product.title}</span>
+                    <Link href={`/product/${product.id}`} passHref>
+                      <div className={style.imgwrap}>
+                        <img alt="" src="/localimages/emptyuser.png" />
+                      </div>
+                    </Link>
                   </div>
-                ))
-              )
-            ) : (
-              <></>
+                  <span className={style.product_title}>{product.title}</span>
+                </div>
+              ))
             )}
           </Masonry>
         </ResponsiveMasonry>
+        {/* <div className={style2.masonry_placeholder} data-initial-columns={3}>
+          {items.map((it: any) => (
+            <div key={it.id} className={style2.m_item}>
+              <div className={style2.card}>
+                <div
+                  className={style2.thumbnail}
+                  style={{ aspectRatio: 1 / normalizeRatio(+it.ratio) }}
+                />
+
+                <div className={style2.meta}>{`#${it.title}`}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 12 }}>
+          <ResponsiveMasonry columnsCountBreakPoints={breakpoints}>
+            <Masonry gutter="16px">
+              {items.map((it: any) => (
+                <div key={'real-' + it.id} className={style2.m_item_real}>
+                  <div className={style2.card}>
+                    <div
+                      className={style2.thumbnail}
+                      style={{ height: it.h - 40 }}
+                    />
+                    <div className={style2.meta}>{`#${it.title}`}</div>
+                  </div>
+                </div>
+              ))}
+            </Masonry>
+          </ResponsiveMasonry>
+        </div> */}
         {isFetchingNextPage ? (
           <div>Loading...</div>
         ) : (
           <div ref={ref} style={{ height: '100px' }}></div>
         )}
       </div>
-      <style jsx>{`
+      {/* <style jsx>{`
         .product-wrap {
           width: 94vw;
           margin: 0 auto;
@@ -137,19 +139,22 @@ function ResponsiveProducts() {
             cursor: pointer;
             display: block;
             width: 100%;
-            height: 90%;
+            height: 100%;
             border-radius: 20px;
             overflow: hidden;
           }
-
-          .product-title {
+          img {
+            width: 100%;
+            height: 100%;
+          }
+          img .product-title {
             display: inline-block;
           }
         }
         .imgwrap:hover {
           filter: brightness(60%);
         }
-      `}</style>
+      `}</style> */}
     </>
   );
 }

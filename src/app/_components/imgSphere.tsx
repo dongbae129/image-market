@@ -33,7 +33,7 @@ const ImgSphere = ({ user, products }: ImgSphereType) => {
   // Points
 
   const scene = useMemo(() => new THREE.Scene(), []);
-  const rayRouter: THREE.Object3D<THREE.Event>[] = [];
+  const rayRouter: THREE.Object3D[] = [];
   const camera = useRef<THREE.PerspectiveCamera>();
   const gltfLoader = new GLTFLoader();
   const fontLoader = new FontLoader();

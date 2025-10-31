@@ -2,6 +2,7 @@ import style from './main.module.scss';
 import UserCard from '@app/_components/userCard';
 import ResponsiveProducts from '@app/_components/ResponsiveProducts';
 import Banner from '@components/Banner';
+import MasonryGrid from '@components/MasonryFeed';
 
 export default function Main() {
   return (
@@ -12,8 +13,11 @@ export default function Main() {
           <UserCard />
         </div>
       </div>
-
-      <ResponsiveProducts />
+      <div className="px-4">
+        <MasonryGrid />
+      </div>
+      {/* <MasonryFeed /> */}
+      {/* <ResponsiveProducts /> */}
       {/* <Sidebar /> */}
     </div>
   );

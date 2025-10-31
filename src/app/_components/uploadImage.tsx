@@ -76,7 +76,7 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
   }, [info?.elementValue?.title]);
   const postUploadForm = (data: FormData | UploadFormData) =>
     newAxios
-      .put(`/api/${info.url}`, data, {
+      .post(`/api/${info.url}`, data, {
         // headers: {
         //   'Content-Type': 'multipart/form-data'
         // }

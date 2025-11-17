@@ -44,7 +44,7 @@
     background-color: #ffffff;
     
     /* 그라데이션 오버레이를 위한 position: relative 추가 */
-    position: relative;
+    // position: relative;
     /* ::after 가상 요소가 둥근 모서리를 따르도록 overflow: hidden 추가 */
     overflow: hidden; 
     
@@ -57,8 +57,8 @@
     
     /* 부드러운 전환 효과를 위해 transition 추가 */
     /* transform(위치)과 box-shadow(그림자) 모두에 적용 */
-    transition: transform 0.3s ease-in-out, 
-                box-shadow 0.2s ease-in-out;
+    // transition: transform 0.3s ease-in-out, 
+    //             box-shadow 0.2s ease-in-out;
   }
   
   /* 호버 시 그라데이션 오버레이를 위한 가상 요소 */

@@ -91,33 +91,20 @@ export default async function Home() {
       queryFn: getUserServer
     })
   ]);
+  const initialQueryData: { pages?: GetProductsResponse[] } | undefined =
+    queryClient.getQueryData(['getProducts']);
+
+  let ssrItemCount = 0;
+  if (initialQueryData?.pages?.[0]?.products) {
+    ssrItemCount = initialQueryData.pages[0].products.length; // (e.g., 6)
+  }
   const dehydratedState = dehydrate(queryClient);
   console.log(queryClient.getQueryData(['userInfo']), 'userTest');
   return (
     <div>
       <HydrationBoundary state={dehydratedState}>
-        <Main />
+        <Main ssrItemCount={ssrItemCount} />
       </HydrationBoundary>
     </div>
-    // <div className="main_wrap">
-    //   <div className="main_header flex w-[94vw] h-[500px] m-auto mb-12">
-    //     <div className="banner rounded-lg overflow-hidden border border-[#e3e5e8] shadow-md w-[75%] max-lg:w-full relative">
-    //       <button className='bg-[url("/localimages/left-arrow.svg")] arrow'></button>
-    //       <NextImage
-    //         src={'/localimages/banner.webp'}
-    //         alt="banner"
-    //         fill={true}
-    //       />
-    //       <button className='bg-[url("/localimages/right-arrow.svg")] arrow right-0'></button>
-    //     </div>
-    //     <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-40 rounded-lg max-lg:hidden overflow-hidden p-5 flex flex-col justify-between">
-    //       <UserCard />
-    //     </div>
-    //   </div>
-
-    //   <ResponsiveProducts />
-    //   {/* <Sidebar /> */}
-
-    // </div>
   );
 }

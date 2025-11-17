@@ -1,11 +1,21 @@
 'use client';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useLayoutEffect,
+  useCallback
+} from 'react';
 import { getProducts } from '@app/_libs/getProducts';
 import { normalizeRatio } from '@app/_libs/normalizeRatio';
 import Link from 'next/link';
-import style from './MasonryTest.module.scss';
+import style from './MasonryFeed.module.scss';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import PreloadLink from '@components/PreLoadLink';
 // --- 최적화된 유동적 컬럼 너비 계산 로직 ---
 const GAP = 16;
 const MIN_CARD_WIDTH = 220; // 카드의 최소 너비 (px)
@@ -37,14 +47,18 @@ function calculateOptimalLayout(containerWidth: number) {
 }
 
 export default function MasonryGrid({ ssrItemCount = 0 }) {
+  const router = useRouter();
   const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [enableTransitions, setEnableTransitions] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [layoutParams, setLayoutParams] = useState({
     columnWidth: 0,
     columnCount: 0
   });
+
+  const imgRef = useRef(null);
+  const preloaded = useRef({ image: false, route: false });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery({
@@ -57,6 +71,7 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
         return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
       }
     });
+
   // 무한 스크롤
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -213,16 +228,33 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
                     }
               }
             >
-              <Link href={`/product/${item.id}`} passHref>
+              <PreloadLink
+                href={`/product/${item.id}`}
+                className="w-full h-full object-cover block"
+                imageSrc={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${item.image}`}
+                // passHref
+              >
+                {/* <Image
+                  src={`/${item.image}`}
+                  className="object-cover"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  src="/localimages/emptyuser.png"
+                  // alt={`Pin ${item.id}`}
+                  fill={true}
+                  // 초기 SSR 아이템은 Eager, 이후는 Lazy 로딩
+                  priority={true}
+                  loading={index < ssrItemCount ? 'eager' : 'lazy'}
+                /> */}
+
                 <img
-                  src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${item.image}`}
-                  // src="/localimages/emptyuser.png"
+                  // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${item.image}`}
+                  src="/localimages/emptyuser.png"
                   alt={`Pin ${item.id}`}
                   className="w-full h-full object-cover block"
                   // 초기 SSR 아이템은 Eager, 이후는 Lazy 로딩
                   loading={index < ssrItemCount ? 'eager' : 'lazy'}
                 />
-              </Link>
+              </PreloadLink>
             </div>
           );
         })}
@@ -233,9 +265,7 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
       {isFetchingNextPage && (
         <p className="text-center py-4">Loading more...</p>
       )}
-      {status === 'error' && (
-        <p className="text-center text-red-500">Error: {error.message}</p>
-      )}
+
       {!hasNextPage && status !== 'pending' && (
         <p className="text-center py-4 text-gray-500">No more items to load.</p>
       )}

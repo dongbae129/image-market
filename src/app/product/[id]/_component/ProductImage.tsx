@@ -12,7 +12,7 @@ function ProductImage({ product }: ProductImageProps) {
       <div className="productInfo">
         <div className="imagewrap">
           {product && (
-            <Image
+            <img
               src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${product.image}`}
               // src="/localimages/emptyuser.png"
               // src={
@@ -20,11 +20,26 @@ function ProductImage({ product }: ProductImageProps) {
               //     ? `/watermark/watermark_${product.image}`
               //     : `/uploads/${product.image}`
               // }
-              sizes="(max-width: 493px) 33vw"
-              fill={true}
+
+              // sizes="(max-width: 493px) 33vw"
+              // fill={true}
               alt={product.image}
-              priority
+              // priority
             />
+            // <Image
+            //   src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${product.image}`}
+            //   // src="/localimages/emptyuser.png"
+            //   // src={
+            //   //   product.auth
+            //   //     ? `/watermark/watermark_${product.image}`
+            //   //     : `/uploads/${product.image}`
+            //   // }
+
+            //   sizes="(max-width: 493px) 33vw"
+            //   fill={true}
+            //   alt={product.image}
+            //   priority
+            // />
           )}
         </div>
       </div>

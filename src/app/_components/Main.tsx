@@ -4,7 +4,10 @@ import ResponsiveProducts from '@app/_components/ResponsiveProducts';
 import Banner from '@components/Banner';
 import MasonryGrid from '@components/MasonryFeed';
 
-export default function Main() {
+type Props = {
+  ssrItemCount: number;
+};
+export default function Main({ ssrItemCount }: Props) {
   return (
     <div className={style.main_wrap}>
       <div className="main_header flex w-[94vw] h-[500px] m-auto mb-12">
@@ -14,7 +17,7 @@ export default function Main() {
         </div>
       </div>
       <div className="px-4">
-        <MasonryGrid />
+        <MasonryGrid ssrItemCount={ssrItemCount} />
       </div>
       {/* <MasonryFeed /> */}
       {/* <ResponsiveProducts /> */}

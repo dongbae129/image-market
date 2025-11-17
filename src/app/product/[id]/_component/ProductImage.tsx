@@ -1,10 +1,10 @@
 import { Product } from '@prisma/client';
 import Image from 'next/image';
-import React from 'react';
+
 import { UserHashtagHit } from '../page';
 
 type ProductImageProps = {
-  product: Product & UserHashtagHit;
+  product: (Product & UserHashtagHit) | undefined;
 };
 function ProductImage({ product }: ProductImageProps) {
   return (

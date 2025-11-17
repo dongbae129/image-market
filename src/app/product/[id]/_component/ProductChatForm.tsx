@@ -1,3 +1,4 @@
+'use client';
 import Button from '@app/_components/button';
 import TextArea from '@app/_components/textarea';
 import { newAxios } from '@libs/client/fetcher';
@@ -22,7 +23,7 @@ interface CommentWithUser extends Chat {
   };
 }
 type ProductChatFormProps = {
-  data: ProductDetailType;
+  data: ProductDetailType | undefined;
 };
 function ProductChatForm({ data }: ProductChatFormProps) {
   const {

@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import UserImage from './UserImage';
 import ProductBtnModifty from './ProductBtnModifty';
@@ -8,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { HashTag, Product, ProductHit } from '@prisma/client';
 import { useForm } from 'react-hook-form';
 import ProductModal from './ProductModal';
+import { getProduct } from '@app/product/[id]/_lib/getProduct';
 export interface UserHashtagHit {
   user: {
     email: string;
@@ -21,7 +23,7 @@ export type ProductDetailType = {
   product: Product & UserHashtagHit;
 };
 type ProductInfoProps = {
-  productId: string | undefined;
+  productId: string;
 };
 function ProductInfo({ productId }: ProductInfoProps) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -33,12 +35,11 @@ function ProductInfo({ productId }: ProductInfoProps) {
   } = useForm();
   const watchAuth = watch('checkAuth');
 
-  const getProduct = () =>
-    axios.get(`/api/product/${productId}`).then((res) => res.data);
-  const { data, isLoading, isSuccess } = useQuery<ProductDetailType>({
-    queryKey: ['getProduct'],
-    queryFn: getProduct,
-
+  // const getProduct = () =>
+  //   axios.get(`/api/product/${productId}`).then((res) => res.data);
+  const { data, isLoading, isSuccess } = useQuery<any, any, ProductDetailType>({
+    queryKey: ['getProduct', productId],
+    queryFn: () => getProduct(productId),
     enabled: !!productId
   });
   const onClickDelete = () => {

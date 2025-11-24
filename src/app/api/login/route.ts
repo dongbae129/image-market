@@ -22,7 +22,7 @@ export const GET = async (req, { params }) => {
     }
   );
 };
-export const POST = async (req: NextRequest, res: NextResponse) => {
+export const POST = async (req: NextRequest) => {
   const body = await req.json();
   const { userId, password } = body;
   if (userId === '' || password === '') {

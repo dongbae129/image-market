@@ -43,7 +43,7 @@
     // // 삼항연산안에 또 삼항연산 하는 것을 방지
 
     // "spaced-comment": "off", // 주석 쓰는 것 방지
-    // "no-unused-variable": "off",
+    // "no-unused-variable": "off"
     // "@typescript-eslint/no-non-null-assertion": "off"
   },
   "settings": {

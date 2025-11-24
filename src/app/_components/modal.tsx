@@ -1,7 +1,8 @@
 import { downloadImage } from '@libs/client/downloadImage';
+import { UseMutateFunction } from '@tanstack/react-query';
 
 import { Dispatch, MouseEvent, SetStateAction, useEffect } from 'react';
-import { UseMutateFunction } from 'react-query';
+
 interface ModalProps {
   modalOpen: boolean;
   setModalOpen: Dispatch<SetStateAction<boolean>>;

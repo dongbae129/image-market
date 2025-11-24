@@ -76,7 +76,7 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
   }, [info?.elementValue?.title]);
   const postUploadForm = (data: FormData | UploadFormData) =>
     newAxios
-      .put(`/api/${info.url}`, data, {
+      .post(`/api/${info.url}`, data, {
         // headers: {
         //   'Content-Type': 'multipart/form-data'
         // }
@@ -86,15 +86,17 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
   const { mutate, isPending } = useMutation({
     mutationFn: postUploadForm,
     onSuccess: (res) => {
-      console.log(res, 'img res');
-      console.log(res.data, 'res data');
-      console.log(info, 'infooo');
+      // console.log('U$%Y$%Y');
+      // console.log(res, 'img res');
+      // console.log(res.data, 'res data');
+      // console.log(info, 'infooo');
       // console.log(res, 'res');
       const routerId = res.product ? res.product.id : res.board.id;
       // console.log(routerId, 'routerId');
       const originalRoute = info.url.split('/')[0];
       const url = `/${originalRoute}/${routerId ? routerId : ''}`;
-
+      // console.log(url, 'urlll');
+      // console.log('TETETE');
       router.replace(url);
     }
   });
@@ -142,7 +144,11 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
     // for (const [key, value] of form.entries()) {
     //   console.log(`${key}: ${value}`);
     // }
-    mutate(info.url.includes('product') ? form : formInfo);
+    mutate(info.url.includes('product') ? form : formInfo, {
+      onSuccess(data, variables, context) {
+        console.log(data, 'data', variables, 'var', context, 'cont');
+      }
+    });
   };
   // const onDeleteBoard = () => {
   //   newAxios

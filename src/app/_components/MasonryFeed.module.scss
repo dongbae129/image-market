@@ -1,0 +1,108 @@
+// .card {
+//     /* 핀터레스트는 16px 둥근 모서리를 주로 사용합니다 */
+//     border-radius: 16px; 
+//     // background-color: #ffffff;
+    
+//     /* 기본 상태 그림자: 
+//       거의 보이지 않을 정도로 옅게 깔아주는 그림자(0 1px 2px)와
+//       조금 더 넓게 퍼지는 그림자(0 1px 3px)를 중첩합니다.
+//     */
+//     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 
+//                 0 1px 2px -1px rgba(0, 0, 0, 0.07);
+    
+//     /* 부드러운 전환 효과를 위해 transition 추가 */
+//     /* transform(위치)과 box-shadow(그림자) 모두에 적용 */
+//     transition: transform 0.3s ease-in-out, 
+//                 box-shadow 0.2s ease-in-out;
+//   }
+  
+//   /* 마우스를 올렸을 때 (Hover) 또는 키보드로 포커스했을 때
+//     - 그림자를 더 크고 선명하게 만들어 카드가 '떠오르는' 효과를 줍니다.
+//   */
+//   .card:hover,
+//   .card:focus-within {
+//     /* 호버 상태 그림자: 
+//       그림자를 더 넓게(12px) 퍼지게 하고, 
+//       Y축으로도 살짝 내려(6px) 입체감을 강조합니다.
+//     */
+//     box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.1), 
+//                 0 4px 8px -2px rgba(0, 0, 0, 0.08);
+  
+//     /* (선택 사항) 카드를 살짝 위로 이동시켜 더욱 입체적으로 보이게 할 수 있습니다.
+//       transform: translateY(-2px); 
+//     */
+//   }
+/* 핀터레스트 스타일의 은은한 카드 그림자 (기본 상태)
+  
+  - 핀터레스트는 카드에 `border`를 사용하지 않고, 
+    대신 매우 미묘한 그림자로 경계를 구분합니다.
+  - 여러 개의 그림자를 겹쳐서 부드럽고 자연스러운 느낌을 줍니다.
+*/
+.card {
+    /* 핀터레스트는 16px 둥근 모서리를 주로 사용합니다 */
+    border-radius: 16px; 
+    background-color: #ffffff;
+    
+    /* 그라데이션 오버레이를 위한 position: relative 추가 */
+    // position: relative;
+    /* ::after 가상 요소가 둥근 모서리를 따르도록 overflow: hidden 추가 */
+    overflow: hidden; 
+    
+    /* 기본 상태 그림자: 
+      거의 보이지 않을 정도로 옅게 깔아주는 그림자(0 1px 2px)와
+      조금 더 넓게 퍼지는 그림자(0 1px 3px)를 중첩합니다.
+    */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 
+                0 1px 2px -1px rgba(0, 0, 0, 0.07);
+    
+    /* 부드러운 전환 효과를 위해 transition 추가 */
+    /* transform(위치)과 box-shadow(그림자) 모두에 적용 */
+    // transition: transform 0.3s ease-in-out, 
+    //             box-shadow 0.2s ease-in-out;
+  }
+  
+  /* 호버 시 그라데이션 오버레이를 위한 가상 요소 */
+  .card::after {
+    content: '';
+    position: absolute;
+    /* inset: 0; 은 top, right, bottom, left: 0; 과 동일 */
+    inset: 0; 
+    
+    /* 상단 20%만 어둡게 하고 중간(50%)에서 투명하게 사라지는 그라데이션 */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+    
+    /* 기본 상태는 투명하게 (숨김) */
+    opacity: 0;
+    
+    /* 오버레이가 나타나는 속도 조절 */
+    // transition: opacity 0.2s ease-in-out;
+    
+    /* 마우스 이벤트가 카드 자체에 전달되도록 설정 */
+    pointer-events: none; 
+  }
+  
+  
+  /* 마우스를 올렸을 때 (Hover) 또는 키보드로 포커스했을 때
+    - 그림자를 더 크고 선명하게 만들어 카드가 '떠오르는' 효과를 줍니다.
+  */
+  .card:hover,
+  .card:focus-within {
+    /* 호버 상태 그림자: 
+      그림자를 더 넓게(12px) 퍼지게 하고, 
+      Y축으로도 살짝 내려(6px) 입체감을 강조합니다.
+    */
+    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.1), 
+                0 4px 8px -2px rgba(0, 0, 0, 0.08);
+  
+    /* (선택 사항) 카드를 살짝 위로 이동시켜 더욱 입체적으로 보이게 할 수 있습니다.
+      transform: translateY(-2px); 
+    */
+  }
+  
+  /* 호버 시 그라데이션 오버레이를 보이게 함 */
+  .card:hover::after,
+  .card:focus-within::after {
+    opacity: 1;
+  }
+  
+  

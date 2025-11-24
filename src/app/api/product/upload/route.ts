@@ -98,7 +98,10 @@ export const POST = async (request: NextRequest) => {
     });
     return NextResponse.json({
       ok: true,
-      message: 'success make product'
+      message: 'success make product',
+      product: {
+        id: product.id
+      }
     });
   } catch (error: any) {
     console.error(error, 'error');

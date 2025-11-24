@@ -1,14 +1,13 @@
-'use client';
-import type { NextPage } from 'next';
-import { useRouter } from 'next/navigation';
 import { HashTag, Product, ProductHit } from '@prisma/client';
 
-import ProductImage from './_component/ProductImage';
-
-import ProductInfo from './_component/ProductInfo';
-import ProductChat from './_component/ProductChat';
-import ProductChatForm from './_component/ProductChatForm';
-import { useGetProduct } from './_lib/useGetProduct';
+// import { useGetProduct } from './_lib/useGetProduct';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient
+} from '@tanstack/react-query';
+import { getProduct } from '@app/product/[id]/_lib/getProduct';
+import ProductPage from '@app/product/[id]/_component/ProductPage';
 
 export interface UserHashtagHit {
   user: {
@@ -41,31 +40,39 @@ type Props = {
     id: string;
   };
 };
-const ProductDetail = ({ params }: Props) => {
-  console.log(params, 'params');
-  const router = useRouter();
-  // const arrowRef = useRef<HTMLSpanElement>(null);
+export default async function ProductDetail({ params }: Props) {
+  // console.log(params, 'params');
+  const { id } = await params;
+  const queryClient = new QueryClient();
 
-  const productId = params.id;
+  // 2. 데이터 미리 가져오기 (Prefetch) -> SSR HTML에 데이터 포함
+  await queryClient.prefetchQuery({
+    queryKey: ['product', id],
+    queryFn: () => getProduct(id)
+  });
 
-  const { data, isLoading } = useGetProduct(productId?.toString() as string);
+  // const productId = params.id;
 
-  if (isLoading) return <div>Loading Data....</div>;
-  if (!data?.ok) return <div>해당 상품은 존재하지 않습니다</div>;
+  // const { data, isLoading } = useGetProduct(productId?.toString() as string);
+
+  // if (isLoading) return <div>Loading Data....</div>;
+  // if (!data?.ok) return <div>해당 상품은 존재하지 않습니다</div>;
   return (
-    <div>
-      <div className="productwrapout">
-        <div className="productwrapin">
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div>
+        <div className="productwrapout">
+          <ProductPage key={id} />
+          {/* <div className="productwrapin">
           <ProductImage product={data.product} />
           <div className="userInfo">
             <ProductInfo productId={productId?.toString()} />
             <ProductChat data={data} />
             <ProductChatForm data={data} />
           </div>
-        </div>
+        </div> */}
 
-        <style jsx>{`
-          {/* $card_mxh: 80vh; */}
+          {/* <style jsx>{`
+          
           .productwrapout {
             position: relative;
             margin-top: 30px;
@@ -74,31 +81,16 @@ const ProductDetail = ({ params }: Props) => {
             width: 100%;
             justify-content: center;
           }
-          .productwrapin {
-            width: 100%;
-            min-height: 80vh;
-            max-width: 1050px;
-            display: flex;
-            justify-content: center;
-            border-radius: 2rem;
-            overflow: hidden;
-            box-shadow:
-              rgba(0, 0, 0, 0.16) 0px 3px 6px,
-              rgba(0, 0, 0, 0.23) 0px 3px 6px;
-            > div:last-child {
-              padding: 3rem;
-            }
-          }
+          
 
           .userInfo {
             position: relative;
             width: 50%;
             max-height: 80vh;
           }
-        `}</style>
+        `}</style> */}
+        </div>
       </div>
-    </div>
+    </HydrationBoundary>
   );
-};
-
-export default ProductDetail;
+}

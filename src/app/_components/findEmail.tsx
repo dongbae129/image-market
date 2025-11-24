@@ -17,8 +17,9 @@ function FindEmail({ email, key }: FindEmailProps) {
               <div>
                 <NextImage
                   src={'/localimages/emptyuser.png'}
-                  height="48px"
-                  width="48px"
+                  height={48}
+                  width={48}
+                  alt="emptyuser"
                 />
               </div>
             </Link>

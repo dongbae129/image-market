@@ -1,3 +1,4 @@
+'use client';
 import { getFetch } from '@libs/client/fetcher';
 import React, { useRef, useState } from 'react';
 import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri';
@@ -7,7 +8,7 @@ import { ProductDetailType } from './ProductInfo';
 import { Chat } from '@prisma/client';
 
 type ProductChatProps = {
-  data: ProductDetailType;
+  data: ProductDetailType | undefined;
 };
 export interface CommentWithUser extends Chat {
   user: {

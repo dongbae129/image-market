@@ -11,6 +11,9 @@ import {
 } from '@tanstack/react-query';
 import { getFetch } from '@libs/client/fetcher';
 import { getUserServer } from '@app/_libs/getUserServer';
+import { getProducts } from '@app/_libs/getProducts';
+import { cookies, headers } from 'next/headers';
+import { getColumnsCount } from '@app/_libs/getColumnsCount';
 // import { useSelector } from 'react-redux';
 // import { cookies } from 'next/headers';
 // import { useQuery } from '@tanstack/react-query';
@@ -31,9 +34,26 @@ interface IndexProductImageType {
 type Props = { pageParam?: number };
 
 export default async function Home() {
-  console.log('MainTest');
-  // const toekn = cookies();
-
+  const headerList = headers();
+  const cookieStore = cookies();
+  const secViewport = headerList.get('sec-ch-viewport-width'); // e.g. "375"
+  const secUaMobile = headerList.get('sec-ch-ua-mobile'); // "?1" or "?0"
+  const ua = headerList.get('user-agent') || '';
+  const columns = getColumnsCount(ua);
+  const columnCount = 4;
+  const clientVwCookie = cookieStore.get('client_vw')?.value ?? null;
+  console.log(clientVwCookie, 'clientVwCookie');
+  // if (secViewport) {
+  //   const w = parseInt(secViewport, 10);
+  //   if (w < 640) columnCount = 1;
+  //   else if (w < 1024) columnCount = 2;
+  //   else if (w < 1440) columnCount = 3;
+  //   else columnCount = 4;
+  // } else if (secUaMobile === '?1' || /Mobi|Android/i.test(ua)) {
+  //   columnCount = 1;
+  // } else {
+  //   columnCount = 3; // fallback
+  // }
   // const { accessToken } = useSelector((state: any) => state.user);
   // const accessToken = 'abcdefg';
   // const header = {
@@ -60,37 +80,31 @@ export default async function Home() {
     return res.json();
   }
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: ['userInfo'],
-    queryFn: getUserServer
-  });
+  await Promise.all([
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ['getProducts'],
+      queryFn: ({ pageParam = 0 }) => getProducts(pageParam),
+      initialPageParam: 0
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['userInfo'],
+      queryFn: getUserServer
+    })
+  ]);
+  const initialQueryData: { pages?: GetProductsResponse[] } | undefined =
+    queryClient.getQueryData(['getProducts']);
+
+  let ssrItemCount = 0;
+  if (initialQueryData?.pages?.[0]?.products) {
+    ssrItemCount = initialQueryData.pages[0].products.length; // (e.g., 6)
+  }
   const dehydratedState = dehydrate(queryClient);
   console.log(queryClient.getQueryData(['userInfo']), 'userTest');
   return (
     <div>
       <HydrationBoundary state={dehydratedState}>
-        <Main />
+        <Main ssrItemCount={ssrItemCount} />
       </HydrationBoundary>
     </div>
-    // <div className="main_wrap">
-    //   <div className="main_header flex w-[94vw] h-[500px] m-auto mb-12">
-    //     <div className="banner rounded-lg overflow-hidden border border-[#e3e5e8] shadow-md w-[75%] max-lg:w-full relative">
-    //       <button className='bg-[url("/localimages/left-arrow.svg")] arrow'></button>
-    //       <NextImage
-    //         src={'/localimages/banner.webp'}
-    //         alt="banner"
-    //         fill={true}
-    //       />
-    //       <button className='bg-[url("/localimages/right-arrow.svg")] arrow right-0'></button>
-    //     </div>
-    //     <div className="profile shadow-lg border border-[#e3e5e8] ml-7 w-auto min-w-[320px] h-40 rounded-lg max-lg:hidden overflow-hidden p-5 flex flex-col justify-between">
-    //       <UserCard />
-    //     </div>
-    //   </div>
-
-    //   <ResponsiveProducts />
-    //   {/* <Sidebar /> */}
-
-    // </div>
   );
 }

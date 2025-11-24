@@ -12,9 +12,21 @@ const nextConfig = {
   //     }
   //   ];
   // },
+  // typescript: {
+  //   // 타입 오류가 있어도 빌드 진행
+  //   ignoreBuildErrors: true
+  // },
+  // eslint: {
+  //   // ESLint 오류 무시
+  //   ignoreDuringBuilds: true
+  // },
   reactStrictMode: false,
   // sassOptions: {
   //   includePaths: [path.join(__dirname, 'styles')]
+  // }
+  // images: {
+  //   loader: 'custom',
+  //   loaderFile: './imageLoader.ts'
   // }
   images: {
     remotePatterns: [

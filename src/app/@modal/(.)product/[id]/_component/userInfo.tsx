@@ -8,9 +8,9 @@ type Props = {
 };
 export default function UserInfo({ productId }: Props) {
   const { data, isFetching, isLoading } = useFeedDetail(productId);
-  console.log(data?.product?.user?.name, isFetching, isLoading, 'infodata');
+  console.log(data, isFetching, isLoading, 'infodata');
   // return <Loading />;
-  if (!data?.product?.user?.name && isFetching) return <Loading />;
+  if (!data?.product?.user?.at && isFetching) return <Loading />;
 
   return (
     <div className="flex items-center space-x-2">

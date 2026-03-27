@@ -21,7 +21,7 @@ export default async function IntercetProductPage({ params }: Props) {
   return (
     <DetailModal>
       <div className="h-full">
-        <LikeComment />
+        <LikeComment productId={id} />
         <ModalImage productId={id} />
         <div className="space-y-3 p-2">
           <UserInfo productId={id} />

@@ -1,7 +1,9 @@
 // import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
-import { type NextRequest, NextResponse } from 'next/server';
-
+import { NextRequest, NextResponse } from 'next/server';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { nanoid } from 'nanoid';
 export const GET = async (req: NextRequest, res) => {
   const searchParams = req.nextUrl.searchParams;
   const id = searchParams.get('id');
@@ -27,6 +29,22 @@ export const GET = async (req: NextRequest, res) => {
               }
             }
           : {})
+      },
+      select: {
+        id: true,
+        image: true,
+        title: true,
+        ratio: true,
+        description: true,
+        commentsCount: true,
+        likesCount: true,
+        user: {
+          select: {
+            id: true,
+            image: true,
+            name: true
+          }
+        }
       }
     });
     return NextResponse.json({
@@ -43,7 +61,34 @@ export const GET = async (req: NextRequest, res) => {
     );
   }
 };
+export const POST = async (req: NextRequest, res: NextResponse) => {
+  const bucketName = process.env.AWS_S3_BUCKET_NAME!;
 
+  const file = await req.json();
+
+  console.log(file, 'file');
+  const key = nanoid() + file.name;
+
+  const s3 = new S3Client({
+    region: process.env.AWS_REGION!
+  });
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    ContentType: file.type
+  });
+  const url = await getSignedUrl(s3, command, {
+    expiresIn: 60 * 5
+  });
+
+  return NextResponse.json({
+    ok: true,
+    data: {
+      url,
+      key
+    }
+  });
+};
 // const Product = async (req: NextApiRequest, res: NextApiResponse) => {
 //   if (req.method === 'GET') {
 //     const searchQuery = req.query.search;

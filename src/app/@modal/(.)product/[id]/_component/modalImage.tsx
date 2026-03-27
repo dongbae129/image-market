@@ -8,9 +8,14 @@ export default function ModalImage({ productId }: { productId: string }) {
     <div className="relative aspect-[1.5] w-full bg-gray-100 flex items-center justify-center">
       {/* 실제 이미지 사용 시 아래 주석 해제 후 img 태그 사용 */}
       {/* <img src="/your-image.jpg" alt="Feed" className="h-full w-full object-cover" /> */}
+      {/* <img
+        src={`https://d18ktmttqdka9f.cloudfront.net/${data?.product?.image}`}
+        alt="modal-img"
+      /> */}
       <Image
-        // src={data?.product?.image}
-        src={'/localimages/emptyuser.png'}
+        src={data?.product?.image}
+        // src={'/localimages/emptyuser.png'}
+        // sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
         alt="modal-image"
         fill
         // sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"

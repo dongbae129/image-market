@@ -27,9 +27,12 @@ export default function ProductPage() {
     <div className="productwrapin">
       <ProductImage product={data?.product} />
       <div className="userInfo">
-        <ProductInfo key={id} productId={id?.toString()} />
-        <ProductChat key={id} data={data} />
-        <ProductChatForm key={id} data={data} />
+        {/* <ProductInfo key={id} productId={id?.toString()} />
+          <ProductChat key={id} data={data} />
+          <ProductChatForm key={id} data={data} /> */}
+        <ProductInfo productId={id?.toString()} />
+        <ProductChat data={data} />
+        <ProductChatForm data={data} />
       </div>
       <style jsx>{`
         .productwrapin {

@@ -1,24 +1,24 @@
 'use client';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
-import {
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-  useLayoutEffect,
-  useCallback
-} from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { useWindowVirtualizer } from '@tanstack/react-virtual'; // 가상화 훅 추가
 import { getProducts } from '@app/_libs/getProducts';
 import { normalizeRatio } from '@app/_libs/normalizeRatio';
-import Link from 'next/link';
-import style from './MasonryFeed.module.scss';
+import styles from './MasonryFeed.module.scss';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import PreloadLink from '@components/PreLoadLink';
-// --- 최적화된 유동적 컬럼 너비 계산 로직 ---
+import Link from 'next/link';
+import { Product } from '@prisma/client';
+
+type ProductProps = {
+  ok: boolean;
+  product: Product;
+};
+// --- 상수 및 유틸 ---
 const GAP = 16;
-const MIN_CARD_WIDTH = 220; // 카드의 최소 너비 (px)
+const MIN_CARD_WIDTH = 220;
 
 function calculateOptimalLayout(containerWidth: number) {
   if (!containerWidth || containerWidth <= 0) {
@@ -37,13 +37,12 @@ function calculateOptimalLayout(containerWidth: number) {
 
   if (idealWidth < MIN_CARD_WIDTH && maxPossibleColumns > 1) {
     columnCount = maxPossibleColumns - 1;
-    // 컬럼 수가 0이 되지 않도록 보장 (매우 좁은 화면)
     if (columnCount < 1) columnCount = 1;
     columnWidth = (containerWidth - (columnCount - 1) * GAP) / columnCount;
-    columnWidth = Math.max(MIN_CARD_WIDTH, columnWidth); // 최종 너비는 최소 너비 이상이어야 함
+    columnWidth = Math.max(MIN_CARD_WIDTH, columnWidth);
   }
 
-  return { columnWidth: Math.floor(columnWidth), columnCount }; // 정수로 반환
+  return { columnWidth: Math.floor(columnWidth), columnCount };
 }
 
 export default function MasonryGrid({ ssrItemCount = 0 }) {
@@ -56,9 +55,14 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
     columnWidth: 0,
     columnCount: 0
   });
-
-  const imgRef = useRef(null);
-  const preloaded = useRef({ image: false, route: false });
+  const queryClient = useQueryClient();
+  // --- 1. Window Virtualizer 설정 ---
+  // 별도의 element ref 없이 브라우저 window 스크롤을 감지합니다.
+  const virtualizer = useWindowVirtualizer({
+    count: 0, // Masonry는 row 기반이 아니므로 count를 0으로 두고 scrollOffset만 활용합니다.
+    estimateSize: () => 0,
+    overscan: 0
+  });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery({
@@ -72,21 +76,21 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
       }
     });
 
-  // 무한 스크롤
+  // 무한 스크롤 트리거
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Hydration 완료 및 초기/리사이즈 시 레이아웃 파라미터 설정
+  // Hydration 및 리사이즈 이벤트
   useEffect(() => {
     setIsHydrated(true);
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
     const updateLayoutParams = () => {
       if (containerRef.current) {
-        const params = calculateOptimalLayout(containerRef.current.offsetWidth); // 변경된 함수 사용
+        const params = calculateOptimalLayout(containerRef.current.offsetWidth);
         setLayoutParams((prevParams) => {
           if (
             params.columnWidth !== prevParams.columnWidth ||
@@ -101,10 +105,10 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
 
     const handleResize = () => {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(updateLayoutParams, 150); // Debounce 시간 조절 가능
+      debounceTimer = setTimeout(updateLayoutParams, 150);
     };
 
-    updateLayoutParams(); // 초기 계산
+    updateLayoutParams();
     const transitionTimer = setTimeout(() => {
       setEnableTransitions(true);
     }, 150);
@@ -116,15 +120,16 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
       clearTimeout(debounceTimer);
       clearTimeout(transitionTimer);
     };
-  }, []); // 마운트 시 한 번만 실행
+  }, []);
 
-  // 모든 아이템 병합
+  // 전체 데이터 플랫화
   const allItems = useMemo(
     () => data?.pages.flatMap((page) => page.products) ?? [],
     [data]
   );
 
-  // --- 레이아웃 계산 로직 (useMemo) ---
+  // --- 2. 전체 아이템 위치 계산 (기존 로직 유지) ---
+  // 가상화를 하더라도 전체 높이를 알아야 스크롤바가 유지되므로 위치 계산은 전체 다 수행합니다.
   const { positions, containerHeight } = useMemo(() => {
     if (
       !isHydrated ||
@@ -132,7 +137,6 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
       allItems.length === 0 ||
       layoutParams.columnCount === 0
     ) {
-      // 초기에는 SSR 결과를 유지하거나 빈 배열 반환 (early script가 처리)
       return { positions: [], containerHeight: 'auto' };
     }
 
@@ -147,9 +151,6 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
     const newPositions: Position[] = [];
 
     allItems.forEach((item) => {
-      // SSR 아이템은 초기 위치 건너뛰기 (스타일은 JSX에서 처리)
-      // if (index < ssrItemCount && !enableTransitions) return; // 초기 transition 비활성화시 SSR 아이템 계산 불필요 -> 로직 단순화 위해 제거
-
       let shortestColumnIndex = 0;
       for (let i = 1; i < columnCount; i++) {
         if (columnHeights[i] < columnHeights[shortestColumnIndex]) {
@@ -159,7 +160,7 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
 
       const top = columnHeights[shortestColumnIndex];
       const left = shortestColumnIndex * (columnWidth + GAP);
-      const itemHeight = columnWidth * normalizeRatio(item.ratio); // ratio 기반 높이 계산
+      const itemHeight = columnWidth * normalizeRatio(item.ratio);
 
       columnHeights[shortestColumnIndex] += itemHeight + GAP;
       newPositions.push({ top, left, width: columnWidth, height: itemHeight });
@@ -167,15 +168,61 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
 
     return {
       positions: newPositions,
-      containerHeight: Math.max(0, ...columnHeights) - GAP // 음수 방지 및 마지막 갭 제거
+      containerHeight: Math.max(0, ...columnHeights) - GAP
     };
-  }, [
-    allItems,
-    isHydrated,
-    layoutParams /*, ssrItemCount, enableTransitions */
-  ]); // ssrItemCount, enableTransitions 의존성 제거
+  }, [allItems, isHydrated, layoutParams]);
 
-  // JSX 렌더링 부분
+  // --- 3. 뷰포트 기반 렌더링 아이템 필터링 (가상화 핵심) ---
+  const visibleItems = useMemo(() => {
+    // Hydration 전이거나 위치 계산이 안 됐으면, 초기 SSR 아이템만 리턴하거나 빈 배열
+    if (!isHydrated || positions.length === 0) {
+      return allItems.slice(0, ssrItemCount).map((item, index) => ({
+        item,
+        index,
+        pos: null // 초기엔 위치 정보 없음 (early script가 처리)
+      }));
+    }
+
+    const scrollY = virtualizer.scrollOffset || 0;
+    // 윈도우 높이 (SSR일 땐 기본값)
+    const windowHeight =
+      typeof window !== 'undefined' ? window.innerHeight : 1000;
+
+    // 버퍼: 위아래로 800px 정도 미리 렌더링해서 스크롤 시 깜빡임 방지
+    const buffer = 800;
+    const rangeStart = scrollY - buffer;
+    const rangeEnd = scrollY + windowHeight + buffer;
+
+    // 전체 아이템 중 현재 보고 있는 범위에 겹치는 것만 필터링
+    const visibleResults = [];
+    for (let i = 0; i < allItems.length; i++) {
+      const pos = positions[i];
+      if (!pos) continue;
+
+      const itemBottom = pos.top + pos.height;
+      // 아이템의 바닥이 범위 시작보다 아래 && 아이템 머리가 범위 끝보다 위
+      if (itemBottom > rangeStart && pos.top < rangeEnd) {
+        visibleResults.push({
+          item: allItems[i],
+          index: i,
+          pos: pos
+        });
+      }
+    }
+    return visibleResults;
+  }, [allItems, positions, virtualizer.scrollOffset, isHydrated, ssrItemCount]);
+
+  const clickTest = (data: Product) => {
+    queryClient.setQueryData(['product', data.id], (prev) => {
+      // console.log(data, 'clickData', prev, 'prev');
+      // if (prev?.product?.user) return prev;
+      return {
+        ok: true,
+        product: data
+      };
+    });
+    // queryClient.invalidateQueries({ queryKey: ['product', data.id] });
+  };
   return (
     <>
       <div
@@ -183,91 +230,93 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
         data-masonry-container="true"
         className="relative mx-auto"
         style={{
-          // Hydration 이후에만 React가 계산한 높이 적용
+          // 전체 컨테이너 높이를 명시해야 스크롤바가 정상적으로 생성됨
           height:
             isHydrated && typeof containerHeight === 'number'
               ? `${containerHeight}px`
               : 'auto',
           transition: enableTransitions ? 'height 300ms ease' : 'none'
         }}
-        suppressHydrationWarning={true} // SSR과 초기 스타일 불일치 경고 무시
+        suppressHydrationWarning
       >
-        {allItems.map((item, index) => {
-          const pos = positions[index];
-          // SSR 아이템은 early script가 처리, 클라이언트 추가 아이템은 React가 처리
+        {visibleItems.map(({ item, index, pos }) => {
           const isClientItem = index >= ssrItemCount;
 
           return (
             <div
+              suppressHydrationWarning
               key={item.id}
               data-masonry-item="true"
               data-ratio={item.ratio}
-              data-client-item={isClientItem ? 'true' : undefined} // 클라이언트 추가 아이템 식별
-              className={`${style.card} rounded-lg overflow-hidden absolute`} // 기본적으로 absolute
+              data-client-item={isClientItem ? 'true' : undefined}
+              className={`${styles.card} rounded-lg overflow-hidden absolute`}
               style={
-                // Hydration 이후 & 위치 계산 완료 시 스타일 적용
                 isHydrated && pos
                   ? {
                       width: `${pos.width}px`,
                       height: `${pos.height}px`,
                       transform: `translate(${pos.left}px, ${pos.top}px)`,
+                      // willChange 최적화 추가: 브라우저에게 변화 힌트 제공
+                      willChange: 'transform',
                       transition: enableTransitions
                         ? 'transform 300ms ease-in-out, width 150ms ease-in-out'
                         : 'none'
-                      // SSR 아이템은 early script가 visible 처리, 클라이언트 아이템은 React가 visible 처리
-                      // visibility: 'visible'
                     }
                   : {
-                      // SSR 아이템 초기 상태 (early script 처리 전)
-                      // Early script가 너비/위치/visibility 적용할 것임
-                      width: `${MIN_CARD_WIDTH}px`, // 임시 너비
-                      aspectRatio: normalizeRatio(+item.ratio),
-                      visibility: 'hidden', // 초기 숨김
+                      // SSR 초기 상태 (early script가 처리할 영역)
+                      width: `${MIN_CARD_WIDTH}px`,
+                      aspectRatio: `${normalizeRatio(+item.ratio)}`,
+                      visibility: 'hidden',
                       top: 0,
                       left: 0
                     }
               }
             >
-              <PreloadLink
+              <Link
+                onClick={() => clickTest(item)}
                 href={`/product/${item.id}`}
-                className="w-full h-full object-cover block"
-                imageSrc={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${item.image}`}
-                // passHref
+                scroll={false}
+                className="w-full h-full block relative" // Image fill을 위해 relative
+                // imageSrc={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${item.image}`}
               >
-                {/* <Image
-                  src={`/${item.image}`}
-                  className="object-cover"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  src="/localimages/emptyuser.png"
-                  // alt={`Pin ${item.id}`}
-                  fill={true}
-                  // 초기 SSR 아이템은 Eager, 이후는 Lazy 로딩
-                  priority={true}
-                  loading={index < ssrItemCount ? 'eager' : 'lazy'}
+                {/* --- 4. next/image 최적화 적용 --- */}
+                {/* <img
+                  src={`https://d18ktmttqdka9f.cloudfront.net/${item.image}`}
+                  alt="modal-img"
                 /> */}
 
-                <img
+                <Image
+                  src={item.image}
+                  // src={'/localimages/emptyuser.png'}
                   // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${item.image}`}
-                  src="/localimages/emptyuser.png"
                   alt={`Pin ${item.id}`}
-                  className="w-full h-full object-cover block"
-                  // 초기 SSR 아이템은 Eager, 이후는 Lazy 로딩
-                  loading={index < ssrItemCount ? 'eager' : 'lazy'}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
+                  className="object-cover"
+                  // 초기 아이템만 우선 로딩
+                  priority={index < 6}
+                  loading={index < 6 ? 'eager' : 'lazy'}
+                  // 블러 처리 (필요시 base64 추가)
+                  // placeholder="blur"
+                  // blurDataURL="data:..."
                 />
-              </PreloadLink>
+              </Link>
             </div>
           );
         })}
       </div>
 
-      {/* 무한 스크롤 감지 및 로딩 상태 */}
       <div ref={inViewRef} className="h-10 w-full" />
       {isFetchingNextPage && (
-        <p className="text-center py-4">Loading more...</p>
+        <p className="text-center py-4 text-gray-400 text-sm">
+          Loading more...
+        </p>
       )}
 
       {!hasNextPage && status !== 'pending' && (
-        <p className="text-center py-4 text-gray-500">No more items to load.</p>
+        <p className="text-center py-10 text-gray-400 text-sm">
+          No more items to load.
+        </p>
       )}
     </>
   );

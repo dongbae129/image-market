@@ -14,9 +14,9 @@ import { TokenPayload } from '@libs/server/utils';
 import { nanoid } from 'nanoid';
 
 const endpoint = process.env.NEXT_R2_S3_CLIENT_ENDPOINT!;
-const accessKeyId = process.env.NEXT_R2_ACCESS_KEY_ID!;
-const secretAccessKey = process.env.NEXT_R2_SECRET_ACCESS_KEY!;
-const bucketName = process.env.NEXT_R2_BUCKET_NAME!;
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
+const bucketName = process.env.AWS_S3_BUCKET_NAME!;
 const S3 = new S3Client({
   region: 'auto',
   endpoint,
@@ -34,8 +34,13 @@ const uploadImg = async (file: Buffer, fileName: string) => {
     Body: file,
     ContentType: file.type
   });
-  const imgUrl = await S3.send(command);
-  return imgUrl;
+  try {
+    const imgUrl = await S3.send(command);
+    return imgUrl;
+  } catch (error) {
+    console.error(error, 'upload error');
+    return 'upload fail';
+  }
 };
 
 export const POST = async (request: NextRequest) => {

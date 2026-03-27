@@ -45,8 +45,8 @@ const UserCard = () => {
 
   const { data } = useQuery<userResponse>({
     queryKey: ['userInfo'],
-    // queryFn: getFetch('/api/user', header)
-    queryFn: getTest2
+    queryFn: getFetch('/api/user', header)
+    // queryFn: getTest2
   });
   // const data = {
   //   ok: true,

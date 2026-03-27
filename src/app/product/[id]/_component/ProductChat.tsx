@@ -29,7 +29,7 @@ function ProductChat({ data }: ProductChatProps) {
 
     enabled: !!data?.product?.id,
     select: (chat) => {
-      if (chat?.comments?.length > 0) setChatOpen(true);
+      // if (chat?.comments?.length > 0) setChatOpen(true);
       return chat;
     }
   });

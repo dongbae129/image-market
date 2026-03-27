@@ -92,7 +92,7 @@ function ProductInfo({ productId }: ProductInfoProps) {
           <div className="hashtagwrap" role="hashtag">
             {data?.product.hashtag?.hashtag?.length > 0 &&
               data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
-                <span className="hashtag" key={i}>
+                <span className="hashtag" key={i + hash}>
                   <span>#</span>
                   <span>{hash}</span>
                 </span>

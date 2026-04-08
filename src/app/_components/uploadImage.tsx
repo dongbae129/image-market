@@ -173,6 +173,7 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
       },
       body: file
     });
+    const createProduct = await fetch()
     console.log(uploadImage, 'uploadImageuploadImage');
     // mutate(info.url.includes('product') ? form : formInfo, {
     //   onSuccess(data, variables, context) {

@@ -70,7 +70,7 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
       queryFn: getProducts,
       initialPageParam: 0,
       getNextPageParam: (lastPage) => {
-        const lastPageLength = lastPage.products.length;
+        const lastPageLength = lastPage?.products?.length;
         if (lastPageLength === 0 || lastPageLength < 6) return undefined;
         return lastPageLength >= 6 && lastPage.products[lastPageLength - 1].id;
       }
@@ -160,7 +160,7 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
 
       const top = columnHeights[shortestColumnIndex];
       const left = shortestColumnIndex * (columnWidth + GAP);
-      const itemHeight = columnWidth * normalizeRatio(item.ratio);
+      const itemHeight = columnWidth * normalizeRatio(item?.ratio);
 
       columnHeights[shortestColumnIndex] += itemHeight + GAP;
       newPositions.push({ top, left, width: columnWidth, height: itemHeight });

@@ -13,7 +13,7 @@ export default function ModalImage({ productId }: { productId: string }) {
         alt="modal-img"
       /> */}
       <Image
-        src={data?.product?.image}
+        src={`736x/${data?.product?.image}`}
         // src={'/localimages/emptyuser.png'}
         // sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
         alt="modal-image"

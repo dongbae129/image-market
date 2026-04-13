@@ -14,8 +14,8 @@ function ProductImage({ product }: ProductImageProps) {
           {product && (
             <Image
               // loader={LoaderTest}
-              // src={product.image}
-              src={'/localimages/emptyuser.png'}
+              src={`736x/${product.image}`}
+              // src={'/localimages/emptyuser.png'}
               // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${product.image}`}
               // src="https://images.unsplash.com/photo-1501854140801-50d01698950b" // 테스트용 외부 이미지
               alt="Test"

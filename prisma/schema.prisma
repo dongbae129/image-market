@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   // url      = env("DATABASE_URL")
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
@@ -92,6 +92,7 @@ model Product {
   userId        Int
   commentsCount Int           @default(0)
   likesCount    Int           @default(0)
+  status        String        @default("READY")
   chats         Chat[]
   hashtag       HashTag?
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)

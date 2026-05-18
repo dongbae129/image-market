@@ -23,6 +23,7 @@ export const GET = async (req: NextRequest, res) => {
       skip: lastId ? 1 : 0,
       ...(lastId && { cursor: { id: lastId } }),
       where: {
+        status: 'READY',
         ...(searchQuery
           ? {
               title: {
@@ -39,6 +40,8 @@ export const GET = async (req: NextRequest, res) => {
         description: true,
         commentsCount: true,
         likesCount: true,
+        dominantColor: true,
+        lqip: true,
         user: {
           select: {
             id: true,
@@ -86,10 +89,11 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
     const { productAuth, title, hashtag, description, ratio, tempKey } =
       productInfo;
+    const imageKey = tempKey.slice(5);
     const sqs = new SQSClient({ region: process.env.AWS_REGION });
     const product = await client.product.create({
       data: {
-        image: tempKey,
+        image: imageKey,
         title,
         description,
         userId,

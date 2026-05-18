@@ -93,6 +93,8 @@ model Product {
   commentsCount Int           @default(0)
   likesCount    Int           @default(0)
   status        String        @default("READY")
+  dominantColor String?
+  lqip          String?
   chats         Chat[]
   hashtag       HashTag?
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)

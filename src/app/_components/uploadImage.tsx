@@ -196,7 +196,9 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
       /*
       product create
        */
-      productInfo['tempKey'] = data.tempKey;
+      productInfo['tempKey'] = data.tempKey.endsWith('.jpeg')
+        ? data.tempKey.replace(/\.jpeg$/i, '.jpg')
+        : data.tempKey;
       await fetch('api/product', {
         method: 'POST',
         body: JSON.stringify(

@@ -241,7 +241,9 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
       >
         {visibleItems.map(({ item, index, pos }) => {
           const isClientItem = index >= ssrItemCount;
-
+          const convertedUrl = item.image.endsWith('.jpeg')
+            ? item.image.replace(/\.jpeg$/i, '.jpg')
+            : item.image;
           return (
             <div
               suppressHydrationWarning
@@ -250,8 +252,8 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
               data-ratio={item.ratio}
               data-client-item={isClientItem ? 'true' : undefined}
               className={`${styles.card} rounded-lg overflow-hidden absolute`}
-              style={
-                isHydrated && pos
+              style={{
+                ...(isHydrated && pos
                   ? {
                       width: `${pos.width}px`,
                       height: `${pos.height}px`,
@@ -269,8 +271,9 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
                       visibility: 'hidden',
                       top: 0,
                       left: 0
-                    }
-              }
+                    }),
+                backgroundColor: item.dominantColor || '#e0e0e0'
+              }}
             >
               <Link
                 onClick={() => clickTest(item)}
@@ -286,8 +289,8 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
                 /> */}
 
                 <Image
-                  // src={`474x/${item.image}`}
-                  src={'/localimages/emptyuser.png'}
+                  src={`474x/${convertedUrl}`}
+                  // src={'/localimages/emptyuser.png'}
                   // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${item.image}`}
                   alt={`Pin ${item.id}`}
                   fill

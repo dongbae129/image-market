@@ -45,8 +45,8 @@ const UserCard = () => {
 
   const { data } = useQuery<userResponse>({
     queryKey: ['userInfo'],
-    // queryFn: getFetch('/api/user', header)
-    queryFn: getTest2
+    queryFn: getFetch('/api/user', header)
+    // queryFn: getTest2
   });
   // const data = {
   //   ok: true,
@@ -93,7 +93,7 @@ const UserCard = () => {
                 </Link>
               </div>
               <div>
-                <Link href={`/profile/${data?.user.id}/myproducts`}>
+                <Link href={`/profile/${data?.user.id}`}>
                   <div className="profile_selection before:left-[-10px] block text-center relative text-sm">
                     <span className="w-full">게시물</span>
                   </div>

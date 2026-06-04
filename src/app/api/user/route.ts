@@ -11,7 +11,7 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
   //   message: 'AAABB'
   // });
   const auth = checkAuth(req, res, 0);
-  console.log(auth, 'user auth test');
+
   if (auth?.checkError)
     return NextResponse.json(
       {

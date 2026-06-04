@@ -110,9 +110,10 @@ export const createRefreshToken = (id: number, type: number) =>
 
 export const sendAccesToken = (token: string) => {
   cookies().set('accesToken', token, {
-    httpOnly: true,
-    maxAge: 60 * 10,
-    secure: true
+    // httpOnly: true,
+    // maxAge: 60 * 10
+    maxAge: 60 * 10 * 10
+    // secure: true
   });
 };
 export const sendRefreshToken = (token: string) => {

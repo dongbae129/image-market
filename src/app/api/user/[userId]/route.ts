@@ -26,50 +26,63 @@ export const GET = async (req: NextRequest, { params }: Props) => {
         status: 401
       }
     );
-  const user = await client.user.findUnique({
-    where: {
-      id: +userId.toString()
-    }
-  });
-  if (!user)
+  try {
+    const user = await client.user.findUnique({
+      where: {
+        id: +userId.toString()
+      }
+    });
+    if (!user)
+      return NextResponse.json(
+        {
+          ok: false,
+          message: 'not user'
+        },
+        {
+          status: 401
+        }
+      );
+    // const products = await client.product.findMany({
+    //   where: {
+    //     userId: user.id
+    //   },
+    //   include: {
+    //     hashtag: {
+    //       select: {
+    //         hashtag: true
+    //       }
+    //     },
+    //     productHit: {
+    //       select: {
+    //         hit: true
+    //       }
+    //     }
+    //   },
+
+    //   orderBy: {
+    //     productHit: {
+    //       hit: 'desc'
+    //     }
+    //   },
+    //   take: 5
+    // });
+    return NextResponse.json({
+      ok: true,
+      user
+      // products
+    });
+  } catch (error) {
+    console.error(error);
     return NextResponse.json(
       {
         ok: false,
-        message: 'not user'
+        error
       },
       {
-        status: 401
+        status: 500
       }
     );
-  const products = await client.product.findMany({
-    where: {
-      userId: user.id
-    },
-    include: {
-      hashtag: {
-        select: {
-          hashtag: true
-        }
-      },
-      productHit: {
-        select: {
-          hit: true
-        }
-      }
-    },
-
-    orderBy: {
-      productHit: {
-        hit: 'desc'
-      }
-    },
-    take: 5
-  });
-  return NextResponse.json({
-    ok: true,
-    user,
-    products
-  });
+  }
 };
 
 // userDetail.get(async (req, res) => {

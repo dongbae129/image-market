@@ -3,13 +3,12 @@ import React, { useState } from 'react';
 import UserImage from './UserImage';
 import ProductBtnModifty from './ProductBtnModifty';
 import Input from '@app/_components/input';
-import DOMPurify from 'dompurify';
-import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { HashTag, Product, ProductHit } from '@prisma/client';
 import { useForm } from 'react-hook-form';
 import ProductModal from './ProductModal';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
+import sanitizeHtml from 'sanitize-html';
 export interface UserHashtagHit {
   user: {
     email: string;
@@ -38,7 +37,7 @@ function ProductInfo({ productId }: ProductInfoProps) {
   // const getProduct = () =>
   //   axios.get(`/api/product/${productId}`).then((res) => res.data);
   const { data, isLoading, isSuccess } = useQuery<any, any, ProductDetailType>({
-    queryKey: ['getProduct', productId],
+    queryKey: ['product', productId],
     queryFn: () => getProduct(productId),
     enabled: !!productId
   });
@@ -48,8 +47,7 @@ function ProductInfo({ productId }: ProductInfoProps) {
   const onClickDown = () => {
     setPaidDown((prev) => !prev);
   };
-  if (isLoading) return null;
-
+  // if (isLoading) return null;
   return (
     <>
       <ProductModal
@@ -82,17 +80,23 @@ function ProductInfo({ productId }: ProductInfoProps) {
           </div>
 
           <div>
-            <h1>{data.product.title}</h1>
+            <h1>{data?.product.title}</h1>
           </div>
+          <div>{data?.product?.description}</div>
           <div
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(data?.product.description as string)
+              __html: sanitizeHtml(data?.product?.description as string)
             }}
           />
+          {/* <div
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(data?.product?.description as string)
+            }}
+          /> */}
           <div className="hashtagwrap" role="hashtag">
             {data?.product.hashtag?.hashtag?.length > 0 &&
               data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
-                <span className="hashtag" key={i}>
+                <span className="hashtag" key={i + hash}>
                   <span>#</span>
                   <span>{hash}</span>
                 </span>

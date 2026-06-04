@@ -11,6 +11,7 @@ import InputHashtag from './hashtag';
 import Input from './input';
 import { getRatio } from '@libs/client/getRatio';
 import { labelOb } from '@libs/client/data/data';
+import { json } from 'stream/consumers';
 
 export interface UploadForm {
   imm?: FileList;
@@ -46,6 +47,7 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
 
   // const titleRef = useRef('');
   const [hashtag, setHashtag] = useState<string[]>([]);
+  const form = new FormData();
   const imgRatioRef = useRef('');
   const { register, handleSubmit, watch, setValue, getValues } =
     useForm<UploadForm>();
@@ -76,37 +78,44 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
   }, [info?.elementValue?.title]);
   const postUploadForm = (data: FormData | UploadFormData) =>
     newAxios
-      .post(`/api/${info.url}`, data, {
+      .post(`/api/product`, data, {
         // headers: {
         //   'Content-Type': 'multipart/form-data'
         // }
       })
       .then((res) => res.data);
+  // newAxios
+  //   .post(`/api/${info.url}`, data, {
+  //     // headers: {
+  //     //   'Content-Type': 'multipart/form-data'
+  //     // }
+  //   })
+  //   .then((res) => res.data);
 
   const { mutate, isPending } = useMutation({
     mutationFn: postUploadForm,
-    onSuccess: (res) => {
-      // console.log('U$%Y$%Y');
-      // console.log(res, 'img res');
-      // console.log(res.data, 'res data');
-      // console.log(info, 'infooo');
-      // console.log(res, 'res');
-      const routerId = res.product ? res.product.id : res.board.id;
-      // console.log(routerId, 'routerId');
-      const originalRoute = info.url.split('/')[0];
-      const url = `/${originalRoute}/${routerId ? routerId : ''}`;
-      // console.log(url, 'urlll');
-      // console.log('TETETE');
-      router.replace(url);
+    onSuccess: async (res) => {
+      console.log(res, 'RES');
+      const uploadImage = await fetch(res.data.url, {
+        method: 'PUT',
+        headers: {
+          'Content-type': res.data.type
+        },
+        body: form.get('file')
+      });
+      console.log(uploadImage, 'pre uplaod test');
+      // const routerId = res.product ? res.product.id : res.board.id;
+      // const originalRoute = info.url.split('/')[0];
+      // const url = `/${originalRoute}/${routerId ? routerId : ''}`;
+      // router.replace(url);
     }
   });
 
   const imageWatch = watch('image');
 
-  const onValid = (v: UploadForm) => {
+  const onValid = async (v: UploadForm) => {
     if (isPending) return;
 
-    const form = new FormData();
     const formInfo: UploadFormData = {};
 
     // console.log(v, 'VVV');
@@ -116,23 +125,32 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
       return;
     }
 
+    const productInfo: UploadFormData = {};
+
     for (const key in v) {
       if (key === 'image') {
         form.append('file', v[key][0]);
       } else {
         if (key === 'productAuth') {
           form.append('productAuth', v[key]);
+          productInfo['productAuth'] = v[key];
           formInfo['productAuth'] = v[key];
           continue;
         } else if (key === 'title') {
           form.append('title', inputTitle);
+          productInfo['title'] = v[key];
           formInfo['title'] = inputTitle;
           continue;
         }
         form.append(key, v[key]);
+        productInfo[key] = v[key];
         formInfo[key] = v[key];
       }
     }
+    productInfo['hashtag'] = hashtag.join(',');
+    productInfo['description'] = editorValue;
+    productInfo['ratio'] = imgRatioRef.current;
+
     form.append('hashtag', hashtag.join(','));
     form.append('description', editorValue);
     form.append('imageOk', v.image && v.image[0] ? 'true' : 'false');
@@ -144,11 +162,61 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
     // for (const [key, value] of form.entries()) {
     //   console.log(`${key}: ${value}`);
     // }
-    mutate(info.url.includes('product') ? form : formInfo, {
-      onSuccess(data, variables, context) {
-        console.log(data, 'data', variables, 'var', context, 'cont');
-      }
-    });
+
+    const file = v['image'][0] as File;
+    try {
+      const getPreSignedUrl = await fetch('api/product/init', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: file.name,
+          type: file.type
+        })
+      });
+      const { data } = await getPreSignedUrl.json();
+
+      const s3Form = new FormData();
+      s3Form.append('Content-Type', file.type);
+      Object.entries(data.fields).forEach(([k, v]) => {
+        s3Form.append(k, v);
+      });
+      s3Form.append('file', file);
+      /*
+       s3 이미지 업로드
+       */
+      const uploadImage = await fetch(data.url, {
+        method: 'POST',
+        //   // headers: {
+        //   //   'Content-type': file.type
+        //   // },
+        body: s3Form
+      });
+      /*
+      product create
+       */
+      productInfo['tempKey'] = data.tempKey.endsWith('.jpeg')
+        ? data.tempKey.replace(/\.jpeg$/i, '.jpg')
+        : data.tempKey;
+      await fetch('api/product', {
+        method: 'POST',
+        body: JSON.stringify(
+          info.url.includes('product') ? productInfo : formInfo
+        )
+        // body: form
+      });
+      // mutate(info.url.includes('product') ? form : formInfo);
+
+      // mutate(info.url.includes('product') ? form : formInfo, {
+      //   onSuccess(data, variables, context) {
+      //     console.log(data, 'data', variables, 'var', context, 'cont');
+      //   }
+      // });
+    } catch (error) {
+      console.error(error, 'ERR');
+      return;
+    }
   };
   // const onDeleteBoard = () => {
   //   newAxios

@@ -1,4 +1,4 @@
-import { ResponseType, imgDelete } from '@libs/server/utils';
+import { ResponseType, imgDelete, timeFailed } from '@libs/server/utils';
 import client from '@libs/server/client';
 import { type NextRequest, NextResponse } from 'next/server';
 type Props = {
@@ -54,10 +54,11 @@ export const GET = async (req: NextRequest, { params }: Props) => {
         }
       });
       if (product.productHit) product.productHit.hit++;
-
+      const timeExpired = timeFailed(product);
       return NextResponse.json({
         ok: true,
-        product
+        product,
+        timeExpired
       });
     } else {
       return NextResponse.json({

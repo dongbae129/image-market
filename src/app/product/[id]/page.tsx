@@ -43,6 +43,7 @@ type Props = {
 export default async function ProductDetail({ params }: Props) {
   // console.log(params, 'params');
   const { id } = await params;
+  console.log(id, 'id11', typeof id);
   const queryClient = new QueryClient();
 
   // 2. 데이터 미리 가져오기 (Prefetch) -> SSR HTML에 데이터 포함

@@ -48,8 +48,8 @@ function BoardInfo({ board }: BoardProps) {
               }}
             />
             <div>
-              {board?.boardTag[0].hashtag.length > 0 &&
-                board?.boardTag[0].hashtag.split(',').map((hashtag, i) => (
+              {board?.boardTag[0]?.hashtag.length > 0 &&
+                board?.boardTag[0]?.hashtag.split(',').map((hashtag, i) => (
                   <span className="hashtag" key={i} role="hashtag">
                     <span>#</span>
                     <span>{hashtag}</span>

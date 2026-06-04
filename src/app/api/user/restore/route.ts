@@ -14,7 +14,7 @@ interface StateType {
 }
 export const GET = async (req: NextRequest, res: NextResponse) => {
   const refreshToken = cookies().get('refreshToken')?.value;
-  console.log(refreshToken, 'refreshToken TEST');
+
   if (!refreshToken) {
     return NextResponse.json(
       {

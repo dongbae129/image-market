@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import store from '@reducers/store';
 import { setAccessToken, setLogedIn, setRestoreState } from '@/reducers/user';
+import { cookies } from 'next/headers';
 
 interface LoginResponse {
   ok: boolean;
@@ -22,6 +23,7 @@ const KakaoHandler: NextPage = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
+  const cookie = cookies();
   useEffect(() => {
     const params = new URL(window.location.toString()).searchParams;
     const code = params.get('code'); // 인가코드 받는 부분
@@ -52,6 +54,7 @@ const KakaoHandler: NextPage = () => {
 
         newAxios.defaults.headers.common['authorization'] =
           `Bearer ${res.data.accessToken}`;
+        cookie.set('accessTT', res.data.accessToken);
         store.dispatch(setRestoreState(true));
         store.dispatch(setLogedIn(true));
         queryClient.invalidateQueries(['userInfo']);

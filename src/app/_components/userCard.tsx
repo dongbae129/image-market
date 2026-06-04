@@ -93,7 +93,7 @@ const UserCard = () => {
                 </Link>
               </div>
               <div>
-                <Link href={`/profile/${data?.user.id}/myproducts`}>
+                <Link href={`/profile/${data?.user.id}`}>
                   <div className="profile_selection before:left-[-10px] block text-center relative text-sm">
                     <span className="w-full">게시물</span>
                   </div>

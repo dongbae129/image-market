@@ -1,4 +1,8 @@
-import { createAccessToken, createRefreshToken } from '@libs/server/auth';
+import {
+  createAccessToken,
+  createRefreshToken,
+  sendAccesToken
+} from '@libs/server/auth';
 import axios from 'axios';
 import { sendRefreshToken } from '@libs/server/auth';
 import client from '@libs/server/client';
@@ -81,6 +85,7 @@ export const GET = async (req: NextRequest) => {
             refreshToken: jwtRefreshToken
           }
         });
+        sendAccesToken(jwtAccessToken);
         sendRefreshToken(jwtRefreshToken);
 
         return NextResponse.json({

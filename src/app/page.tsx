@@ -42,7 +42,7 @@ export default async function Home() {
   const columns = getColumnsCount(ua);
   const columnCount = 4;
   const clientVwCookie = cookieStore.get('client_vw')?.value ?? null;
-  console.log(clientVwCookie, 'clientVwCookie');
+
   // if (secViewport) {
   //   const w = parseInt(secViewport, 10);
   //   if (w < 640) columnCount = 1;

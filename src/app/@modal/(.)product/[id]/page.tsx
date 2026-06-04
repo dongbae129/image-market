@@ -1,3 +1,4 @@
+'use client';
 import CommentButton from '@app/@modal/(.)product/[id]/_component/commentButton';
 import CommentInput from '@app/@modal/(.)product/[id]/_component/commentInput';
 import FeedModal from '@app/@modal/(.)product/[id]/_component/feedModal';
@@ -7,34 +8,60 @@ import ModalTest from '@app/@modal/(.)product/[id]/_component/modalTest';
 import SusTest from '@app/@modal/(.)product/[id]/_component/susTest';
 import UserInfo from '@app/@modal/(.)product/[id]/_component/userInfo';
 import Loading from '@app/@modal/(.)product/[id]/loading';
+import { getProduct } from '@app/product/[id]/_lib/getProduct';
+import DeleteSkeleton from '@components/DeleteSkeleton';
 import DetailModal from '@components/DetailModal';
-import { useQueryClient } from '@tanstack/react-query';
+import LoadingSkeleton from '@components/LoadingSkeleton';
+import { Product } from '@prisma/client';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 type Props = {
   params: Promise<{ id: string }>;
 };
-export default async function IntercetProductPage({ params }: Props) {
-  const { id } = await params;
+type ProductResponse = {
+  ok: boolean;
+  product: Product;
+  timeExpired: 'R' | 'F' | 'P';
+};
+export default function IntercetProductPage() {
+  const { id } = useParams();
+  const productId = id.toString();
+  const { data } = useQuery<ProductResponse>({
+    queryKey: ['product', id],
+    queryFn: () => getProduct(productId)
+  });
 
+  // if (data?.product?.tag !== '*&^$') return <LoadingSkeleton />;
   // console.log(id, 'PID');
   return (
     <DetailModal>
       <div className="h-full">
-        <LikeComment productId={id} />
-        <ModalImage productId={id} />
-        <div className="space-y-3 p-2">
-          <UserInfo productId={id} />
-          {/* <SusTest id={id} /> */}
-          <CommentButton productId={id} />
-          <div className="flex items-start space-x-2 text-sm">
-            <span className="font-semibold text-gray-900">user_id2</span>
-            <span className="line-clamp-1 text-gray-600">
-              와이어프레임이랑 똑같이 구현됐네요! 너무 멋집니다 ✨
-            </span>
+        {/* <LoadingSkeleton /> */}
+        {data?.timeExpired === 'P' ? (
+          <LoadingSkeleton />
+        ) : data?.timeExpired === 'F' ? (
+          <DeleteSkeleton />
+        ) : (
+          <div>
+            <LikeComment productId={productId} />
+            <ModalImage productId={productId} />
+            <div className="space-y-3 p-2">
+              <UserInfo productId={productId} />
+              <CommentButton productId={productId} />
+              <div className="flex items-start space-x-2 text-sm">
+                <span className="font-semibold text-gray-900">
+                  {data?.product?.userId}
+                </span>
+                <span className="line-clamp-1 text-gray-600">
+                  와이어프레임이랑 똑같이 구현됐네요! 너무 멋집니다 ✨
+                </span>
+              </div>
+              <CommentInput />
+            </div>
           </div>
-          <CommentInput />
-        </div>
+        )}
       </div>
     </DetailModal>
     // <div className="TEST">

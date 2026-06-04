@@ -7,6 +7,7 @@ import { checkAuth, checkAuthResponse } from '@libs/server/auth';
 import dayjs from 'dayjs';
 import fs from 'fs';
 import { Request, Response } from 'express';
+import { Product } from '@prisma/client';
 export interface ResponseType {
   ok: boolean;
   [key: string]: any;
@@ -161,4 +162,22 @@ export const validateFormData = (
 ): string[] => {
   const missingFields = requiredFields.filter((field) => !formData.get(field));
   return missingFields;
+};
+
+export const timeFailed = (product: Product) => {
+  if (product.status === 'READY') return 'R';
+  else if (product.status === 'FAILED') return 'F';
+  else {
+    const now = new Date().getTime();
+    const createdTime = new Date(product.createdAt).getTime();
+
+    // 10분(600,000 밀리초) 초과 여부 계산
+    const isExpired = now - createdTime > 600000;
+
+    // Lazy Evaluation (최종 상태 결정)
+    const isLazyFailed = product.status === 'PROCESSING' && isExpired;
+
+    // 프론트엔드로 렌더링할 때 내려주는 최종 데이터
+    return isLazyFailed ? 'F' : 'P';
+  }
 };

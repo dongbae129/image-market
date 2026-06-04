@@ -3,13 +3,13 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useWindowVirtualizer } from '@tanstack/react-virtual'; // 가상화 훅 추가
-import { getProducts } from '@app/_libs/getProducts';
 import { normalizeRatio } from '@app/_libs/normalizeRatio';
-import styles from './MasonryFeed.module.scss';
+import styles from '@app/_components/MasonryFeed.module.scss';
 import Image from 'next/image';
 // import PreloadLink from '@components/PreLoadLink';
 import Link from 'next/link';
 import { Product } from '@prisma/client';
+import { getUserProducts } from '@app/profile/_lib/getUserProducts';
 
 // type ProductProps = {
 //   ok: boolean;
@@ -44,7 +44,13 @@ function calculateOptimalLayout(containerWidth: number) {
   return { columnWidth: Math.floor(columnWidth), columnCount };
 }
 
-export default function MasonryGrid({ ssrItemCount = 0 }) {
+export default function UserMasnoryProducts({
+  ssrItemCount = 0,
+  name
+}: {
+  ssrItemCount: number;
+  name: string;
+}) {
   const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
   const containerRef = useRef<HTMLDivElement>(null);
   const [enableTransitions, setEnableTransitions] = useState(false);
@@ -64,8 +70,8 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery({
-      queryKey: ['getProducts'],
-      queryFn: getProducts,
+      queryKey: ['userProducts', name],
+      queryFn: ({ pageParam = 0 }) => getUserProducts(name, pageParam),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => {
         const lastPageLength = lastPage?.products?.length;
@@ -122,7 +128,7 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
 
   // 전체 데이터 플랫화
   const allItems = useMemo(
-    () => data?.pages.flatMap((page) => page.products) ?? [],
+    () => data?.pages?.flatMap((page) => page?.products) ?? [],
     [data]
   );
 
@@ -213,8 +219,6 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
   const clickTest = (data: Product) => {
     console.log(data.id, 'datatest');
     queryClient.setQueryData(['product', data.id], (prev) => {
-      // console.log(data, 'clickData', prev, 'prev');
-      // if (prev?.product?.user) return prev;
       return {
         ok: true,
         product: data
@@ -222,6 +226,7 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
     });
     // queryClient.invalidateQueries({ queryKey: ['product', data.id] });
   };
+
   return (
     <>
       <div

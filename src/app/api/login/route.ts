@@ -10,6 +10,8 @@ import {
   sendAccesToken
 } from '@libs/server/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { generateAndSaveTokens } from '@app/api/_lib/tokenService';
+import { setAuthCookies } from '@app/api/_lib/authCookies';
 
 export const GET = async (req, { params }) => {
   console.log(params, 'pppp');
@@ -67,17 +69,21 @@ export const POST = async (req: NextRequest) => {
   } else {
     const comparepassw = await bcrypt.compare(password, user.password);
     if (comparepassw) {
-      const accessToken = createAccessToken(user.userId, 1);
-      const refreshToken = createRefreshToken(user.userId, 1);
+      const { accessToken: acT, refreshToken: reT } = generateAndSaveTokens(
+        user.userId.toString()
+      );
+      await setAuthCookies(acT, reT);
+      // const accessToken = createAccessToken(user.userId, 1);
+      // const refreshToken = createRefreshToken(user.userId, 1);
 
-      sendRefreshToken(refreshToken);
-      sendAccesToken(accessToken);
-      // res.setHeader('Set-Cookie', 'test=aaaTEST');
+      // sendRefreshToken(refreshToken);
+      // sendAccesToken(accessToken);
+
       return NextResponse.json({
         ok: true,
         message: 'login success',
         user: user?.id,
-        accessToken
+        accessToken: acT
       });
     } else {
       return NextResponse.json(

@@ -26,6 +26,7 @@ export interface checkAuthResponse {
   checkError?: boolean;
   message?: string;
   err?: object;
+  userId?: string;
   payload?: {
     id: number;
     type: number;
@@ -36,8 +37,12 @@ export interface checkAuthResponse {
 interface VerifyType {
   err?: VerifyErrors;
   checkError?: boolean;
-  payload?: string | JwtPayload | undefined;
+  userId?: string;
+  // payload?: string | JwtPayload | undefined;
 }
+type AccessTokenType = {
+  userId: string;
+};
 // |이 코드는 Next.js API 라우트에서 인증을 체크하는 함수인 `checkAuth`를 정의하는 코드입니다.
 // |
 // |좋은 점:
@@ -48,15 +53,19 @@ interface VerifyType {
 // |나쁜 점:
 // |- `verify` 함수는 비동기 함수이지만, `verifyed` 변수에 값을 할당하는 부분이 동기적으로 작성되어 있습니다. 따라서 `verifyed` 변수에는 항상 빈 객체가 할당됩니다. 이 문제를 해결하기 위해서는 `verify` 함수를 Promise를 반환하도록 수정하거나, `verify` 함수의 콜백 함수 내부에서 반환값을 처리해야 합니다.
 // |- `checkAuth` 함수가 반환하는 값의 타입인 `checkAuthResponse`가 정의되어 있지 않습니다. 이를 해결하기 위해서는 `checkAuthResponse`의 타입을 정의해야 합니다.
-export const checkAuth = (): checkAuthResponse => {
+export const checkAuth = (): VerifyType => {
+  const cookie = cookies();
+  const cookieAccessToken = cookie.get('accessToken')?.value;
   const headerList = headers();
   const clientAccessToken = headerList.get('authorization')?.split(' ')[1];
-
+  console.log(clientAccessToken, 'clientAccessToken');
+  console.log(cookieAccessToken, 'authAccessToken');
+  const accessToken = clientAccessToken || cookieAccessToken;
   const state = {
     re: false,
     ac: false
   };
-  if (!clientAccessToken) {
+  if (!accessToken) {
     return {
       ...state,
       checkError: true,
@@ -64,29 +73,49 @@ export const checkAuth = (): checkAuthResponse => {
     };
   }
   let verifyed: VerifyType = {};
-  verify(clientAccessToken, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-    if (err) {
-      // console.log(err, 'testerr');
-      verifyed = {
-        err,
-        checkError: true
-      };
-      return;
-    }
-    // console.log(payload, 'testpayload');
+  try {
+    const decoded = verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    ) as AccessTokenType;
+    console.log(decoded, 'checkauth decoded');
+    const { userId } = decoded;
     verifyed = {
       ...state,
-      payload,
+      userId,
       checkError: false
     };
-    return;
-  });
-  // console.log(verifyed, 'verifyed');
+    return verifyed;
+  } catch (error) {
+    console.error(error, 'auth error');
+    verifyed = {
+      checkError: true
+    };
+    return verifyed;
+  }
+  // verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
+  //   if (err) {
+  //     // console.log(err, 'testerr');
+  //     verifyed = {
+  //       err,
+  //       checkError: true
+  //     };
+  //     return;
+  //   }
+  //   // console.log(payload, 'testpayload');
+  //   verifyed = {
+  //     ...state,
+  //     payload,
+  //     checkError: false
+  //   };
+  //   return;
+  // });
+  // // console.log(verifyed, 'verifyed');
 
-  return {
-    ...state,
-    ...verifyed
-  };
+  // return {
+  //   ...state,
+  //   ...verifyed
+  // };
 };
 export const refreshToken = () => {
   return axios
@@ -99,8 +128,8 @@ export const refreshToken = () => {
     )
     .then((res) => res.data);
 };
-export const createAccessToken = (id: number, type: number) => {
-  return sign({ id, type }, process.env.ACCESS_TOKEN_SECRET, {
+export const createAccessToken = (userId: string, type: number) => {
+  return sign({ userId, type }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: '2m'
   });
 };

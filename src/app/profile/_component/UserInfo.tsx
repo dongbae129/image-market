@@ -1,5 +1,6 @@
 'use client';
 import { getUserInfo } from '@app/profile/_lib/getUserInfo';
+import { privateApi } from '@libs/client/axiosIntercepotr';
 import { User } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
 type Props = {
@@ -11,9 +12,14 @@ type UserResponse = {
 };
 export default function UserInfo({ name }: Props) {
   const tags = ['이건', '나중에', '테스트', '할게'];
+
   const { data } = useQuery<UserResponse>({
     queryKey: ['userInfo', name],
-    queryFn: () => getUserInfo(name)
+    // queryFn: ()=>getUserInfo(name)
+    queryFn: async () => {
+      const res = await privateApi(`/api/user/${name}`);
+      return res.data;
+    }
   });
   if (!data?.user) return null;
   const userChecker = data.user.id === +name;

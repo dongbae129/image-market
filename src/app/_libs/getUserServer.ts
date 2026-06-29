@@ -19,33 +19,33 @@ interface StateType {
   accessToken?: string;
 }
 export const getUserServer = async (): Promise<UserType> => {
-  const token = cookies();
+  const token = await cookies();
   const accesToken = token.get('accessToken')?.value;
   const refreshToken = token.get('refreshToken')?.value;
 
+  console.log(accesToken, 'getUserServer accesToken');
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
       next: {
         tags: ['userInfo']
       },
       headers: {
-        Authorization: `Bearer ${accesToken}`,
-        Cookie: `refreshToken=${refreshToken}`
+        Authorization: `Bearer ${accesToken}`
+        // Cookie: `refreshToken=${refreshToken}`
       },
       credentials: 'include'
       // cache: 'no-store'
     });
+
     if (!res.ok) {
       const restored = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/user/restore`,
         {
-          headers: {
-            Cookie: `refreshToken=${refreshToken}`
-          },
           credentials: 'include'
         }
       );
       const test: UserType = await restored.json();
+      console.log(test, 'getUserServer - test');
       if (!test.ok) {
         return {
           ok: false,
@@ -66,9 +66,9 @@ export const getUserServer = async (): Promise<UserType> => {
           // cache: 'no-store'
         }
       );
-      const final = await restoredUser.json();
-      return final;
+      return restoredUser.json();
     }
+    return res.json();
   } catch (error) {
     console.error(error);
     throw new Error('user server fail');

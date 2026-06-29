@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { userResponse } from './headmenu';
-import { QueryClient, useQuery } from '@tanstack/react-query';
+import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import useLogout from '@libs/client/logout';
 import { useSelector } from 'react-redux';
 import { getFetch } from '@libs/client/fetcher';
@@ -13,30 +13,30 @@ interface userCardProps {
 
 const UserCard = () => {
   const { accessToken } = useSelector((state: any) => state.user);
-  const query = new QueryClient();
+  const query = useQueryClient();
   const test = query.getQueryData(['userInfo']);
   console.log(test, 'TTT');
   console.log(accessToken, 'ACCTest');
-  async function getTest2() {
-    const res = await fetch('/api/user', {
-      next: {
-        tags: ['userInfo']
-      },
-      credentials: 'include',
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-      // cache: 'no-store'
-    });
-    // The return value is *not* serialized
-    // You can return Date, Map, Set, etc.
+  // async function getTest2() {
+  //   const res = await fetch('/api/user', {
+  //     next: {
+  //       tags: ['userInfo']
+  //     },
+  //     credentials: 'include',
+  //     headers: {
+  //       Authorization: `Bearer ${accessToken}`
+  //     }
+  //     // cache: 'no-store'
+  //   });
+  //   // The return value is *not* serialized
+  //   // You can return Date, Map, Set, etc.
 
-    if (!res.ok) {
-      // This will activate the closest `error.js` Error Boundary
-      throw new Error('Failed to fetch data');
-    }
-    return res.json();
-  }
+  //   if (!res.ok) {
+  //     // This will activate the closest `error.js` Error Boundary
+  //     throw new Error('Failed to fetch data');
+  //   }
+  //   return res.json();
+  // }
   // const accessToken = '2122';
   // const dispatch = useDispatch();
   const header = {
@@ -45,9 +45,11 @@ const UserCard = () => {
 
   const { data } = useQuery<userResponse>({
     queryKey: ['userInfo'],
-    queryFn: getFetch('/api/user', header)
+    queryFn: () => getFetch('/api/user'),
+    staleTime: 1000 * 60 * 10
     // queryFn: getTest2
   });
+  console.log(data?.user, 'usercardData');
   // const data = {
   //   ok: true,
   //   user: {
@@ -61,7 +63,6 @@ const UserCard = () => {
   //     emailActive: true
   //   }
   // };
-  console.log(data, 'userCard Data');
 
   const logout = useLogout();
   const onLogout = async () => {

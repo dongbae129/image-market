@@ -288,9 +288,8 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
                 /> */}
 
                 <Image
-                  src={`474x/${convertedUrl}`}
-                  // src={'/localimages/emptyuser.png'}
-                  // src={`${process.env.NEXT_PUBLIC_R2_DEV_PUBLIC_URL}/${item.image}`}
+                  src={`474x/emptyuser.png`}
+                  // src={`474x/${convertedUrl}`}
                   alt={`Pin ${item.id}`}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"

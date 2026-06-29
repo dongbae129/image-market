@@ -4,6 +4,7 @@ import axios, { AxiosError, AxiosRequestHeaders } from 'axios';
 // import { useSelector } from 'react-redux';
 import store from '@reducers/store';
 import { setAccessToken, setRestoreState } from '@reducers/user';
+import { privateApi } from '@libs/client/axiosIntercepotr';
 
 export const newAxios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -77,11 +78,12 @@ newAxios.interceptors.response.use(
   }
 );
 /**data fetch with url or headers */
-export const getFetch = (url: string, headers?: any) => () =>
-  newAxios
-    .get(url, headers)
-    .then((res) => res.data)
-    .catch((err) => err);
+export const getFetch = async (url: string, headers?: any): Promise<any> => {
+  const res = await privateApi.get(url);
+  return res.data;
+};
+// .then((res) => res.data)
+// .catch((err) => err);
 
 export const postFetch =
   <T>(url: string, data: T, headers?: any) =>

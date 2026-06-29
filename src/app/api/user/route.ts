@@ -10,7 +10,10 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
   //   ok: true,
   //   message: 'AAABB'
   // });
-  const auth = checkAuth(req, res, 0);
+  // const auth = checkAuth(req, res, 0);
+  const auth = checkAuth();
+
+  console.log(auth, 'user auth');
 
   if (auth?.checkError)
     return NextResponse.json(
@@ -23,11 +26,12 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
       }
     );
   try {
-    if (auth?.payload) {
-      const { id } = auth?.payload as TokenPayload;
+    if (auth?.userId) {
+      console.log(auth, 'user2');
+      const { userId } = auth;
       const user = await client.user.findUnique({
         where: {
-          id
+          id: +userId
         },
         select: {
           id: true,

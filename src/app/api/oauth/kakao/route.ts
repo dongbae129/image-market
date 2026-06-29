@@ -7,6 +7,8 @@ import axios from 'axios';
 import { sendRefreshToken } from '@libs/server/auth';
 import client from '@libs/server/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { generateAndSaveTokens } from '@app/api/_lib/tokenService';
+import { setAuthCookies } from '@app/api/_lib/authCookies';
 export interface kakaoUserInfoResponse {
   id: number;
   connected_at: string;
@@ -21,7 +23,7 @@ export interface kakaoUserInfoResponse {
   };
 }
 
-export const GET = async (req: NextRequest) => {
+export const POST = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
 
   const code = searchParams.get('code');
@@ -66,8 +68,13 @@ export const GET = async (req: NextRequest) => {
       }
     });
     if (exitUser) {
+      const { accessToken: acT, refreshToken: reT } = generateAndSaveTokens(
+        exitUser.id.toString()
+      );
+      /**이거
       jwtAccessToken = createAccessToken(exitUser.id, -1);
       jwtRefreshToken = createRefreshToken(exitUser.id, -1);
+       */
       const findsocialUser = await client.socialUser.findFirst({
         where: {
           socialId: userInfo.id.toString()
@@ -81,17 +88,23 @@ export const GET = async (req: NextRequest) => {
             socialId: userInfo.id.toString()
           },
           data: {
+            accessToken: acT,
+            refreshToken: reT
+            /*이거
             accessToken: jwtAccessToken,
-            refreshToken: jwtRefreshToken
+            refreshToken: jwtRefreshToken*/
           }
         });
+        await setAuthCookies(acT, reT);
+        /*이거
         sendAccesToken(jwtAccessToken);
         sendRefreshToken(jwtRefreshToken);
-
+        */
         return NextResponse.json({
           ok: true,
           userInfo,
-          accessToken: jwtAccessToken
+          accessToken: acT
+          //이거 accessToken: jwtAccessToken
           // 바꾸기
           // accessToken: jwtAccessToken
         });
@@ -102,7 +115,8 @@ export const GET = async (req: NextRequest) => {
           ok: true,
           userId: exitUser.id,
           message: 'have localuser and ask to need link social-login',
-          accessToken: jwtAccessToken,
+          accessToken: acT,
+          //이거 accessToken: jwtAccessToken,
           reason: 1
         });
       }
@@ -125,9 +139,16 @@ export const GET = async (req: NextRequest) => {
             userId: user.id
           }
         });
-        jwtRefreshToken = createRefreshToken(user.id, -1);
-        jwtAccessToken = createAccessToken(user.id, -1);
-        sendRefreshToken(jwtRefreshToken);
+        const { accessToken: acT, refreshToken: reT } = generateAndSaveTokens(
+          user.id.toString()
+        );
+
+        jwtRefreshToken = reT;
+        jwtAccessToken = acT;
+        await setAuthCookies(acT, reT);
+        //이거 jwtRefreshToken = createRefreshToken(user.id, -1);
+        //이거 jwtAccessToken = createAccessToken(user.id, -1);
+        //이거 sendRefreshToken(jwtRefreshToken);
         return NextResponse.json({
           ok: true,
           userInfo: user,

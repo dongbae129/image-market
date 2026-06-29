@@ -35,13 +35,13 @@ type Props = { pageParam?: number };
 
 export default async function Home() {
   const headerList = headers();
-  const cookieStore = cookies();
+  // const cookieStore = cookies();
   const secViewport = headerList.get('sec-ch-viewport-width'); // e.g. "375"
   const secUaMobile = headerList.get('sec-ch-ua-mobile'); // "?1" or "?0"
   const ua = headerList.get('user-agent') || '';
   const columns = getColumnsCount(ua);
   const columnCount = 4;
-  const clientVwCookie = cookieStore.get('client_vw')?.value ?? null;
+  // const clientVwCookie = cookieStore.get('client_vw')?.value ?? null;
 
   // if (secViewport) {
   //   const w = parseInt(secViewport, 10);
@@ -88,7 +88,8 @@ export default async function Home() {
     }),
     queryClient.prefetchQuery({
       queryKey: ['userInfo'],
-      queryFn: getUserServer
+      queryFn: getUserServer,
+      staleTime: 1000 * 60 * 10
     })
   ]);
   const initialQueryData: { pages?: GetProductsResponse[] } | undefined =
@@ -98,8 +99,9 @@ export default async function Home() {
   if (initialQueryData?.pages?.[0]?.products) {
     ssrItemCount = initialQueryData.pages[0].products.length; // (e.g., 6)
   }
+  console.log(queryClient.getQueryData(['userInfo']), 'ssr user test');
   const dehydratedState = dehydrate(queryClient);
-  console.log(queryClient.getQueryData(['userInfo']), 'userTest');
+
   return (
     <div>
       <HydrationBoundary state={dehydratedState}>

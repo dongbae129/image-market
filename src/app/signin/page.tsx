@@ -17,6 +17,7 @@ import { newAxios } from '@libs/client/fetcher';
 import store from '@reducers/store';
 import { useState } from 'react';
 import SnsSign from '@app/_components/snsSign';
+import { privateApi } from '@libs/client/axiosIntercepotr';
 
 interface SignInForm {
   userId: string;
@@ -54,7 +55,7 @@ const Signin: NextPage = () => {
   } = useForm<SignInForm>();
 
   const signInUser = (data: SignInForm) =>
-    newAxios.post('/api/login', data).then((res) => res.data);
+    privateApi.post('/api/login', data).then((res) => res.data);
   const { mutate, isPending } = useMutation({
     mutationFn: signInUser,
     onError: (error: AxiosError) => {
@@ -67,11 +68,11 @@ const Signin: NextPage = () => {
 
       // axios.defaults.headers.common['authorization'] =
       //   'Bearer ' + res.accessToken;
-      newAxios.defaults.headers.common['authorization'] =
-        'Bearer ' + res.accessToken;
+      // newAxios.defaults.headers.common['authorization'] =
+      //   'Bearer ' + res.accessToken;
 
       // store.dispatch(setRestoreState(true));
-      store.dispatch(setLogedIn(true));
+      // store.dispatch(setLogedIn(true));
       queryClient.invalidateQueries({ queryKey: ['userInfo'] });
       router.push('/');
     }

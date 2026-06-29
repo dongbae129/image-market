@@ -28,7 +28,7 @@ const KakaoHandler: NextPage = () => {
     const params = new URL(window.location.toString()).searchParams;
     const code = params.get('code'); // 인가코드 받는 부분
     axios
-      .get<LoginResponse>(`/api/oauth/kakao?code=${code}`)
+      .post<LoginResponse>(`/api/oauth/kakao?code=${code}`)
       .then(async (res) => {
         dispatch(setAccessToken(res.data.accessToken));
         // axios.defaults.headers.common['Authorization'] = '';

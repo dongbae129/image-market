@@ -27,7 +27,8 @@ export const GET = async (req: NextRequest, { params }: Props) => {
         user: {
           select: {
             email: true,
-            name: true
+            name: true,
+            id: true
           }
         },
         productHit: {

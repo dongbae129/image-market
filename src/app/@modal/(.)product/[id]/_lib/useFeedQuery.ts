@@ -1,12 +1,14 @@
 'use client';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
-import { Product } from '@prisma/client';
+import { Product, User } from '@prisma/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // hooks/useFeedDetail.ts
 type ProductClient = {
   ok: boolean;
-  product: Product;
+  product: Product & {
+    user: User;
+  };
 };
 export function useFeedDetail(productId: string) {
   const queryClient = useQueryClient();

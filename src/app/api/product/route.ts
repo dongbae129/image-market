@@ -46,7 +46,8 @@ export const GET = async (req: NextRequest, res) => {
           select: {
             id: true,
             image: true,
-            name: true
+            name: true,
+            email: true
           }
         }
       }

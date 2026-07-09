@@ -211,7 +211,6 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
   }, [allItems, positions, virtualizer.scrollOffset, isHydrated, ssrItemCount]);
 
   const clickTest = (data: Product) => {
-    console.log(data.id, 'datatest');
     queryClient.setQueryData(['product', data.id], (prev) => {
       // console.log(data, 'clickData', prev, 'prev');
       // if (prev?.product?.user) return prev;

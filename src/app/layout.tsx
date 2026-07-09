@@ -3,6 +3,7 @@ import ReactQueryProvider from './_utils/ReactQueryProvider';
 import './globals.css';
 import HeadMenu from '@app/_components/headmenu';
 import Script from 'next/script';
+import MswProvider from '@mocks/MswProvider';
 
 export const metadata: Metadata = {
   title: 'image-market'
@@ -23,11 +24,13 @@ export default function RootLayout({ children, modal }: Props) {
         {/* <script dangerouslySetInnerHTML={{ __html: preScript }} /> */}
       </head>
       <body className="h-full" suppressHydrationWarning>
+        {/* <MswProvider> */}
         <ReactQueryProvider>
           <HeadMenu />
           {children}
           {modal}
         </ReactQueryProvider>
+        {/* </MswProvider> */}
       </body>
     </html>
   );

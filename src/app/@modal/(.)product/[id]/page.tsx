@@ -246,6 +246,9 @@
 // IntercetProductPage.tsx
 'use client';
 import CommentInput from '@app/@modal/(.)product/[id]/_component/commentInput';
+import CommentItem, {
+  CommentType
+} from '@app/@modal/(.)product/[id]/_component/commentItem';
 import LikeComment from '@app/@modal/(.)product/[id]/_component/likeComment';
 import ModalImage from '@app/@modal/(.)product/[id]/_component/modalImage';
 import UserInfo from '@app/@modal/(.)product/[id]/_component/userInfo';
@@ -253,20 +256,97 @@ import { getProduct } from '@app/product/[id]/_lib/getProduct';
 import DeleteSkeleton from '@components/DeleteSkeleton';
 import DetailModal from '@components/DetailModal';
 import LoadingSkeleton from '@components/LoadingSkeleton';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { User } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 export default function IntercetProductPage() {
   const [isCommentSheetOpen, setIsCommentSheetOpen] = useState(false);
   const { id } = useParams();
   const productId = id.toString();
-
+  const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
   const { data } = useQuery({
     queryKey: ['product', id],
     queryFn: () => getProduct(productId)
   });
-
+  const commentTest: CommentType[] = [
+    {
+      content: 'aaa',
+      createdAt: '2025-11-14 17:19:07.988',
+      id: 1,
+      likesCount: 1,
+      userId: 'AA',
+      userImage: null
+    },
+    {
+      content: 'bbb',
+      createdAt: '2025-11-15 17:19:07.988',
+      id: 2,
+      likesCount: 2,
+      userId: 'BB',
+      userImage: null
+    },
+    {
+      content: 'ccc',
+      createdAt: '2025-11-30 17:19:07.988',
+      id: 3,
+      likesCount: 3,
+      userId: 'CC',
+      userImage: null
+    },
+    {
+      content: 'ddd',
+      createdAt: '2025-12-14 17:19:07.988',
+      id: 4,
+      likesCount: 4,
+      userId: 'DD',
+      userImage: null
+    }
+  ];
+  const getProductComments = async ({
+    pageParam = 0
+  }: {
+    pageParam: number;
+  }) => {
+    try {
+      const res = await axios(
+        `/api/chat/product/${Number(id)}?comment=${pageParam}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('comment test fail');
+    }
+  };
+  const {
+    data: comments,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status
+  } = useInfiniteQuery({
+    queryKey: ['getProductComments'],
+    queryFn: getProductComments,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      const lastPageLength = lastPage?.comments.length;
+      if (lastPageLength === 0 || lastPageLength < 3) return undefined;
+      return lastPageLength >= 3 && lastPage.comments[lastPageLength - 1].id;
+    }
+  });
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  // const allComments = useMemo(
+  //   () => comments?.pages.flatMap((page) => page.comments) ?? [],
+  //   [comments]
+  // );
+  console.log(comments?.pages[0].comments, 'comments?.pages[0].comments');
   return (
     <DetailModal>
       {/* 🌟 더 이상 -m-4 같은 꼼수를 쓸 필요가 없습니다. 깔끔하게 h-full 유지! */}
@@ -294,14 +374,10 @@ export default function IntercetProductPage() {
 
                 <div className="shrink-0 space-y-3 pt-2 pb-4">
                   <UserInfo productId={productId} />
-                  <div className="flex items-start space-x-2 text-sm">
-                    <span className="font-semibold text-gray-900">
-                      {data?.product?.userId}
-                    </span>
-                    <span className="line-clamp-1 text-gray-600">
-                      와이어프레임이랑 똑같이 구현됐네요!
-                    </span>
-                  </div>
+                  {comments?.pages[0].comments[0] && (
+                    <CommentItem comment={comments?.pages[0].comments[0]} />
+                  )}
+
                   <button
                     onClick={() => setIsCommentSheetOpen(true)}
                     className="w-full text-sm text-gray-400 font-medium"
@@ -342,8 +418,27 @@ export default function IntercetProductPage() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   <div className="text-center text-sm text-gray-500 mt-10">
-                    댓글 목록
+                    {comments?.pages.map((page, index) => (
+                      <div key={index}>
+                        {page.comments.map((item) => (
+                          <div key={item.id}>
+                            <CommentItem comment={item} />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                    {/* {allComments.map((comment: CommentType) => (
+                      <div key={comment.id}>
+                        <CommentItem comment={comment} />
+                      </div>
+                    ))} */}
                   </div>
+                  <div ref={inViewRef} className="h-10 w-full" />
+                  {isFetchingNextPage && (
+                    <p className="text-center py-4 text-gray-400 text-sm">
+                      Loading more...
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

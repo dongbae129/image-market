@@ -10,8 +10,10 @@ type Props = {
 };
 export const GET = async (req: NextRequest, { params }: Props) => {
   const { productId } = params;
-  console.log(params, 'product params');
-  if (!productId)
+
+  const searchParams = req.nextUrl.searchParams;
+  const id = searchParams.get('comment');
+  if (!productId || !id)
     return NextResponse.json(
       {
         ok: false,
@@ -21,10 +23,13 @@ export const GET = async (req: NextRequest, { params }: Props) => {
         status: 401
       }
     );
-
-  console.log(productId, '$%$');
+  let lastId = 0;
+  lastId = +id.toString();
 
   const comments = await client.chat.findMany({
+    take: 3,
+    skip: lastId ? 1 : 0,
+    ...(lastId && { cursor: { id: lastId } }),
     where: {
       productId: +productId.toString()
     },
@@ -35,7 +40,8 @@ export const GET = async (req: NextRequest, { params }: Props) => {
       productId: true,
       user: {
         select: {
-          name: true
+          name: true,
+          image: true
         }
       }
     }

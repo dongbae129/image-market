@@ -28,7 +28,8 @@ export const GET = async (req: NextRequest, { params }: Props) => {
           select: {
             email: true,
             name: true,
-            id: true
+            id: true,
+            image: true
           }
         },
         productHit: {

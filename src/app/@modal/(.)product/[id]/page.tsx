@@ -165,8 +165,11 @@ import CommentInput from '@app/@modal/(.)product/[id]/_component/commentInput';
 import CommentItem, {
   CommentType
 } from '@app/@modal/(.)product/[id]/_component/commentItem';
+import FirstComment from '@app/@modal/(.)product/[id]/_component/firstComment';
+import FirstCommentSkeleton from '@app/@modal/(.)product/[id]/_component/firstCommentSkeleton';
 import LikeComment from '@app/@modal/(.)product/[id]/_component/likeComment';
 import ModalImage from '@app/@modal/(.)product/[id]/_component/modalImage';
+import MoreCommentButton from '@app/@modal/(.)product/[id]/_component/moreCommentButton';
 import UserInfo from '@app/@modal/(.)product/[id]/_component/userInfo';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
 import DeleteSkeleton from '@components/DeleteSkeleton';
@@ -174,7 +177,6 @@ import DetailModal from '@components/DetailModal';
 import LoadingSkeleton from '@components/LoadingSkeleton';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { User } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -186,10 +188,9 @@ export default function IntercetProductPage() {
   const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
 
   const { data } = useQuery({
-    queryKey: ['product', id],
+    queryKey: ['product', +id],
     queryFn: () => getProduct(productId)
   });
-
   const getProductComments = async ({
     pageParam = 0
   }: {
@@ -231,6 +232,7 @@ export default function IntercetProductPage() {
 
   // 첫 번째 대표 댓글 추출
   const firstComment = comments?.pages[0]?.comments[0];
+  const morComment = data?.product && data.product.commentsCount > 1;
 
   return (
     <DetailModal>
@@ -252,91 +254,31 @@ export default function IntercetProductPage() {
                   <UserInfo productId={productId} />
                 </div>
 
-                {/* 🌟 주인공인 이미지 영역 (최대 공간 확보) */}
                 <div className="flex-1 min-h-0 py-1">
                   <ModalImage productId={productId} />
                 </div>
 
-                {/* 하단: 액션 버튼 및 댓글 요약 */}
-                <div className="shrink-0 flex flex-col pt-2 pb-3 space-y-2">
-                  {/* 좋아요, 댓글 아이콘 */}
-                  <LikeComment productId={productId} />
-
-                  {/* 🌟 1줄 컴팩트 댓글 미리보기 (공간 낭비 최소화: 높이 딱 20px로 고정) */}
-                  {/* <div className="h-[20px] flex items-center text-sm w-full">
-                    {status === 'pending' ? (
-                      // 로딩 중: 흐릿한 스켈레톤 바 표시
-                      <div className="h-4 bg-gray-100 rounded w-1/2 animate-pulse" />
-                    ) : firstComment ? (
-                      // 댓글 있음: 아이디 + 내용 1줄로 표시 (truncate로 넘치면 ... 처리)
-                      <div className="flex items-center space-x-2 w-full overflow-hidden">
-                        <span className="font-semibold text-gray-900 shrink-0">
-                          {firstComment.user.name}
-                        </span>
-                        <span className="truncate text-gray-600">
-                          {firstComment.description}
-                        </span>
-                      </div>
-                    ) : (
-                      // 댓글 없음: 안내 문구
-                      <span className="text-gray-400">
+                <LikeComment productId={productId} />
+                <div className="shrink-0 flex flex-col pt-2 pb-2 min-h-[71px]">
+                  <div className="w-full h-full flex items-center text-sm overflow-hidden">
+                    {!morComment ? (
+                      <div className="w-full h-full flex justify-center items-center text-gray-400">
                         첫 댓글을 남겨보세요.
-                      </span>
-                    )}
-                  </div> */}
-                  {/* 🌟 1줄 컴팩트 댓글 미리보기 (유저 이미지 추가 + 말줄임표 완벽 적용) */}
-                  <div className="flex items-center text-sm w-full min-h-[24px]">
-                    {status === 'pending' ? (
-                      // 로딩 중: 둥근 프로필 스켈레톤 + 텍스트 바 스켈레톤
-                      <div className="flex items-center space-x-2 w-full">
-                        <div className="w-6 h-6 bg-gray-100 rounded-full animate-pulse shrink-0" />
-                        <div className="h-4 bg-gray-100 rounded w-1/2 animate-pulse" />
                       </div>
-                    ) : firstComment ? (
-                      // 🌟 핵심: min-w-0을 줘야 자식 요소의 truncate(말줄임)가 정상 작동합니다.
-                      <div className="flex items-center space-x-2 w-full min-w-0">
-                        {/* 1. 유저 미니 이미지 (크기 딱 맞게 24px로 축소) */}
-                        <div className="w-6 h-6 rounded-full bg-gray-200 shrink-0 overflow-hidden flex items-center justify-center">
-                          {firstComment.user.image ? (
-                            <img
-                              src={firstComment.user.image}
-                              alt={firstComment.user.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <User size={12} className="text-gray-400" />
-                          )}
-                        </div>
-
-                        {/* 2. 유저 이름 + 댓글 내용 (한 줄로 배치) */}
-                        <div className="flex items-center space-x-1.5 flex-1 min-w-0">
-                          <span className="font-semibold text-gray-900 shrink-0">
-                            {firstComment.user.name}
-                          </span>
-
-                          {/* 🌟 텍스트 말줄임표(...) 적용: truncate 속성 */}
-                          <span className="truncate text-gray-600 flex-1">
-                            {firstComment.description}
-                          </span>
-                        </div>
-                      </div>
+                    ) : status === 'pending' ? (
+                      // [상태 1] 로딩 중
+                      <FirstCommentSkeleton />
                     ) : (
-                      // 댓글 없음
-                      <div className="text-gray-400 w-full text-center">
-                        첫 댓글을 남겨보세요.
+                      // [상태 2] 댓글 있음
+                      <div className="w-full">
+                        <FirstComment firstComment={firstComment} />
+                        <MoreCommentButton
+                          setIsCommentSheetOpen={setIsCommentSheetOpen}
+                          commentCount={data?.product.commentsCount || 0}
+                        />
                       </div>
                     )}
                   </div>
-
-                  {/* 모두 보기 버튼 */}
-                  {firstComment && (
-                    <button
-                      onClick={() => setIsCommentSheetOpen(true)}
-                      className="w-full text-sm text-gray-400 font-medium"
-                    >
-                      댓글 {data?.product.commentsCount || 0}개 모두 보기
-                    </button>
-                  )}
                 </div>
               </div>
 

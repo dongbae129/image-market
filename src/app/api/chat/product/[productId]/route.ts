@@ -44,6 +44,9 @@ export const GET = async (req: NextRequest, { params }: Props) => {
           image: true
         }
       }
+    },
+    orderBy: {
+      createdAt: 'desc'
     }
   });
   return NextResponse.json({
@@ -54,7 +57,8 @@ export const GET = async (req: NextRequest, { params }: Props) => {
 
 export const POST = async (req: NextRequest, { params }: Props) => {
   const { productId } = params;
-  const { chat: chatQuery } = await req.json();
+  const { description: chatQuery } = await req.json();
+  console.log(chatQuery, 'chatquery');
   if (!chatQuery || chatQuery === '')
     return NextResponse.json({
       ok: false,
@@ -62,7 +66,8 @@ export const POST = async (req: NextRequest, { params }: Props) => {
     });
 
   const auth = checkAuth();
-  if (auth?.checkError)
+  console.log(auth, 'chat auth');
+  if (auth?.checkError || !auth.userId)
     return NextResponse.json(
       {
         ok: false,
@@ -73,7 +78,7 @@ export const POST = async (req: NextRequest, { params }: Props) => {
         status: 401
       }
     );
-  const userId = (auth.payload as TokenPayload).id;
+  const userId = auth.userId;
 
   try {
     const now = dbNow();
@@ -81,7 +86,7 @@ export const POST = async (req: NextRequest, { params }: Props) => {
       client.chat.create({
         data: {
           description: chatQuery,
-          userId,
+          userId: +userId,
           productId: +productId.toString(),
           createdAt: now,
           updatedAt: now

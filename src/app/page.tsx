@@ -89,7 +89,7 @@ export default async function Home() {
     queryClient.prefetchQuery({
       queryKey: ['userInfo'],
       queryFn: getUserServer,
-      staleTime: 1000 * 60 * 10
+      staleTime: Infinity
     })
   ]);
   const initialQueryData: { pages?: GetProductsResponse[] } | undefined =

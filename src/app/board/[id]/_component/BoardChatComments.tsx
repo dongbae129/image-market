@@ -1,6 +1,7 @@
 import React from 'react';
 import { timeForToday } from '@libs/client/timeForToday';
-import Dompurify from 'dompurify';
+import sanitizeHtml from 'sanitize-html';
+
 import { useQuery } from '@tanstack/react-query';
 import { getFetch } from '@libs/client/fetcher';
 import { Chat } from '@prisma/client';
@@ -48,7 +49,7 @@ function BoardChatComments({ boardId }: Props) {
           {typeof window && (
             <div
               dangerouslySetInnerHTML={{
-                __html: Dompurify.sanitize(comment.description)
+                __html: sanitizeHtml(comment.description)
               }}
             />
           )}

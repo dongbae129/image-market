@@ -2,7 +2,7 @@ import { getFetch } from '@libs/client/fetcher';
 import { Board, User } from '@prisma/client';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import Dompurify from 'dompurify';
+import sanitizeHtml from 'sanitize-html';
 interface boardDetailResponse {
   ok: boolean;
   board: Board & {
@@ -18,13 +18,19 @@ interface boardDetailResponse {
 type Props = {
   boardId: string;
 };
+const getTest = async (boardId) => {
+  const res = await fetch(`/api/board/${boardId}`);
+  return res.json();
+};
 function BoardDetailInfo({ boardId }: Props) {
   const { data: boardDetail } = useQuery<boardDetailResponse>({
     queryKey: ['getBoard'],
-    queryFn: getFetch(`/api/board/${boardId}`),
+    // queryFn: () => getFetch(`/api/board/${boardId}`),
+    queryFn: () => getTest(boardId)
 
-    enabled: !!boardId
+    // enabled: !!boardId
   });
+  console.log(boardDetail, 'boardDetail');
   return (
     <>
       <h1>제목: {boardDetail?.board?.title}</h1>
@@ -32,7 +38,7 @@ function BoardDetailInfo({ boardId }: Props) {
         {boardDetail && (
           <div
             dangerouslySetInnerHTML={{
-              __html: Dompurify.sanitize(boardDetail?.board?.description)
+              __html: sanitizeHtml(boardDetail?.board?.description)
             }}
           />
         )}

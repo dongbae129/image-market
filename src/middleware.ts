@@ -41,14 +41,13 @@ export async function middleware(request: NextRequest) {
   // if (isProtectedPath && !accessToken && !refreshToken) {
   //   return NextResponse.redirect(new URL('/signin', request.url));
   // }
-  console.log(accessToken, 'mmmttt');
-  console.log(request.nextUrl.pathname, 'mm11');
+
   // 2. AccessToken 만료 & RefreshToken은 존재할 때 (선제적 재발급)
   // if (isProtectedPath && !accessToken && refreshToken) {
   if (!accessToken && refreshToken) {
     // 미들웨어에서는 Express 백엔드 서버로 직접 다녀오는 것이 구조상 빠릅니다.
     const res = await fetch(
-      `${process.env.EXPRESS_BACKEND_URL}/api/user/resotre`,
+      `${process.env.EXPRESS_BACKEND_URL}/api/user/restore`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

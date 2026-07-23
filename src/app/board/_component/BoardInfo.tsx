@@ -5,7 +5,7 @@ import { BiCommentDetail } from 'react-icons/bi';
 import { GrView } from 'react-icons/gr';
 import { BoardWithUser } from './BoardContainer';
 // import DOMPurify from 'dompurify';
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 
 type BoardProps = {
   board: BoardWithUser;
@@ -44,7 +44,7 @@ function BoardInfo({ board }: BoardProps) {
             <div
               className="t_h line-clamp-2 text-sm text-gray-500 font-normal"
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(board.description)
+                __html: sanitizeHtml(board.description)
               }}
             />
             <div>

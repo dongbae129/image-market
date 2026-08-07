@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pinz - 상상을 핀으로, 영감을 연결하다</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pretendard Font -->
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+    />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family:
+          'Pretendard Variable',
+          Pretendard,
+          -apple-system,
+          BlinkMacSystemFont,
+          system-ui,
+          Roboto,
+          sans-serif;
+        background-color: #f8f9fa;
+      }
+      /* Pinterest Style Masonry Layout */
+      .masonry-grid {
+        column-count: 1;
+        column-gap: 1.25rem;
+      }
+      @media (min-width: 640px) {
+        .masonry-grid {
+          column-count: 2;
+        }
+      }
+      @media (min-width: 768px) {
+        .masonry-grid {
+          column-count: 3;
+        }
+      }
+      @media (min-width: 1024px) {
+        .masonry-grid {
+          column-count: 4;
+        }
+      }
+      @media (min-width: 1280px) {
+        .masonry-grid {
+          column-count: 5;
+        }
+      }
+
+      .masonry-item {
+        break-inside: avoid;
+        margin-bottom: 1.25rem;
+      }
+      /* Custom Scrollbar for Category Nav */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="text-slate-800 antialiased min-h-screen">
+    <!-- 1. HEADER BAR -->
+    <!-- [개선된 헤더] PAY는 미니멀 링크, UPLOAD는 강조 버튼 스타일 -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50">
+      <div
+        class="max-w-[1440px] mx-auto px-6 py-3.5 flex items-center justify-between gap-6"
+      >
+        <!-- 1. Logo & Left Navigation (탭 형태: 언더라인 유지) -->
+        <div class="flex items-center gap-8">
+          <!-- Logo -->
+          <a href="#" class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 via-rose-400 to-indigo-500 flex items-center justify-center shadow-xs"
+            >
+              <div class="w-3.5 h-3.5 bg-white rounded-full"></div>
+            </div>
+            <span class="font-extrabold text-2xl tracking-tight text-slate-900"
+              >Pinz</span
+            >
+          </a>
+
+          <!-- Left Nav Tabs -->
+          <nav class="flex items-center gap-6 font-bold text-sm">
+            <a
+              href="#"
+              class="header-tab text-slate-900 relative py-1.5 transition-colors"
+            >
+              HOME
+              <span
+                class="tab-indicator absolute bottom-0 left-0 right-0 h-[2.5px] bg-slate-900 rounded-full"
+              ></span>
+            </a>
+            <a
+              href="#"
+              class="header-tab text-slate-400 hover:text-slate-700 relative py-1.5 transition-colors"
+            >
+              BOARD
+              <span
+                class="tab-indicator hidden absolute bottom-0 left-0 right-0 h-[2.5px] bg-slate-900 rounded-full"
+              ></span>
+            </a>
+          </nav>
+        </div>
+
+        <!-- 2. Center Search Bar -->
+        <div class="flex-1 max-w-xl">
+          <div class="relative">
+            <i
+              data-lucide="search"
+              class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            ></i>
+            <input
+              type="text"
+              placeholder="검색어를 입력하세요"
+              class="w-full bg-slate-100/80 hover:bg-slate-100 focus:bg-white text-sm pl-11 pr-12 py-2.5 rounded-full border border-transparent focus:border-slate-300 transition outline-none font-medium text-slate-700 placeholder:text-slate-400"
+            />
+            <span
+              class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-slate-400 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs"
+              >⌘K</span
+            >
+          </div>
+        </div>
+
+        <!-- 3. Right Action Utilities (액션 버튼 형태) -->
+        <div class="flex items-center gap-4 font-bold text-sm">
+          <!-- PAY: 은은한 호버 링크 -->
+          <a
+            href="#"
+            class="px-3 py-2 text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-full flex items-center gap-1.5 transition-colors"
+          >
+            <i data-lucide="gem" class="w-4 h-4 text-indigo-500"></i> PAY
+          </a>
+
+          <!-- UPLOAD: 강조된 블랙 솔리드 버튼 (CTA) -->
+          <a
+            href="#"
+            class="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white rounded-full flex items-center gap-1.5 shadow-xs transition-all active:scale-95"
+          >
+            <i data-lucide="upload" class="w-4 h-4"></i> UPLOAD
+          </a>
+
+          <!-- Notification & Profile -->
+          <div class="flex items-center gap-3 pl-2 border-l border-slate-200">
+            <button
+              class="relative text-slate-600 hover:text-slate-900 transition p-1.5 rounded-full hover:bg-slate-100"
+            >
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span
+                class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"
+              ></span>
+            </button>
+            <a
+              href="#"
+              class="w-9 h-9 rounded-full bg-pink-100 p-0.5 border border-slate-200 overflow-hidden hover:opacity-90 transition"
+            >
+              <img
+                src="/user_img.jpg"
+                alt="Avatar"
+                class="w-full h-full object-cover rounded-full"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- HOME / BOARD 탭 전용 클릭 스크립트 -->
+    <script>
+      (function () {
+        const tabs = document.querySelectorAll('.header-tab');
+
+        tabs.forEach((tab) => {
+          tab.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            tabs.forEach((el) => {
+              el.classList.remove('text-slate-900');
+              el.classList.add('text-slate-400');
+              const indicator = el.querySelector('.tab-indicator');
+              if (indicator) indicator.classList.add('hidden');
+            });
+
+            this.classList.remove('text-slate-400');
+            this.classList.add('text-slate-900');
+            const activeIndicator = this.querySelector('.tab-indicator');
+            if (activeIndicator) activeIndicator.classList.remove('hidden');
+          });
+        });
+
+        if (window.lucide) lucide.createIcons();
+      })();
+    </script>
+
+    <!-- MAIN WRAPPER -->
+    <main class="max-w-[1440px] mx-auto px-6 py-6 space-y-6">
+      <!-- 2. HERO SECTION (BANNER + SIDEBAR WIDGETS) -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Main Promotion Banner (8 Cols) -->
+        <div
+          class="lg:col-span-8 relative bg-[#f1f3f8] border border-slate-200/60 rounded-3xl p-8 sm:p-12 flex items-center justify-between min-h-[300px] overflow-hidden group"
+        >
+          <!-- Left Banner Content -->
+          <div class="relative z-10 max-w-md space-y-3">
+            <h2
+              class="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight"
+            >
+              상상을 핀으로,<br />
+              영감을 연결하다
+            </h2>
+            <p class="text-sm font-medium text-slate-500">
+              창작을 공유하고, 새로운 세계를 발견해보세요.
+            </p>
+            <div class="pt-2">
+              <a
+                href="#"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold text-xs rounded-full hover:bg-slate-800 transition active:scale-95 shadow-md"
+              >
+                자세히 보기
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Right 3D Character Illustration Area -->
+          <div class="relative z-10 hidden sm:flex items-center gap-2 pr-4">
+            <!-- 3D Mascot Artwork Mimic -->
+            <img
+              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80"
+              alt="3D Artwork"
+              class="w-64 h-56 object-cover rounded-2xl shadow-xl rotate-1 border-4 border-white"
+            />
+          </div>
+
+          <!-- Slider Arrow Controls -->
+          <button
+            class="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-700 shadow-md flex items-center justify-center transition z-20"
+          >
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+          </button>
+          <button
+            class="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-700 shadow-md flex items-center justify-center transition z-20"
+          >
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+          </button>
+
+          <!-- Slide Indicators -->
+          <div
+            class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20"
+          >
+            <span class="w-2 h-2 rounded-full bg-slate-900"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+          </div>
+        </div>
+
+        <!-- Right Sidebar Stack (4 Cols) -->
+        <div class="lg:col-span-4 flex flex-col justify-between gap-4">
+          <!-- User Profile Card -->
+          <div
+            class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xs relative overflow-hidden"
+          >
+            <!-- Subtle Top Gradient Header -->
+            <div class="absolute top-0 left-0 right-0 h-16"></div>
+
+            <div class="relative z-10">
+              <!-- User Info -->
+              <div class="flex items-center gap-3 mb-5 pt-1">
+                <img
+                  src="/user_img.jpg"
+                  alt="Avatar"
+                  class="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-sm"
+                />
+                <div>
+                  <h3 class="font-bold text-slate-900 text-sm">배수민님</h3>
+                  <p class="text-xs text-slate-400 font-medium">@bae0258</p>
+                </div>
+              </div>
+
+              <!-- Stats Grid -->
+              <div
+                class="grid grid-cols-4 gap-2 text-center pt-3 border-t border-slate-100"
+              >
+                <div>
+                  <div class="text-[11px] font-semibold text-slate-400 mb-0.5">
+                    코인
+                  </div>
+                  <div class="text-sm font-bold text-slate-800">0</div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-semibold text-slate-400 mb-0.5">
+                    게시물
+                  </div>
+                  <div class="text-sm font-bold text-slate-800">0</div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-semibold text-slate-400 mb-0.5">
+                    팔로워
+                  </div>
+                  <div class="text-sm font-bold text-slate-800">0</div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-semibold text-slate-400 mb-0.5">
+                    팔로잉
+                  </div>
+                  <div class="text-sm font-bold text-slate-800">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Today's Mission Card -->
+          <!-- [옵션 4] 이용 팁 위젯 -->
+          <!-- [통합 캐러셀 위젯] 슬라이드 비침 현상 완벽 수정 버전 -->
+          <!-- [통합 캐러셀 위젯] 무한 루프 슬라이딩 지원 버전 -->
+          <!-- [통합 캐러셀 위젯] 부드러운 크로스페이드 전환 애니메이션 적용 -->
+          <div
+            id="sidebar-carousel"
+            class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xs relative overflow-hidden h-[148px] flex flex-col justify-between group"
+          >
+            <!-- 1. 위젯 상단 (슬라이드 뱃지 + 점 인디케이터) -->
+            <div class="flex items-center justify-between mb-2 z-10">
+              <span
+                id="carousel-badge"
+                class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-600 transition-all duration-300"
+              >
+                🔥 TRENDING
+              </span>
+              <!-- 클릭 가능한 점 인디케이터 -->
+              <div class="flex items-center gap-1.5">
+                <button
+                  onclick="setSlide(0)"
+                  class="carousel-dot w-2.5 h-2 rounded-full bg-slate-900 transition-all duration-300"
+                ></button>
+                <button
+                  onclick="setSlide(1)"
+                  class="carousel-dot w-1.5 h-1.5 rounded-full bg-slate-200 transition-all duration-300"
+                ></button>
+                <button
+                  onclick="setSlide(2)"
+                  class="carousel-dot w-1.5 h-1.5 rounded-full bg-slate-200 transition-all duration-300"
+                ></button>
+                <button
+                  onclick="setSlide(3)"
+                  class="carousel-dot w-1.5 h-1.5 rounded-full bg-slate-200 transition-all duration-300"
+                ></button>
+              </div>
+            </div>
+
+            <!-- 2. 슬라이드 컨텐츠 영역 (절대 좌표 기반 부드러운 페이드 전환) -->
+            <div class="relative flex-1 w-full overflow-hidden">
+              <!-- Slide 0: 실시간 인기 태그 -->
+              <div
+                class="carousel-slide p-1 absolute inset-0 flex flex-col justify-center transition-all duration-500 ease-in-out opacity-100 pointer-events-auto translate-y-0"
+              >
+                <div class="text-xs font-bold text-slate-900 mb-2">
+                  실시간 인기 태그
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                  <a
+                    href="#"
+                    class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                    >#여름풍경</a
+                  >
+                  <a
+                    href="#"
+                    class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                    >#3D아트</a
+                  >
+                  <a
+                    href="#"
+                    class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                    >#아이폰배경</a
+                  >
+                  <a
+                    href="#"
+                    class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                    >#캐릭터</a
+                  >
+                </div>
+              </div>
+
+              <!-- Slide 1: 이주의 추천 크리에이터 -->
+              <div
+                class="carousel-slide p-1 absolute inset-0 flex items-center justify-between transition-all duration-500 ease-in-out opacity-0 pointer-events-none translate-y-2"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="relative">
+                    <img
+                      src="/user_img.jpg"
+                      alt="Creator"
+                      class="w-10 h-10 rounded-full object-cover ring-2 ring-amber-400"
+                    />
+                    <span class="absolute -top-1 -left-1 text-xs">👑</span>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">
+                      Studio Alex
+                    </div>
+                    <div class="text-[11px] text-slate-400 font-medium">
+                      팔로워 12.4k명
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="px-3 py-1.5 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition shadow-xs"
+                >
+                  + 팔로우
+                </button>
+              </div>
+
+              <!-- Slide 2: 친구 초대 레퍼럴 -->
+              <div
+                class="carousel-slide p-1 absolute inset-0 flex items-center justify-between transition-all duration-500 ease-in-out opacity-0 pointer-events-none translate-y-2"
+              >
+                <div class="space-y-0.5">
+                  <div class="text-xs font-bold text-slate-900">
+                    친구 초대하고
+                    <span class="text-indigo-600 font-extrabold">500 코인</span>
+                    받기
+                  </div>
+                  <p class="text-[11px] text-slate-400 font-medium">
+                    초대 링크로 가입 시 양쪽 적립!
+                  </p>
+                </div>
+                <button
+                  class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1"
+                >
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i> 복사
+                </button>
+              </div>
+
+              <!-- Slide 3: 이용 팁 -->
+              <div
+                class="carousel-slide p-1 absolute inset-0 flex items-center justify-between transition-all duration-500 ease-in-out opacity-0 pointer-events-none translate-y-2"
+              >
+                <div class="space-y-1 pr-2">
+                  <div class="text-xs font-bold text-slate-900">
+                    빠른 검색 단축키
+                  </div>
+                  <p class="text-[11px] text-slate-500 font-medium">
+                    <kbd
+                      class="px-1.5 py-0.5 bg-slate-100 rounded border border-slate-200 font-bold text-slate-700"
+                      >⌘K</kbd
+                    >
+                    로 언제든 검색창을 열어보세요.
+                  </p>
+                </div>
+                <div
+                  class="w-9 h-9 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0"
+                >
+                  💡
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. 부드러운 페이드 전환 자바스크립트 -->
+          <script>
+            (function () {
+              const slides = document.querySelectorAll('.carousel-slide');
+              const dots = document.querySelectorAll('.carousel-dot');
+              const badge = document.getElementById('carousel-badge');
+
+              const badges = [
+                { text: '🔥 TRENDING', class: 'bg-rose-50 text-rose-600' },
+                { text: '👑 SPOTLIGHT', class: 'bg-amber-50 text-amber-600' },
+                { text: '🎁 EVENT', class: 'bg-indigo-50 text-indigo-600' },
+                { text: '💡 TIP', class: 'bg-emerald-50 text-emerald-600' }
+              ];
+
+              let currentSlide = 0;
+              let slideInterval;
+
+              window.setSlide = function (index) {
+                slides.forEach((slide, i) => {
+                  if (i === index) {
+                    // 활성화: 투명도 100%, 클릭 활성화, 위치 원위치
+                    slide.classList.remove(
+                      'opacity-0',
+                      'pointer-events-none',
+                      'translate-y-2'
+                    );
+                    slide.classList.add(
+                      'opacity-100',
+                      'pointer-events-auto',
+                      'translate-y-0'
+                    );
+                  } else {
+                    // 비활성화: 투명도 0%, 클릭 비활성화, 살짝 아래로 숨김
+                    slide.classList.remove(
+                      'opacity-100',
+                      'pointer-events-auto',
+                      'translate-y-0'
+                    );
+                    slide.classList.add(
+                      'opacity-0',
+                      'pointer-events-none',
+                      'translate-y-2'
+                    );
+                  }
+                });
+
+                dots.forEach((dot, i) => {
+                  if (i === index) {
+                    dot.className =
+                      'carousel-dot w-2.5 h-2 rounded-full bg-slate-900 transition-all duration-300';
+                  } else {
+                    dot.className =
+                      'carousel-dot w-1.5 h-1.5 rounded-full bg-slate-200 transition-all duration-300';
+                  }
+                });
+
+                if (badge && badges[index]) {
+                  badge.textContent = badges[index].text;
+                  badge.className = `px-2 py-0.5 rounded-md text-[10px] font-bold transition-all duration-300 ${badges[index].class}`;
+                }
+
+                currentSlide = index;
+              };
+
+              function nextSlide() {
+                let next = (currentSlide + 1) % slides.length;
+                setSlide(next);
+              }
+
+              // 3.5초마다 부드럽게 자동 전환
+              slideInterval = setInterval(nextSlide, 3500);
+
+              // 마우스 올렸을 때 정지, 뗐을 때 다시 실행
+              const carousel = document.getElementById('sidebar-carousel');
+              if (carousel) {
+                carousel.addEventListener('mouseenter', () =>
+                  clearInterval(slideInterval)
+                );
+                carousel.addEventListener(
+                  'mouseleave',
+                  () => (slideInterval = setInterval(nextSlide, 3500))
+                );
+              }
+            })();
+          </script>
+          <!-- <div
+            class="bg-amber-50/60 border border-amber-200/60 rounded-3xl p-5 shadow-xs flex items-center justify-between"
+          >
+            <div class="space-y-1">
+              <div
+                class="flex items-center gap-1 text-amber-700 font-bold text-xs"
+              >
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Pinz 유용한
+                팁
+              </div>
+              <p class="text-xs text-slate-700 font-semibold leading-relaxed">
+                단축키
+                <kbd
+                  class="px-1.5 py-0.5 bg-white rounded border border-amber-200 text-[10px] font-bold shadow-2xs"
+                  >⌘K</kbd
+                >
+                로 언제든 빠르게 영감을 검색하세요!
+              </p>
+            </div>
+
+            <div
+              class="w-9 h-9 rounded-2xl bg-amber-200/50 text-amber-800 flex items-center justify-center font-bold shrink-0 ml-2"
+            >
+              🔍
+            </div>
+          </div>
+          <div
+            class="bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 rounded-3xl p-5 shadow-sm text-white flex items-center justify-between relative overflow-hidden"
+          >
+            <div
+              class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl"
+            ></div>
+
+            <div class="space-y-1 z-10">
+              <span
+                class="inline-block px-2 py-0.5 bg-white/20 backdrop-blur-md rounded-md text-[10px] font-bold text-indigo-100"
+              >
+                ALWAYS EVENT
+              </span>
+              <h4 class="text-xs font-extrabold text-white leading-tight">
+                친구 초대하고 <span class="text-amber-300">500 코인</span> 받기
+              </h4>
+              <p class="text-[11px] text-indigo-100 font-medium">
+                초대 링크로 가입 시 양쪽 모두 적립!
+              </p>
+            </div>
+
+            <button
+              class="z-10 px-3 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-xl text-xs font-bold transition shadow-md shrink-0 active:scale-95 flex items-center gap-1"
+            >
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> 복사
+            </button>
+          </div>
+          <div
+            class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xs flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+                  alt="Creator"
+                  class="w-11 h-11 rounded-full object-cover ring-2 ring-amber-400"
+                />
+                <span class="absolute -top-1 -left-1 text-xs">👑</span>
+              </div>
+
+              <div>
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-extrabold text-slate-900"
+                    >이주의 아티스트</span
+                  >
+                </div>
+                <div class="text-xs font-semibold text-slate-700">
+                  Studio Alex
+                </div>
+                <div class="text-[11px] text-slate-400">팔로워 12.4k명</div>
+              </div>
+            </div>
+
+            <button
+              class="px-3 py-1.5 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition shadow-xs active:scale-95"
+            >
+              + 팔로우
+            </button>
+          </div>
+          <div
+            class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xs flex items-center justify-between relative overflow-hidden"
+          >
+            <div class="space-y-2">
+              <span class="text-[11px] font-bold text-slate-400 tracking-tight"
+                >오늘의 미션</span
+              >
+              <h4 class="text-xs font-bold text-slate-800 leading-relaxed">
+                첫 게시물을 업로드하고<br />
+                <strong class="text-slate-900">10 코인</strong>을 받아가세요!
+              </h4>
+              <div class="pt-1">
+                <span
+                  class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-400 text-amber-950 font-extrabold text-[11px] rounded-full shadow-2xs"
+                >
+                  P 10
+                </span>
+              </div>
+            </div>
+
+            <div
+              class="w-16 h-16 bg-gradient-to-tr from-amber-100 to-rose-100 rounded-2xl flex items-center justify-center text-3xl shadow-inner"
+            >
+              🎁
+            </div>
+          </div> -->
+        </div>
+      </section>
+
+      <!-- 3. CATEGORIES & FILTER BAR -->
+      <section
+        class="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 border-b border-slate-200/60 pb-4"
+      >
+        <!-- Category Pills -->
+        <div
+          class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto"
+        >
+          <button
+            class="px-4 py-2 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 shadow-sm"
+          >
+            🔥 인기
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            🎨 일러스트
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            📷 사진
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            🎬 3D
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            🎵 음악
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            🎮 게임
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            📱 디자인
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            ✈️ 여행
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            📚 아트
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            💡 아이디어
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+          >
+            ✨ 전체보기
+          </button>
+        </div>
+
+        <!-- Right Order & View Controls -->
+        <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+          <button
+            class="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            최신순
+            <i
+              data-lucide="chevron-down"
+              class="w-3.5 h-3.5 text-slate-400"
+            ></i>
+          </button>
+          <button
+            class="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50"
+          >
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- 4. PINTEREST STYLE MASONRY IMAGE FEED -->
+      <section class="masonry-grid pt-2">
+        <!-- Card 1: Green Landscape -->
+        <div
+          class="masonry-item group relative rounded-2xl overflow-hidden bg-slate-200 cursor-pointer"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600&auto=format&fit=crop&q=80"
+            alt="푸른하늘"
+            class="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 p-3.5 flex items-end justify-between text-white text-xs font-medium"
+          >
+            <div class="flex items-center gap-2">
+              <div
+                class="w-5 h-5 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-[10px] font-bold"
+              >
+                푸
+              </div>
+              <span>푸른하늘</span>
+            </div>
+            <div class="flex items-center gap-1 opacity-80">
+              <i data-lucide="heart" class="w-3.5 h-3.5"></i> 325
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Sunset Beach (Video Badge) -->
+        <div
+          class="masonry-item group relative rounded-2xl overflow-hidden bg-slate-200 cursor-pointer"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"
+            alt="노을의 기억"
+            class="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <!-- Top Video Play Icon -->
+          <div
+            class="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center"
+          >
+            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+          </div>
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 p-3.5 flex items-end justify-between text-white text-xs font-medium"
+          >
+            <div class="flex items-center gap-2">
+              <div
+                class="w-5 h-5 rounded-full bg-pink-400 flex items-center justify-center text-[10px] font-bold"
+              >
+                노
+              </div>
+              <span>노을의 기억</span>
+            </div>
+            <div class="flex items-center gap-1 opacity-80">
+              <i data-lucide="heart" class="w-3.5 h-3.5"></i> 412
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Vase with Flower -->
+        <div
+          class="masonry-item group relative rounded-2xl overflow-hidden bg-slate-200 cursor-pointer"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?w=600&auto=format&fit=crop&q=80"
+            alt="stay calm"
+            class="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 p-3.5 flex items-end justify-between text-white text-xs font-medium"
+          >
+            <div class="flex items-center gap-2">
+              <div
+                class="w-5 h-5 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-[10px] font-bold"
+              >
+                S
+              </div>
+              <span>stay calm</span>
+            </div>
+            <div class="flex items-center gap-1 opacity-80">
+              <i data-lucide="heart" class="w-3.5 h-3.5"></i> 289
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: White Cat (Pinned) -->
+        <div
+          class="masonry-item group relative rounded-2xl overflow-hidden bg-slate-200 cursor-pointer"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&auto=format&fit=crop&q=80"
+            alt="오레오"
+            class="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <!-- Top Pin Icon -->
+          <div
+            class="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center"
+          >
+            <i data-lucide="pin" class="w-3.5 h-3.5"></i>
+          </div>
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 p-3.5 flex items-end justify-between text-white text-xs font-medium"
+          >
+            <div class="flex items-center gap-2">
+              <div
+                class="w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center text-[10px] font-bold"
+              >
+                오
+              </div>
+              <span>오레오</span>
+            </div>
+            <div class="flex items-center gap-1 opacity-80">
+              <i data-lucide="heart" class="w-3.5 h-3.5"></i> 231
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: Blue Pool with Pink Tube -->
+        <div
+          class="masonry-item group relative rounded-2xl overflow-hidden bg-slate-200 cursor-pointer"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"
+            alt="여름방학"
+            class="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 p-3.5 flex items-end justify-between text-white text-xs font-medium"
+          >
+            <div class="flex items-center gap-2">
+              <div
+                class="w-5 h-5 rounded-full bg-cyan-400 flex items-center justify-center text-[10px] font-bold"
+              >
+                여
+              </div>
+              <span>여름방학</span>
+            </div>
+            <div class="flex items-center gap-1 opacity-80">
+              <i data-lucide="heart" class="w-3.5 h-3.5"></i> 573
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Coffee Cup -->
+        <div
+          class="masonry-item group relative rounded-2xl overflow-hidden bg-slate-200 cursor-pointer"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80"
+            alt="모닝커피"
+            class="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div
+            class="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center"
+          >
+            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+          </div>
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 p-3.5 flex items-end justify-between text-white text-xs font-medium"
+          >
+            <div class="flex items-center gap-2">
+              <div
+                class="w-5 h-5 rounded-full bg-amber-600 flex items-center justify-center text-[10px] font-bold"
+              >
+                카페
+              </div>
+              <span>모닝커피</span>
+            </div>
+            <div class="flex items-center gap-1 opacity-80">
+              <i data-lucide="heart" class="w-3.5 h-3.5"></i> 184
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Initialize Lucide Icons
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

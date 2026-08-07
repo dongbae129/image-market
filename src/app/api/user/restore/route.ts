@@ -76,6 +76,7 @@ export const POST = async (req: NextRequest) => {
   const body = await req.json();
   console.log(body, 'refreshbody');
   const refreshToken = body.refreshToken;
+  console.log(refreshToken, 'restoreBody');
   // const refreshToken = cookie.get('refreshToken')?.value;
   try {
     if (!refreshToken) {

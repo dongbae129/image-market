@@ -56,6 +56,7 @@ export const POST = async (req: NextRequest) => {
       .then((res) => {
         return res.data;
       });
+    console.log(userInfo, 'userInfokakao');
 
     let jwtAccessToken;
     let jwtRefreshToken;

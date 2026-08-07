@@ -1,36 +1,23 @@
 'use client';
 import Button from '@app/_components/button';
 import Input from '@app/_components/input';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import type { NextPage } from 'next';
-import Link from 'next/link';
-import SvgData from '@/json/data.json';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useDispatch } from 'react-redux';
-import { setAccessToken, setLogedIn } from '@reducers/user';
-
 import { userResponse } from '@app/_components/headmenu';
-import SvgIcon from '@app/_components/svgIcon';
-import { newAxios } from '@libs/client/fetcher';
 import store from '@reducers/store';
 import { useState } from 'react';
 import SnsSign from '@app/_components/snsSign';
-import { privateApi } from '@libs/client/axiosIntercepotr';
 
 interface SignInForm {
   userId: string;
   password: string;
   formErrors?: string;
 }
-interface ErrorType {
-  ok: boolean;
-  meesage: string;
-}
+
 const Signin: NextPage = () => {
-  const redirect_uri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
-  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&redirect_uri=${redirect_uri}&response_type=code`;
   const router = useRouter();
   const queryClient = useQueryClient();
   const { restoreState } = store.getState().user;
@@ -40,39 +27,21 @@ const Signin: NextPage = () => {
   });
   const [errorMsg, setErrorMsg] = useState('');
 
-  const { google, kakao, naver } = SvgData.SVG;
   if (data?.ok && data.user.id) router.push('/');
-  // if (!restoreState) {
-  //   router.push('/');
-  // }
 
-  const dispatch = useDispatch();
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors }
-  } = useForm<SignInForm>();
+  const { register, handleSubmit, setError } = useForm<SignInForm>();
 
   const signInUser = (data: SignInForm) =>
-    privateApi.post('/api/login', data).then((res) => res.data);
+    axios.post('/api/auth/login', data).then((res) => res.data);
   const { mutate, isPending } = useMutation({
     mutationFn: signInUser,
-    onError: (error: AxiosError) => {
-      setErrorMsg(error?.response?.data.message);
-      alert(error.response.data.message);
+    onError: (error: AxiosError<{ message: string }>) => {
+      const errorMessage =
+        error.response?.data?.message || '로그인 실패했습니다';
+      setErrorMsg(errorMessage);
+      alert(errorMessage);
     },
-    onSuccess: (res) => {
-      dispatch(setAccessToken(res.accessToken));
-      // axios.defaults.headers.common['Authorization'] = '';
-
-      // axios.defaults.headers.common['authorization'] =
-      //   'Bearer ' + res.accessToken;
-      // newAxios.defaults.headers.common['authorization'] =
-      //   'Bearer ' + res.accessToken;
-
-      // store.dispatch(setRestoreState(true));
-      // store.dispatch(setLogedIn(true));
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userInfo'] });
       router.push('/');
     }
@@ -101,7 +70,6 @@ const Signin: NextPage = () => {
                 required
               />
             </div>
-            {/* <input type="text" name="abc" /> */}
             <div className="mt-1 mb-3">
               <Input
                 label="password"

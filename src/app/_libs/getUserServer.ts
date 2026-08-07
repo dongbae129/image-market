@@ -1,29 +1,30 @@
 import { User } from '@prisma/client';
 import { cookies } from 'next/headers';
 
-interface UserType {
+interface UserResponse {
   ok: boolean;
   auth?: {
     checkError: boolean;
   };
   status?: number;
-  user?: User;
+  user?: User | null;
   message?: string;
 }
-interface StateType {
-  ok?: boolean;
+export interface RestoreResponse {
+  ok: boolean;
+  accessToken?: string; // Restore 응답에만 accessToken이 존재함
+  message?: string;
   auth?: {
     checkError: boolean;
   };
-  message?: string;
-  accessToken?: string;
 }
-export const getUserServer = async (): Promise<UserType> => {
+export const getUserServer = async (): Promise<UserResponse | null> => {
   const token = await cookies();
   const accesToken = token.get('accessToken')?.value;
   const refreshToken = token.get('refreshToken')?.value;
-
-  console.log(accesToken, 'getUserServer accesToken');
+  if (!accesToken && !refreshToken) {
+    return null;
+  }
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
       next: {
@@ -31,46 +32,17 @@ export const getUserServer = async (): Promise<UserType> => {
       },
       headers: {
         Authorization: `Bearer ${accesToken}`
-        // Cookie: `refreshToken=${refreshToken}`
       },
       credentials: 'include'
-      // cache: 'no-store'
     });
-
-    if (!res.ok) {
-      const restored = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/user/restore`,
-        {
-          credentials: 'include'
-        }
-      );
-      const test: UserType = await restored.json();
-      console.log(test, 'getUserServer - test');
-      if (!test.ok) {
-        return {
-          ok: false,
-          message: 'no refresh'
-        };
-      }
-      const restoredUser = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/user`,
-        {
-          next: {
-            tags: ['userInfo']
-          },
-          headers: {
-            Authorization: `Bearer ${test.accessToken}`,
-            Cookie: `refreshToken=${refreshToken}`
-          },
-          credentials: 'include'
-          // cache: 'no-store'
-        }
-      );
-      return restoredUser.json();
+    if (res.ok) {
+      return await res.json();
     }
-    return res.json();
+
+    // 3. 여기서 401이 나면 진짜로 권한이 박탈당한 것 (강제 로그아웃 대상)
+    return { ok: false, message: 'Unauthorized or token expired' };
   } catch (error) {
     console.error(error);
-    throw new Error('user server fail');
+    return { ok: false, message: 'Server error' };
   }
 };

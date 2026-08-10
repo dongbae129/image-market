@@ -33,9 +33,16 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get('accessToken')?.value;
   const refreshToken = request.cookies.get('refreshToken')?.value;
-
+  const hasToekn = accessToken || refreshToken;
+  const { pathname } = request.nextUrl;
   // 보호할 페이지 경로 설정
-  const isProtectedPath = request.nextUrl.pathname.startsWith('/profile');
+  // const isProtectedPath = request.nextUrl.pathname.startsWith('/profile');
+  if (
+    hasToekn &&
+    (pathname.startsWith('/signin') || pathname.startsWith('signup'))
+  ) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
 
   // 1. 토큰이 아예 없으면 로그인 페이지로 리다이렉트
   // if (isProtectedPath && !accessToken && !refreshToken) {
@@ -89,5 +96,5 @@ export async function middleware(request: NextRequest) {
 // 미들웨어를 거칠 경로만 매칭하여 성능 최적화
 // matcher: ['/', '/profile/:path*']
 export const config = {
-  matcher: ['/', '/profile/:path*']
+  matcher: ['/', '/profile/:path*', '/signin', '/signup']
 };

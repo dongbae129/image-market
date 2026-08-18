@@ -3,6 +3,7 @@ import { Board, User } from '@prisma/client';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import sanitizeHtml from 'sanitize-html';
+import axios from 'axios';
 interface boardDetailResponse {
   ok: boolean;
   board: Board & {
@@ -18,19 +19,18 @@ interface boardDetailResponse {
 type Props = {
   boardId: string;
 };
-const getTest = async (boardId) => {
+const getTest = async (boardId: string) => {
   const res = await fetch(`/api/board/${boardId}`);
   return res.json();
 };
 function BoardDetailInfo({ boardId }: Props) {
   const { data: boardDetail } = useQuery<boardDetailResponse>({
-    queryKey: ['getBoard'],
+    queryKey: ['getBoard', boardId],
     // queryFn: () => getFetch(`/api/board/${boardId}`),
     queryFn: () => getTest(boardId)
 
     // enabled: !!boardId
   });
-  console.log(boardDetail, 'boardDetail');
   return (
     <>
       <h1>제목: {boardDetail?.board?.title}</h1>

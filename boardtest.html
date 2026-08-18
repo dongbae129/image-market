@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pinz - 크리에이터 커뮤니티 게시판</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pretendard Font -->
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+    />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family:
+          'Pretendard Variable',
+          Pretendard,
+          -apple-system,
+          BlinkMacSystemFont,
+          system-ui,
+          Roboto,
+          sans-serif;
+        background-color: #f8f9fa;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="text-slate-800 antialiased min-h-screen pb-20">
+    <!-- 1. HEADER (Pinz 메인페이지와 동일한 헤더) -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50">
+      <div
+        class="max-w-[1440px] mx-auto px-6 py-3.5 flex items-center justify-between gap-6"
+      >
+        <!-- Logo & Left Navigation -->
+        <div class="flex items-center gap-8">
+          <a href="index.html" class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 via-rose-400 to-indigo-500 flex items-center justify-center shadow-xs"
+            >
+              <div class="w-3.5 h-3.5 bg-white rounded-full"></div>
+            </div>
+            <span class="font-extrabold text-2xl tracking-tight text-slate-900"
+              >Pinz</span
+            >
+          </a>
+
+          <!-- Nav Tabs (BOARD 활성화 상태) -->
+          <nav class="flex items-center gap-6 font-bold text-sm">
+            <a
+              href="index.html"
+              class="header-tab text-slate-400 hover:text-slate-700 relative py-1.5 transition-colors"
+            >
+              HOME
+              <span
+                class="tab-indicator hidden absolute bottom-0 left-0 right-0 h-[2.5px] bg-slate-900 rounded-full"
+              ></span>
+            </a>
+            <a
+              href="#"
+              class="header-tab text-slate-900 relative py-1.5 transition-colors"
+            >
+              BOARD
+              <span
+                class="tab-indicator absolute bottom-0 left-0 right-0 h-[2.5px] bg-slate-900 rounded-full"
+              ></span>
+            </a>
+          </nav>
+        </div>
+
+        <!-- Center Search Bar -->
+        <div class="flex-1 max-w-xl">
+          <div class="relative">
+            <i
+              data-lucide="search"
+              class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            ></i>
+            <input
+              type="text"
+              placeholder="게시판 내글 및 질문 검색..."
+              class="w-full bg-slate-100/80 hover:bg-slate-100 focus:bg-white text-sm pl-11 pr-12 py-2.5 rounded-full border border-transparent focus:border-slate-300 transition outline-none font-medium text-slate-700 placeholder:text-slate-400"
+            />
+            <span
+              class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-slate-400 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs"
+              >⌘K</span
+            >
+          </div>
+        </div>
+
+        <!-- Right Action Utilities -->
+        <div class="flex items-center gap-4 font-bold text-sm">
+          <a
+            href="#"
+            class="px-3 py-2 text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-full flex items-center gap-1.5 transition-colors"
+          >
+            <i data-lucide="gem" class="w-4 h-4 text-indigo-500"></i> PAY
+          </a>
+          <a
+            href="#"
+            class="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white rounded-full flex items-center gap-1.5 shadow-xs transition-all active:scale-95"
+          >
+            <i data-lucide="upload" class="w-4 h-4"></i> UPLOAD
+          </a>
+
+          <div class="flex items-center gap-3 pl-2 border-l border-slate-200">
+            <button
+              class="relative text-slate-600 hover:text-slate-900 transition p-1.5 rounded-full hover:bg-slate-100"
+            >
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span
+                class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"
+              ></span>
+            </button>
+            <a
+              href="#"
+              class="w-9 h-9 rounded-full bg-pink-100 p-0.5 border border-slate-200 overflow-hidden hover:opacity-90 transition"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+                alt="Avatar"
+                class="w-full h-full object-cover rounded-full"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-[1440px] mx-auto px-6 py-8 space-y-6">
+      <!-- 2. BOARD HERO TITLE BAR -->
+      <div
+        class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-xs"
+      >
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span
+              class="px-2.5 py-0.5 text-[11px] font-extrabold bg-indigo-50 text-indigo-600 rounded-md"
+              >PINZ COMMUNITY</span
+            >
+            <span class="text-xs text-slate-400 font-medium"
+              >실시간 게시글 1,420개</span
+            >
+          </div>
+          <h1
+            class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight"
+          >
+            크리에이터 게시판
+          </h1>
+          <p class="text-sm font-medium text-slate-500 mt-1">
+            영감을 나누고, 피드백을 주고받으며 자유롭게 창작 이야기를
+            공유해보세요.
+          </p>
+        </div>
+
+        <!-- Write Post Button (Primary Action) -->
+        <a
+          href="#"
+          class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-full shadow-md shadow-indigo-500/20 transition-all active:scale-95 shrink-0"
+        >
+          <i data-lucide="pen-tool" class="w-4 h-4"></i> 새 글 쓰기
+        </a>
+      </div>
+
+      <!-- 3. BOARD CATEGORY SUB-NAV & SORT BAR -->
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4"
+      >
+        <!-- Sub Category Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <button
+            class="px-4 py-2 rounded-full bg-slate-900 text-white font-bold text-xs shrink-0 shadow-xs"
+          >
+            전체글
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs shrink-0 transition"
+          >
+            🔥 인기글
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs shrink-0 transition"
+          >
+            🎨 작품 피드백
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs shrink-0 transition"
+          >
+            💡 노하우 & 팁
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs shrink-0 transition"
+          >
+            💬 자유수다
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs shrink-0 transition"
+          >
+            🤝 협업/구인
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs shrink-0 transition"
+          >
+            📢 공지사항
+          </button>
+        </div>
+
+        <!-- Sorting Filter -->
+        <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+          <button
+            class="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            최신 작성순
+            <i
+              data-lucide="chevron-down"
+              class="w-3.5 h-3.5 text-slate-400"
+            ></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. MAIN BOARD GRID (LIST + SIDEBAR) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- LEFT: BOARD POST LIST (8 Cols) -->
+        <div class="lg:col-span-8 space-y-3">
+          <!-- [PINNED / NOTICE 1] 상단 고정 공지사항 -->
+          <div
+            class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-4 sm:p-5 flex items-start gap-4 hover:shadow-xs transition"
+          >
+            <span
+              class="px-2.5 py-1 bg-amber-400 text-amber-950 font-extrabold text-[11px] rounded-lg shrink-0 mt-0.5"
+            >
+              필독 공지
+            </span>
+            <div class="flex-1 min-w-0">
+              <a
+                href="#"
+                class="font-extrabold text-slate-900 text-sm sm:text-base hover:text-indigo-600 transition truncate block"
+              >
+                [공지] Pinz 크리에이터 커뮤니티 클린 이용 수칙 및 저작권
+                가이드라인 안내
+              </a>
+              <div
+                class="flex items-center gap-4 mt-2 text-xs font-medium text-slate-500"
+              >
+                <span class="font-bold text-slate-800">Pinz 관리자</span>
+                <span>2026.08.10</span>
+                <span class="flex items-center gap-1"
+                  ><i data-lucide="eye" class="w-3.5 h-3.5"></i> 3,420</span
+                >
+                <span class="flex items-center gap-1"
+                  ><i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                  42</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- [POST CARD 1] 작품 피드백 요청 (이미지 썸네일 포함) -->
+          <div
+            class="bg-white border border-slate-200/80 rounded-2xl p-5 hover:border-indigo-300 hover:shadow-md transition-all duration-200 group"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="px-2 py-0.5 bg-rose-50 text-rose-600 font-bold text-[11px] rounded-md"
+                    >🎨 작품 피드백</span
+                  >
+                  <span class="text-xs text-slate-400 font-medium"
+                    >10분 전</span
+                  >
+                </div>
+                <a
+                  href="#"
+                  class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-indigo-600 transition line-clamp-1"
+                >
+                  이번에 작업한 3D 가상 공간 배경 시그니처 조명 피드백
+                  부탁드립니다!
+                </a>
+                <p
+                  class="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed"
+                >
+                  옥테인 렌더로 실내 사이버펑크 스타일 조명을 세팅해봤는데, 좌측
+                  네온 사인이 너무 번져보이는지 궁금합니다. 실무 디자이너 분들의
+                  가감 없는 조언 부탁드립니다.
+                </p>
+              </div>
+
+              <!-- Thumbnail Image -->
+              <img
+                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80"
+                alt="Post thumbnail"
+                class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0 border border-slate-100"
+              />
+            </div>
+
+            <!-- Post Footer Info -->
+            <div
+              class="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 text-xs"
+            >
+              <!-- Author -->
+              <div class="flex items-center gap-2">
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
+                  alt="Author"
+                  class="w-6 h-6 rounded-full object-cover"
+                />
+                <span class="font-bold text-slate-800">푸른하늘</span>
+                <span
+                  class="px-1.5 py-0.2 bg-slate-100 text-slate-600 font-semibold text-[10px] rounded"
+                  >PRO</span
+                >
+              </div>
+
+              <!-- Stats -->
+              <div class="flex items-center gap-4 font-semibold text-slate-400">
+                <span class="flex items-center gap-1 hover:text-slate-600"
+                  ><i data-lucide="eye" class="w-3.5 h-3.5"></i> 248</span
+                >
+                <span class="flex items-center gap-1 text-indigo-600 font-bold"
+                  ><i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                  18</span
+                >
+                <span class="flex items-center gap-1 hover:text-rose-500"
+                  ><i data-lucide="heart" class="w-3.5 h-3.5"></i> 32</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- [POST CARD 2] 노하우 & 팁 -->
+          <div
+            class="bg-white border border-slate-200/80 rounded-2xl p-5 hover:border-indigo-300 hover:shadow-md transition-all duration-200 group"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="px-2 py-0.5 bg-emerald-50 text-emerald-600 font-bold text-[11px] rounded-md"
+                    >💡 노하우 & 팁</span
+                  >
+                  <span class="text-xs text-slate-400 font-medium"
+                    >1시간 전</span
+                  >
+                </div>
+                <a
+                  href="#"
+                  class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-indigo-600 transition line-clamp-1"
+                >
+                  Blender 3D 초보자를 위한 렌더링 속도 2배 향상시키는 속성 세팅
+                  모음집
+                </a>
+                <p
+                  class="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed"
+                >
+                  노트북이나 저사양 PC에서 Cycles 렌더링 돌릴 때 퀄리티 손실
+                  없이 샘플링과 Denoise 옵션만 조정해서 시간을 반으로 줄이는
+                  5가지 설정 꿀팁을 정리했습니다.
+                </p>
+              </div>
+
+              <img
+                src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=200&auto=format&fit=crop&q=80"
+                alt="Post thumbnail"
+                class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0 border border-slate-100"
+              />
+            </div>
+
+            <div
+              class="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 text-xs"
+            >
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full bg-indigo-500 text-white font-bold text-[10px] flex items-center justify-center"
+                >
+                  3D
+                </div>
+                <span class="font-bold text-slate-800">3D마스터</span>
+              </div>
+
+              <div class="flex items-center gap-4 font-semibold text-slate-400">
+                <span class="flex items-center gap-1 hover:text-slate-600"
+                  ><i data-lucide="eye" class="w-3.5 h-3.5"></i> 1,120</span
+                >
+                <span class="flex items-center gap-1 text-indigo-600 font-bold"
+                  ><i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                  45</span
+                >
+                <span class="flex items-center gap-1 text-rose-500 font-bold"
+                  ><i data-lucide="heart" class="w-3.5 h-3.5 fill-current"></i>
+                  142</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- [POST CARD 3] 자유수다 (텍스트 중심) -->
+          <div
+            class="bg-white border border-slate-200/80 rounded-2xl p-5 hover:border-indigo-300 hover:shadow-md transition-all duration-200 group"
+          >
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <span
+                  class="px-2 py-0.5 bg-indigo-50 text-indigo-600 font-bold text-[11px] rounded-md"
+                  >💬 자유수다</span
+                >
+                <span class="text-xs text-slate-400 font-medium">3시간 전</span>
+              </div>
+              <a
+                href="#"
+                class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-indigo-600 transition line-clamp-1 block"
+              >
+                프리랜서 디자이너 분들 보통 견적 산정할 때 작업 시간 기준으로
+                하시나요?
+              </a>
+              <p
+                class="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed"
+              >
+                이번에 브랜드 캐릭터 디자인 외주 문의가 들어왔는데 난이도 대비
+                견적 책정이 고민되네요. 다들 계약서 작성 시 미팅 비용이나 수정
+                횟수 제한 어떻게 두시는지 궁금합니다.
+              </p>
+            </div>
+
+            <div
+              class="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 text-xs"
+            >
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full bg-amber-500 text-white font-bold text-[10px] flex items-center justify-center"
+                >
+                  디
+                </div>
+                <span class="font-bold text-slate-800">디자인연구소</span>
+              </div>
+
+              <div class="flex items-center gap-4 font-semibold text-slate-400">
+                <span class="flex items-center gap-1 hover:text-slate-600"
+                  ><i data-lucide="eye" class="w-3.5 h-3.5"></i> 530</span
+                >
+                <span class="flex items-center gap-1 text-indigo-600 font-bold"
+                  ><i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                  29</span
+                >
+                <span class="flex items-center gap-1 hover:text-rose-500"
+                  ><i data-lucide="heart" class="w-3.5 h-3.5"></i> 19</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- [POST CARD 4] 협업/구인 -->
+          <div
+            class="bg-white border border-slate-200/80 rounded-2xl p-5 hover:border-indigo-300 hover:shadow-md transition-all duration-200 group"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="px-2 py-0.5 bg-purple-50 text-purple-600 font-bold text-[11px] rounded-md"
+                    >🤝 협업/구인</span
+                  >
+                  <span class="text-xs text-slate-400 font-medium"
+                    >5시간 전</span
+                  >
+                </div>
+                <a
+                  href="#"
+                  class="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-indigo-600 transition line-clamp-1"
+                >
+                  [구인] 신규 캐릭터 브랜딩 프로젝트 함께하실 2D 일러스트레이터
+                  분 구합니다.
+                </a>
+                <p
+                  class="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed"
+                >
+                  스타트업 자체 소셜 콘텐츠에 들어갈 미니멀 일러스트 원화
+                  작업입니다. 포트폴리오 첨부해서 이메일이나 오픈프로필로 연락
+                  주시면 감사하겠습니다.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 text-xs"
+            >
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full bg-slate-900 text-white font-bold text-[10px] flex items-center justify-center"
+                >
+                  A
+                </div>
+                <span class="font-bold text-slate-800">Studio Alex</span>
+              </div>
+
+              <div class="flex items-center gap-4 font-semibold text-slate-400">
+                <span class="flex items-center gap-1 hover:text-slate-600"
+                  ><i data-lucide="eye" class="w-3.5 h-3.5"></i> 310</span
+                >
+                <span class="flex items-center gap-1 text-indigo-600 font-bold"
+                  ><i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                  8</span
+                >
+                <span class="flex items-center gap-1 hover:text-rose-500"
+                  ><i data-lucide="heart" class="w-3.5 h-3.5"></i> 12</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="flex items-center justify-center gap-1.5 pt-6">
+            <button
+              class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-bold transition"
+            >
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button
+              class="w-9 h-9 rounded-xl bg-slate-900 text-white font-extrabold text-xs shadow-xs"
+            >
+              1
+            </button>
+            <button
+              class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition"
+            >
+              2
+            </button>
+            <button
+              class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition"
+            >
+              3
+            </button>
+            <button
+              class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition"
+            >
+              4
+            </button>
+            <button
+              class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700 text-xs font-bold transition"
+            >
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: BOARD SIDEBAR (4 Cols) -->
+        <div class="lg:col-span-4 space-y-5">
+          <!-- Sidebar Widget 1: 이번 주 베스트 게시글 -->
+          <div
+            class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xs"
+          >
+            <div
+              class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100"
+            >
+              <h3
+                class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5"
+              >
+                🔥 이번 주 베스트 글
+              </h3>
+              <span class="text-[11px] font-bold text-indigo-600">TOP 3</span>
+            </div>
+
+            <div class="space-y-3.5">
+              <!-- Best 1 -->
+              <a href="#" class="flex items-start gap-3 group">
+                <span
+                  class="w-5 h-5 rounded-md bg-amber-400 text-amber-950 font-black text-xs flex items-center justify-center shrink-0 mt-0.5"
+                  >1</span
+                >
+                <div>
+                  <h4
+                    class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition line-clamp-1"
+                  >
+                    외주 계약서 작성할 때 무조건 확인해야 하는 5가지
+                  </h4>
+                  <div
+                    class="flex items-center gap-2 text-[10px] text-slate-400 mt-1 font-medium"
+                  >
+                    <span>디자인연구소</span>
+                    <span>•</span>
+                    <span>❤️ 210</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Best 2 -->
+              <a href="#" class="flex items-start gap-3 group">
+                <span
+                  class="w-5 h-5 rounded-md bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5"
+                  >2</span
+                >
+                <div>
+                  <h4
+                    class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition line-clamp-1"
+                  >
+                    Blender 3D 렌더링 속도 2배 높이는 세팅법
+                  </h4>
+                  <div
+                    class="flex items-center gap-2 text-[10px] text-slate-400 mt-1 font-medium"
+                  >
+                    <span>3D마스터</span>
+                    <span>•</span>
+                    <span>❤️ 142</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Best 3 -->
+              <a href="#" class="flex items-start gap-3 group">
+                <span
+                  class="w-5 h-5 rounded-md bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5"
+                  >3</span
+                >
+                <div>
+                  <h4
+                    class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition line-clamp-1"
+                  >
+                    2026 하반기 UI/UX 디자인 트렌드 리포트 공유
+                  </h4>
+                  <div
+                    class="flex items-center gap-2 text-[10px] text-slate-400 mt-1 font-medium"
+                  >
+                    <span>PixelArt</span>
+                    <span>•</span>
+                    <span>❤️ 98</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Sidebar Widget 2: 실시간 피드백 답변을 기다리는 글 -->
+          <div
+            class="bg-indigo-50/50 border border-indigo-100 rounded-3xl p-5 shadow-xs"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <h3
+                class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5"
+              >
+                💬 피드백이 필요해요!
+              </h3>
+              <span
+                class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"
+              ></span>
+            </div>
+            <p class="text-xs text-slate-600 font-medium mb-3 leading-relaxed">
+              동료 크리에이터의 작품에 따뜻한 피드백을 남기고 소통해보세요.
+            </p>
+            <a
+              href="#"
+              class="w-full py-2.5 bg-white hover:bg-slate-50 border border-indigo-200/80 rounded-xl text-indigo-600 font-bold text-xs flex items-center justify-center gap-1 shadow-2xs transition"
+            >
+              피드백 게시글 보기
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+          <!-- Sidebar Widget 3: 커뮤니티 태그 클라우드 -->
+          <div
+            class="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xs"
+          >
+            <h3 class="font-extrabold text-slate-900 text-sm mb-3">
+              🏷️ 게시판 인기 키워드
+            </h3>
+            <div class="flex flex-wrap gap-1.5">
+              <a
+                href="#"
+                class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                >#외주견적</a
+              >
+              <a
+                href="#"
+                class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                >#Blender3D</a
+              >
+              <a
+                href="#"
+                class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                >#포트폴리오</a
+              >
+              <a
+                href="#"
+                class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                >#옥테인</a
+              >
+              <a
+                href="#"
+                class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                >#캐릭터외주</a
+              >
+              <a
+                href="#"
+                class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold transition"
+                >#UI트렌드</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

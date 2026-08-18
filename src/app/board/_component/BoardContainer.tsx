@@ -7,6 +7,7 @@ import BoardPaging from './BoardPaging';
 import { useSearchParams } from 'next/navigation';
 import BoardHead from '@app/board/_component/BoardHead';
 import BoardList from '@app/board/_component/BoardList';
+import axios from 'axios';
 export interface BoardWithUser extends Board {
   user: User;
   boardHit: {
@@ -34,7 +35,7 @@ function BoardContainer() {
 
   const getBoards = () => {
     const search = boardSearch;
-    return newAxios
+    return axios
       .get(
         `${process.env.NEXT_PUBLIC_API_URL}/api/board?id=${currentPage}${boardSearch === '' ? '' : '&search=' + search}`
       )

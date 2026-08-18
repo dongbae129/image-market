@@ -4,6 +4,7 @@ import './globals.css';
 import HeadMenu from '@app/_components/headmenu';
 import Script from 'next/script';
 import MswProvider from '@mocks/MswProvider';
+import Header from '@app/board/_component/BoardHeader';
 
 export const metadata: Metadata = {
   title: 'image-market'
@@ -23,10 +24,11 @@ export default function RootLayout({ children, modal }: Props) {
         {/* <Script src="/pre-hydration.js" strategy="beforeInteractive" /> */}
         {/* <script dangerouslySetInnerHTML={{ __html: preScript }} /> */}
       </head>
-      <body className="h-full" suppressHydrationWarning>
+      <body className="h-full bg-slate-100/80" suppressHydrationWarning>
         {/* <MswProvider> */}
         <ReactQueryProvider>
-          <HeadMenu />
+          <Header />
+          {/* <HeadMenu /> */}
           {children}
           {modal}
         </ReactQueryProvider>

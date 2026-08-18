@@ -108,16 +108,21 @@ model Product {
 }
 
 model Board {
-  id          Int         @id @default(autoincrement())
-  title       String
-  description String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  userId      Int
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  boardChat   BoardChat[]
-  boardHit    BoardHit?
-  boardTag    BoardTag?
+  id           Int         @id @default(autoincrement())
+  title        String
+  description  String
+  category     String      @default("자유수다")
+  viewCount    Int         @default(0)
+  likeCount    Int         @default(0)
+  commentCount Int         @default(0)
+  image        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  userId       Int
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  boardChat    BoardChat[]
+  boardHit     BoardHit?
+  boardTag     BoardTag?
 
   @@index([userId])
 }

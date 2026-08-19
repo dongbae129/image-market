@@ -87,7 +87,7 @@ export default function Header() {
 
           {/* UPLOAD */}
           <Link
-            href="/upload"
+            href="/upload?type=product"
             className="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white rounded-full flex items-center gap-1.5 shadow-xs transition-all active:scale-95"
           >
             <Upload className="w-4 h-4" /> UPLOAD

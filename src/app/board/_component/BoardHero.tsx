@@ -27,7 +27,7 @@ export default function BoardHero({ totalPostCount }: BoardHeroProps) {
       </div>
 
       <Link
-        href="/upload"
+        href="/upload?type=board"
         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-full shadow-md shadow-indigo-500/20 transition-all active:scale-95 shrink-0"
       >
         <PenTool className="w-4 h-4" /> 새 글 쓰기

@@ -150,10 +150,13 @@
 import { useState } from 'react';
 import MediaCanvas from '@app/upload/_component/MediaCanvas';
 import MetadataEditor from '@app/upload/_component/MetaDataEditor';
+import { useSearchParams } from 'next/navigation';
 
 export default function UploadPage() {
   const [images, setImages] = useState<string[]>([]);
-
+  const searchParams = useSearchParams();
+  const initialType = searchParams.get('type') || 'product';
+  console.log(initialType, 'initialType');
   return (
     // py-6 -> py-4 로 상하 여백 축소
     // 화면 높이에 맞게 flex 컨테이너 최적화
@@ -179,7 +182,7 @@ export default function UploadPage() {
         {/* 좌우 패널 갭 유지 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
           <MediaCanvas images={images} setImages={setImages} />
-          <MetadataEditor images={images} />
+          <MetadataEditor images={images} type={initialType} />
         </div>
       </main>
     </div>

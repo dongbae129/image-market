@@ -151,12 +151,16 @@ import { useState } from 'react';
 import MediaCanvas from '@app/upload/_component/MediaCanvas';
 import MetadataEditor from '@app/upload/_component/MetaDataEditor';
 import { useSearchParams } from 'next/navigation';
-
+export type UploadImageItem = {
+  file: File; // 백엔드/S3 전송용 실제 바이너리 파일
+  preview: string; // 화면에 그리기 위한 로컬 미리보기 URL
+};
 export default function UploadPage() {
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<UploadImageItem[]>([]);
   const searchParams = useSearchParams();
-  const initialType = searchParams.get('type') || 'product';
-  console.log(initialType, 'initialType');
+  const initialType =
+    (searchParams.get('type') as 'product' | 'board') || 'product';
+  const [uploadType, setUploadTpye] = useState(initialType);
   return (
     // py-6 -> py-4 로 상하 여백 축소
     // 화면 높이에 맞게 flex 컨테이너 최적화
@@ -173,16 +177,16 @@ export default function UploadPage() {
               구성해보세요.
             </p>
           </div>
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-full shadow-sm text-xs font-bold text-slate-600">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            자동 저장됨
-          </div>
         </div>
 
         {/* 좌우 패널 갭 유지 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
           <MediaCanvas images={images} setImages={setImages} />
-          <MetadataEditor images={images} type={initialType} />
+          <MetadataEditor
+            images={images}
+            uploadType={uploadType}
+            setUploadType={setUploadTpye}
+          />
         </div>
       </main>
     </div>

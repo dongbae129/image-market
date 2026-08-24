@@ -82,7 +82,7 @@ function ProductInfo({ productId }: ProductInfoProps) {
           <div>
             <h1>{data?.product.title}</h1>
           </div>
-          <div>{data?.product?.description}</div>
+          <br />
           <div
             dangerouslySetInnerHTML={{
               __html: sanitizeHtml(data?.product?.description as string)

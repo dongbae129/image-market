@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-ring:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
 /* #__next {
   height: 100%;
   overflow-x: hidden;

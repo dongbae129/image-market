@@ -7,6 +7,7 @@ import BoardUserInfo from './_component/BoardUserInfo';
 import BoardDetailInfo from './_component/BoardDetailInfo';
 import BoardChatForm from './_component/BoardChatForm';
 import BoardChatComments from './_component/BoardChatComments';
+import axios from 'axios';
 
 interface chatWithUser extends Chat {
   user: {
@@ -31,7 +32,7 @@ const BoardDetail = ({ params }: Props) => {
   console.log(boardId, 'boardId');
   const { data } = useQuery<UploadChatResponse>({
     queryKey: ['getChats'],
-    queryFn: getFetch(`/api/chat/board/${boardId}`),
+    queryFn: () => axios(`/api/chat/board/${boardId}`).then((res) => res.data),
 
     enabled: !!boardId
   });

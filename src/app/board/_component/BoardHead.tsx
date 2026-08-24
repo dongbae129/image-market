@@ -1,14 +1,9 @@
-'use client';
 import Button from '@app/_components/button';
 import Input from '@app/_components/input';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction, useState } from 'react';
-import { useForm } from 'react-hook-form';
+
 import { IoIosSearch } from 'react-icons/io';
-import { GetComponentData } from '../_lib/getComponentData';
-import { useQuery } from '@tanstack/react-query';
 import { BoardWithUser } from '@app/board/_component/BoardContainer';
-import { useRouter } from 'next/navigation';
 
 type BoardSearch = {
   search: string;
@@ -31,17 +26,8 @@ function BoardHead({
   currentPage,
   totalPage = 10
 }: BoardHeadProps) {
-  const router = useRouter();
   const boardShowCount = Number(process.env.NEXT_PUBLIC_POST_COUNT);
 
-  const { register, handleSubmit } = useForm<BoardSearch>();
-  const onValid = ({ search }: BoardSearch) => {
-    console.log(search);
-    setBoardSearch(search);
-    setCurrentPage(1);
-    router.push(`?page=1${search && `&search=${search}`}`);
-    // mutate({ search });
-  };
   const total = Math.ceil(totalPage / boardShowCount);
   // const { data } = GetComponentData<BoardResponse>(boardSearch);
   return (
@@ -65,16 +51,15 @@ function BoardHead({
             ></path>
           </svg>
         </div>
-        <Link href={'/board/upload'} className="min-h-[37px] h-[37px] w-[90px]">
+        <Link href={'/upload'} className="min-h-[37px] h-[37px] w-[90px]">
           <Button isLoading={false} text="UPLOAD" />
         </Link>
         <div className="search">
-          <form onSubmit={handleSubmit(onValid)}>
+          <form action={'/product'} method="GET">
             <Input
               name="search"
               type="text"
               paddingleft="3rem"
-              register={register('search')}
               classame="search__input"
             />
             <div className="search__button">
@@ -83,9 +68,7 @@ function BoardHead({
           </form>
         </div>
         <div className="board__pagecount">
-          <span>
-            {currentPage} / {total} 페이지
-          </span>
+          <span>페이지</span>
           {/* {data?.boardCount ? `1/${Math.ceil(data?.boardCount / 5)}` : '0/0'} */}
         </div>
       </div>

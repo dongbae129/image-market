@@ -3,9 +3,8 @@ import Button from '@app/_components/button';
 import Input from '@app/_components/input';
 import axios, { AxiosError } from 'axios';
 import type { NextPage } from 'next';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { userResponse } from '@app/_components/headmenu';
 import store from '@reducers/store';
 import { useState } from 'react';
@@ -18,16 +17,13 @@ interface SignInForm {
 }
 
 const Signin: NextPage = () => {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { restoreState } = store.getState().user;
-  const { data } = useQuery<userResponse>({
-    queryKey: ['userInfo'],
-    enabled: !restoreState
-  });
+  // const { restoreState } = store.getState().user;
+  // const { data } = useQuery<userResponse>({
+  //   queryKey: ['userInfo'],
+  //   enabled: !restoreState
+  // });
   const [errorMsg, setErrorMsg] = useState('');
-
-  if (data?.ok && data.user.id) router.push('/');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const { register, handleSubmit, setError } = useForm<SignInForm>();
 
@@ -42,8 +38,8 @@ const Signin: NextPage = () => {
       alert(errorMessage);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userInfo'] });
-      router.push('/');
+      setIsRedirecting(true);
+      window.location.href = '/';
     }
   });
 
@@ -54,6 +50,7 @@ const Signin: NextPage = () => {
     }
     mutate({ userId, password });
   };
+  const isLoading = isPending || isRedirecting;
 
   return (
     <div className="signwrap">
@@ -80,7 +77,7 @@ const Signin: NextPage = () => {
               />
             </div>
             <div className="mt-8 h-10">
-              <Button isLoading={isPending} text="LOGIN" />
+              <Button isLoading={isLoading} text="LOGIN" />
             </div>
           </form>
         </div>

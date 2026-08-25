@@ -438,9 +438,7 @@ export default function MetadataEditor({
                 </>
               ) : (
                 <>
-                  {uploadType === 'product'
-                    ? '작품 게시하기'
-                    : '게시글 작성하기'}{' '}
+                  작성하기
                   <Rocket className="w-3.5 h-3.5" />
                 </>
               )}

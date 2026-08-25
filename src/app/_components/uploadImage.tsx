@@ -164,6 +164,7 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
     // }
 
     const file = v['image'][0] as File;
+    const fileType = file.name.split('.').pop()?.toLowerCase() as string;
     try {
       const getPreSignedUrl = await fetch('api/product/init', {
         method: 'POST',
@@ -172,13 +173,20 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
         },
         body: JSON.stringify({
           name: file.name,
-          type: file.type
+          type: fileType
         })
       });
       const { data } = await getPreSignedUrl.json();
 
+      console.log(
+        fileType,
+        typeof fileType,
+        file.type,
+        typeof file.type,
+        '파일타입 테스트'
+      );
       const s3Form = new FormData();
-      s3Form.append('Content-Type', file.type);
+      s3Form.append('Content-Type', `image/${fileType}`);
       Object.entries(data.fields).forEach(([k, v]) => {
         s3Form.append(k, v);
       });
@@ -196,9 +204,14 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
       /*
       product create
        */
-      productInfo['tempKey'] = data.tempKey.endsWith('.jpeg')
-        ? data.tempKey.replace(/\.jpeg$/i, '.jpg')
-        : data.tempKey;
+      // productInfo['tempKey'] = data.tempKey;
+      console.log(file, 'file');
+
+      // const ext = file.name.split('.').pop()?.toLowerCase();
+      productInfo['tempKey'] = data.tempKey;
+      // productInfo['tempKey'] = data.tempKey.endsWith('.jpg')
+      //   ? data.tempKey.replace(/\.jpg$/i, '.jpeg')
+      //   : data.tempKey;
       await fetch('api/product', {
         method: 'POST',
         body: JSON.stringify(

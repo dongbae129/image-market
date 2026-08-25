@@ -8,8 +8,8 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
   const file = await req.json();
   const uuid = uuIdV4();
-  console.log(file, 'file');
-  const filetype = file.type.split('/')[1];
+  // const filetype = file.type.split('/')[1];
+  const filetype = file.type;
   const tempKey = `temp/${uuid}.${filetype}`;
 
   const s3 = new S3Client({

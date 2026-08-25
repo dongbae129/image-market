@@ -287,8 +287,8 @@ export default function MasonryGrid({ ssrItemCount = 0 }) {
                 /> */}
 
                 <Image
-                  src={`474x/emptyuser.png`}
-                  // src={`474x/${convertedUrl}`}
+                  // src={`474x/emptyuser.png`}
+                  src={`474x/${convertedUrl}`}
                   alt={`Pin ${item.id}`}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"

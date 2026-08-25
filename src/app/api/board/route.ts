@@ -99,6 +99,11 @@ export const GET = async (req: NextRequest) => {
 };
 export const POST = async (req: NextRequest) => {
   try {
+    const body = await req.formData();
+    console.log(body, 'body');
+    return NextResponse.json({
+      success: true
+    });
     const auth = checkAuth();
     console.log(auth, 'res');
     if (auth?.checkError) {

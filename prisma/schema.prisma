@@ -108,23 +108,32 @@ model Product {
 }
 
 model Board {
-  id           Int         @id @default(autoincrement())
+  id           Int          @id @default(autoincrement())
   title        String
   description  String
-  category     String      @default("자유수다")
-  viewCount    Int         @default(0)
-  likeCount    Int         @default(0)
-  commentCount Int         @default(0)
-  image        String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  category     String       @default("자유수다")
+  viewCount    Int          @default(0)
+  likeCount    Int          @default(0)
+  commentCount Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   userId       Int
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   boardChat    BoardChat[]
   boardHit     BoardHit?
   boardTag     BoardTag?
+  images       BoardImage[]
 
   @@index([userId])
+}
+
+model BoardImage {
+  id            Int     @id @default(autoincrement())
+  image         String
+  status        String  @default("PROCESSING")
+  dominantColor String?
+  boardId       Int?
+  board         Board?  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
 
 model Chat {

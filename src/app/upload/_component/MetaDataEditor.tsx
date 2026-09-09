@@ -199,6 +199,7 @@ import { Globe, X, Rocket, Loader2 } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { UploadImageItem } from '@/app/upload/page';
+import { privateApi } from '@libs/client/axiosIntercepotr';
 
 const BOARD_CATEGORIES = [
   '🎨 작품 피드백',
@@ -267,21 +268,49 @@ export default function MetadataEditor({
       images.forEach((item) => {
         formData.append('images', item.file);
       });
-
-      formData.keys().forEach((v) => console.log(formData.get(v)));
-      // axios는 FormData가 들어오면 자동으로 Content-Type을 'multipart/form-data'로 세팅해줍니다.
-      const response = await axios.post(endpoint, formData, {
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
-          }
-        }
+      console.log(images, 'imageeess');
+      const fileInfos = images.map((value) => {
+        const fileName = value.file.name;
+        return {
+          name: fileName,
+          ext: fileName.split('.').pop()?.toLowerCase() as string
+        };
       });
 
-      return response.data;
+      const { data } = await privateApi.post(`api/product/init`, { fileInfos });
+      console.log(data, 'datainit');
+      const setFileFormData = (fileForm: FormData, index: number) => {
+        // const fileType = fileData.name.split('.').pop()?.toLowerCase();
+        const fileType = data.tickets[index].filetype;
+        fileForm.append('Content-Type', `image/${fileType}`);
+        const fields: Record<string, string> = data.tickets[index].fields;
+        Object.entries(fields).forEach(([k, v]) => {
+          fileForm.append(k, v);
+        });
+        fileForm.append('file', images[index].file);
+      };
+      const s3FormData = new FormData();
+      console.log(s3FormData, 's3FormData');
+      // const uploadS3Promise = data.tickets.map((v, i: number) => {
+      //   const s3UploadData = setFileFormData(s3FormData, i);
+      //   return axios.post(v.url, s3UploadData);
+      // });
+      // await Promise.all(uploadS3Promise);
+      // console.log(images, 'upload data test');
+      // formData.keys().forEach((v) => console.log(formData.get(v)));
+      // axios는 FormData가 들어오면 자동으로 Content-Type을 'multipart/form-data'로 세팅해줍니다.
+      // const response = await axios.post(endpoint, formData, {
+      //   onUploadProgress: (progressEvent) => {
+      //     if (progressEvent.total) {
+      //       const percentCompleted = Math.round(
+      //         (progressEvent.loaded * 100) / progressEvent.total
+      //       );
+      //       setUploadProgress(percentCompleted);
+      //     }
+      //   }
+      // });
+
+      // return response.data;
     },
     onSuccess: () => {
       setUploadProgress(100);

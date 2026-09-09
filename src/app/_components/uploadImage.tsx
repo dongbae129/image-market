@@ -11,7 +11,6 @@ import InputHashtag from './hashtag';
 import Input from './input';
 import { getRatio } from '@libs/client/getRatio';
 import { labelOb } from '@libs/client/data/data';
-import { json } from 'stream/consumers';
 
 export interface UploadForm {
   imm?: FileList;
@@ -124,7 +123,6 @@ const UploadImage = (info: UploadImageProps, { searchParams }) => {
       alert('이미지를 첨부 하셔야 합니다');
       return;
     }
-
     const productInfo: UploadFormData = {};
 
     for (const key in v) {

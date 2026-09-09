@@ -127,6 +127,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       ok: true
     });
   } catch (error) {
+    console.error(error, 'product post fail');
     if (feenId) {
       await client.product
         .update({
@@ -138,7 +139,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
           }
         })
         .catch((e) => {
-          console.error('롤백실패', e);
+          console.error('product status 롤백실패', e);
         });
     }
     return NextResponse.json(

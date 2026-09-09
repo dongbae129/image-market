@@ -257,6 +257,7 @@ export default function MediaCanvas({ images, setImages }: MediaCanvasProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
+  console.log(images, 'mediaCanvas Image');
   const fileAddRef = useRef<HTMLInputElement>(null);
   const fileReplaceRef = useRef<HTMLInputElement>(null);
 

@@ -54,6 +54,7 @@ export const POST = async (req: NextRequest) => {
     fileInfos.map(async (info: { name: string; ext: string }) => {
       const uuid = uuIdV4();
       const tempKey = `temp/${uuid}.${info.ext}`;
+      const tempUrl = tempKey.slice(5);
       const { url, fields } = await createPresignedPost(s3, {
         Bucket: process.env.AWS_S3_BUCKET_NAME!,
         Key: tempKey,
@@ -63,7 +64,7 @@ export const POST = async (req: NextRequest) => {
         ],
         Expires: 60 // 🌟 60초 뒤 티켓 폐기 (리플레이 공격 최소화)
       });
-      return { url, fields };
+      return { url, fields, tempUrl };
     })
   );
   return NextResponse.json({

@@ -1,3 +1,4 @@
+import { data } from '@/json/price.json';
 // import { dbNow, ResponseType, TokenPayload } from '@libs/server/utils';
 // import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
@@ -6,6 +7,7 @@ import { checkAuth } from '@libs/server/auth';
 // import { PostBoardInfo } from './[boardId]';
 import { NextRequest, NextResponse } from 'next/server';
 import { dbNow, TokenPayload } from '@libs/server/utils';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
 export const GET = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
@@ -98,14 +100,12 @@ export const GET = async (req: NextRequest) => {
   }
 };
 export const POST = async (req: NextRequest) => {
+  let feenId = null;
   try {
-    const body = await req.formData();
-    console.log(body, 'body');
-    return NextResponse.json({
-      success: true
-    });
+    const body = await req.json();
+
     const auth = checkAuth();
-    console.log(auth, 'res');
+
     if (auth?.checkError) {
       return NextResponse.json(
         {
@@ -117,12 +117,10 @@ export const POST = async (req: NextRequest) => {
         }
       );
     }
-    if (auth.payload) {
-      const decoded = auth.payload as TokenPayload;
-      console.log(decoded, 'decoded');
-      const body = await req.json();
-      const { title, description, boardtag } = body;
-      console.log(title, description, boardtag, 'Body');
+    if (auth.userId) {
+      const userId = Number(auth.userId);
+
+      const { title, description, hashtags: boardtag } = body;
       if (title === '' || description === '')
         return NextResponse.json(
           {
@@ -133,50 +131,85 @@ export const POST = async (req: NextRequest) => {
             status: 401
           }
         );
-      if (decoded.id) {
-        const Id = decoded.id;
-        console.log(Id, 'IID');
-        const now = dbNow();
-        const board = await client.board.create({
-          data: {
-            title,
-            description,
-            userId: Id,
-            createdAt: now,
-            updatedAt: now
-          }
-        });
-        console.log(board, 'Boardsd');
-        await client.boardHit.create({
+      const sqs = new SQSClient({ region: process.env.AWS_REGION });
+      const now = dbNow();
+      const board = await client.board.create({
+        data: {
+          title,
+          description,
+          userId,
+          createdAt: now,
+          updatedAt: now
+        }
+      });
+      feenId = board.id;
+      await Promise.all([
+        client.boardHit.create({
           data: {
             hit: 0,
             boardId: board.id
           }
-        });
-        await client.boardTag.create({
+        }),
+        client.boardTag.create({
           data: {
             boardId: board.id,
             hashtag: boardtag
           }
-        });
-        return NextResponse.json({
-          ok: true,
-          message: 'create the board',
-          board
-        });
-      } else
-        return NextResponse.json(
-          {
-            ok: false,
-            message: 'need to login , /api/board/index, post'
-          },
-          {
-            status: 403
-          }
-        );
+        })
+      ]);
+      const boardImageIds = await Promise.all(
+        body.urls.map(async (v: { url: string }) => {
+          const boardImageId = await client.boardImage.create({
+            data: {
+              boardId: board.id,
+              image: v.url,
+              status: 'PROCESSING'
+            },
+            select: {
+              id: true
+            }
+          });
+          return {
+            boardImageId,
+            tempUrl: `temp/${v.url}`
+          };
+        })
+      );
+
+      const s3Payloads = {
+        feenId: board.id,
+        tempKeys: boardImageIds,
+        tableType: 'BOARD'
+      };
+      await sqs.send(
+        new SendMessageCommand({
+          QueueUrl: process.env.AWS_SQS_QUEUE_URL!,
+          MessageBody: JSON.stringify(s3Payloads)
+        })
+      );
+      // await client.boardHit.create({
+      //   data: {
+      //     hit: 0,
+      //     boardId: board.id
+      //   }
+      // });
+      // await client.boardTag.create({
+      //   data: {
+      //     boardId: board.id,
+      //     hashtag: boardtag
+      //   }
+      // });
+      return NextResponse.json({
+        ok: true,
+        message: 'create the board',
+        id: board.id
+      });
     }
   } catch (error) {
     console.log(error, 'board create error');
+    // if (feenId) {
+    //   await client.boar
+    // }
     return NextResponse.json(
       {
         ok: false,

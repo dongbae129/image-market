@@ -277,11 +277,41 @@ export default function MetadataEditor({
         };
       });
 
-      const { data } = await privateApi.post(`api/product/init`, { fileInfos });
+      const { data }: { data: { ok: boolean; tickets: any[] } } =
+        await privateApi.post(`api/product/init`, { fileInfos });
       console.log(data, 'datainit');
+      type TicketType = {
+        url: string;
+        fields: string;
+        tempUrl: string;
+      };
+      const urls = data.tickets.map((v: TicketType) => ({
+        url: v.tempUrl
+      }));
+      const s3UploadPromise = data.tickets.map((v, i) => {
+        const s3Form = new FormData();
+        s3Form.append('Content-Type', `image/${fileInfos[i].ext}`);
+        Object.entries(v.fields).forEach(([k, v]) => {
+          s3Form.append(k, v);
+        });
+        s3Form.append('file', images[i].file);
+        return axios.post(v.url, s3Form);
+      });
+      await Promise.all(s3UploadPromise);
+      await privateApi.post(`api/board`, {
+        title,
+        description,
+        hashtags,
+        category,
+        urls
+      });
+      return;
       const setFileFormData = (fileForm: FormData, index: number) => {
         // const fileType = fileData.name.split('.').pop()?.toLowerCase();
-        const fileType = data.tickets[index].filetype;
+        const fileType = data.tickets[index].tempUrl
+          .split('.')
+          .pop()
+          ?.toLowerCase();
         fileForm.append('Content-Type', `image/${fileType}`);
         const fields: Record<string, string> = data.tickets[index].fields;
         Object.entries(fields).forEach(([k, v]) => {

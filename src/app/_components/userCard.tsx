@@ -12,57 +12,12 @@ interface userCardProps {
 }
 
 const UserCard = () => {
-  const { accessToken } = useSelector((state: any) => state.user);
-  const query = useQueryClient();
-  const test = query.getQueryData(['userInfo']);
-  console.log(test, 'TTT');
-  console.log(accessToken, 'ACCTest');
-  // async function getTest2() {
-  //   const res = await fetch('/api/user', {
-  //     next: {
-  //       tags: ['userInfo']
-  //     },
-  //     credentials: 'include',
-  //     headers: {
-  //       Authorization: `Bearer ${accessToken}`
-  //     }
-  //     // cache: 'no-store'
-  //   });
-  //   // The return value is *not* serialized
-  //   // You can return Date, Map, Set, etc.
-
-  //   if (!res.ok) {
-  //     // This will activate the closest `error.js` Error Boundary
-  //     throw new Error('Failed to fetch data');
-  //   }
-  //   return res.json();
-  // }
-  // const accessToken = '2122';
-  // const dispatch = useDispatch();
-  const header = {
-    headers: { authorization: `Bearer ${accessToken}` }
-  };
-
   const { data } = useQuery<userResponse>({
     queryKey: ['userInfo'],
     queryFn: () => getFetch('/api/user'),
     staleTime: 1000 * 60 * 10
     // queryFn: getTest2
   });
-  console.log(data?.user, 'usercardData');
-  // const data = {
-  //   ok: true,
-  //   user: {
-  //     id: 1,
-  //     name: 'usercard name test',
-  //     email: 'usercard email test',
-  //     coin: 10000,
-  //     bonusCoupon: 3,
-  //     image:
-  //       'http://k.kakaocdn.net/dn/FRyFD/btsEkvAIYBR/WqePYvRTpNncSYv6zsah2k/img_110x110.jpg',
-  //     emailActive: true
-  //   }
-  // };
 
   const logout = useLogout();
   const onLogout = async () => {

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Search, Gem, Upload, Bell } from 'lucide-react';
+import SearchBox from '@components/SearchInput';
 
 export default function Header() {
   const pathname = usePathname();
@@ -60,7 +61,8 @@ export default function Header() {
         </div>
 
         {/* 2. Center Search Bar */}
-        <div className="flex-1 max-w-xl">
+        <SearchBox />
+        {/* <div className="flex-1 max-w-xl">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -68,11 +70,9 @@ export default function Header() {
               placeholder="검색어를 입력하세요..."
               className="w-full bg-slate-100/80 hover:bg-slate-100 focus:bg-white text-sm pl-11 pr-12 py-2.5 rounded-full border border-transparent focus:border-slate-300 transition outline-none font-medium text-slate-700 placeholder:text-slate-400"
             />
-            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-slate-400 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
-              ⌘K
-            </span>
+           
           </div>
-        </div>
+        </div> */}
 
         {/* 3. Right Action Utilities (PAY, UPLOAD) */}
         {/* PAY, UPLOAD: 클릭해도 하단 라인 효과가 생성되지 않음 */}

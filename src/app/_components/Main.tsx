@@ -19,9 +19,6 @@ export default function Main({ ssrItemCount }: Props) {
       <div className="px-4">
         <MasonryGrid ssrItemCount={ssrItemCount} />
       </div>
-      {/* <MasonryFeed /> */}
-      {/* <ResponsiveProducts /> */}
-      {/* <Sidebar /> */}
     </div>
   );
 }

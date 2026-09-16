@@ -115,7 +115,7 @@ export const POST = async (req: NextRequest) => {
     if (auth.userId) {
       const userId = Number(auth.userId);
 
-      const { title, description, hashtags: boardtag } = body;
+      const { title, description, hashtags: boardtag, category } = body;
       if (title === '' || description === '')
         return NextResponse.json(
           {
@@ -134,6 +134,7 @@ export const POST = async (req: NextRequest) => {
               title,
               description,
               userId,
+              category,
               createdAt: now,
               updatedAt: now
             }

@@ -1,11 +1,15 @@
-export const timeForToday = (value: any, now = new Date()) => {
-  const today = now;
+import dayjs from 'dayjs';
+
+export const timeForToday = (value: Date) => {
+  const dNow = (): Date => dayjs().add(9, 'hour').toDate();
+  const today = dNow();
   const timeValue = new Date(value);
 
   // 분 단위 계산
   const betweenTime = Math.floor(
     (today.getTime() - timeValue.getTime()) / 1000 / 60
   );
+  console.log(value, timeValue, betweenTime, 'time');
   if (betweenTime < 1) return '방금 전';
   if (betweenTime < 60) {
     return `${betweenTime}분 전`;

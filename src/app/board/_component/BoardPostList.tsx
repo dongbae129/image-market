@@ -1,3 +1,4 @@
+'use client';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BoardPostCard from './BoardPostCard';
 import { Post } from './boardTypes';
@@ -15,21 +16,23 @@ type BoardResponse = {
   boardCount: number;
 };
 export default function BoardPostList({ posts }: BoardPostListProps) {
-  // const { data } = useQuery<BoardResponse>({
-  //   queryKey: ['boards', 1, ''],
-  //   queryFn: getBoardsServer
-  // });
-  {
-    /* {data?.boards.map((board) => (
-        <BoardPostCard key={board.id} post={board} />
-      ))} */
-  }
+  const { data } = useQuery<BoardResponse>({
+    queryKey: ['boards', 1, ''],
+    queryFn: getBoardsServer
+  });
+  console.log(data, 'board ata');
+
   return (
     <div className="w-full space-y-3">
       <BoardNotice />
-      {posts.map((post) => (
-        <BoardPostCard key={post.id} post={post} />
+
+      {data?.boards.map((board) => (
+        <BoardPostCard key={board.id} post={board} />
       ))}
+
+      {/* {posts.map((post) => (
+        <BoardPostCard key={post.id} post={post} />
+      ))} */}
 
       <div className="flex items-center justify-center gap-1.5 pt-6">
         <button className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-bold transition">

@@ -51,6 +51,11 @@ export const GET = async (req: NextRequest) => {
             hit: true
           }
         },
+        images: {
+          select: {
+            image: true
+          }
+        },
         boardTag: {
           select: {
             hashtag: true
@@ -66,6 +71,7 @@ export const GET = async (req: NextRequest) => {
         createdAt: 'desc'
       }
     });
+
     const boardCount = await client.board.count({
       where: {
         ...(searchQuery

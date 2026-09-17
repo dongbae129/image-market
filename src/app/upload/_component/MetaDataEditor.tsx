@@ -202,11 +202,11 @@ import { UploadImageItem } from '@/app/upload/page';
 import { privateApi } from '@libs/client/axiosIntercepotr';
 
 const BOARD_CATEGORIES = [
-  '🎨 작품 피드백',
-  '💡 노하우 & 팁',
-  '💬 자유수다',
-  '🤝 협업/구인',
-  '📢 공지사항'
+  '작품 피드백',
+  '노하우 & 팁',
+  '자유수다',
+  '협업/구인',
+  '공지사항'
 ];
 type UploadType = 'product' | 'board';
 

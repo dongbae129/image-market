@@ -120,16 +120,22 @@ export default function BoardPostCard({ post }: BoardCardProps) {
               {timeForToday(post.createdAt)}
             </span>
           </div>
+
           <Link
             href={`/board/${post.id}`}
-            className="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-indigo-600 transition line-clamp-1"
+            className="flex flex-col gap-y-2"
+            // className="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-indigo-600 transition line-clamp-1"
           >
-            {post.title}
+            <div className="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-indigo-600 transition line-clamp-1">
+              {post.title}
+            </div>
+
+            <p className="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed">
+              {post.description}
+            </p>
           </Link>
-          <p className="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed">
-            {post.description}
-          </p>
         </div>
+
         {/* {post.images.length > 0 && (
           <div className="w-full h-full block relative">
             <Image

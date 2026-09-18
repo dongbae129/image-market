@@ -82,14 +82,14 @@ export const POST = async (req: NextRequest, { params }: Props) => {
         status: 401
       }
     );
-  const userId = (auth.payload as TokenPayload).id;
+  const userId = Number(auth.userId);
 
   try {
     const now = dbNow();
     const chat = await client.boardChat.create({
       data: {
         description: chatQuery,
-        userId: userId,
+        userId,
         boardId: +boardId.toString(),
         createdAt: now,
         updatedAt: now

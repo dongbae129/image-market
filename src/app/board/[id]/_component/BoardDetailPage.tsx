@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { getFetch, newAxios } from '@libs/client/fetcher';
 import Image from 'next/image';
+import { getCategoryData } from '@app/board/_lib/utils';
 
 type BoardImage = { id: number; image: string; dominantColor: string | null };
 type BoardDetailResponse = {
@@ -105,6 +106,7 @@ export default function BoardDetailPage({ boardId }: Props) {
         .map((tag) => tag.trim())
         .filter(Boolean)
     : [];
+  const { color, name } = getCategoryData(board?.category!);
 
   useEffect(() => {
     if (selectedImage === null) return;
@@ -155,8 +157,10 @@ export default function BoardDetailPage({ boardId }: Props) {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,820px)_300px]">
           <div>
             <header className="rounded-[18px] border border-slate-200 bg-white px-5 py-6 sm:px-[30px] sm:py-[27px]">
-              <span className="mb-3 inline-flex rounded-md bg-indigo-50 px-2.5 py-1 text-[10px] font-bold text-indigo-600">
-                {board.category}
+              <span
+                className={`mb-3 inline-flex rounded-md px-2.5 py-1 text-[10px] font-bold ${color}`}
+              >
+                {name}
               </span>
               <h1 className="text-2xl font-extrabold leading-snug tracking-[-0.7px] text-slate-900 sm:text-[27px]">
                 {board.title}

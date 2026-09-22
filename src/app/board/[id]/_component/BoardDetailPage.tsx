@@ -18,6 +18,7 @@ import {
 import { getFetch, newAxios } from '@libs/client/fetcher';
 import Image from 'next/image';
 import { getCategoryData } from '@app/board/_lib/utils';
+import axios from 'axios';
 
 type BoardImage = { id: number; image: string; dominantColor: string | null };
 type BoardDetailResponse = {
@@ -74,13 +75,14 @@ export default function BoardDetailPage({ boardId }: Props) {
   const [comment, setComment] = useState('');
   const { data: boardData, isLoading } = useQuery<BoardDetailResponse>({
     queryKey: ['board-detail', boardId],
-    queryFn: () => getFetch(`/api/board/${boardId}`),
-    enabled: Boolean(boardId)
+    queryFn: async () => (await axios(`/api/board/${boardId}`)).data,
+    enabled: !!boardId,
+    staleTime: 1000 * 60
   });
   const { data: commentsData } = useQuery<CommentResponse>({
     queryKey: ['board-comments', boardId],
     queryFn: () => getFetch(`/api/chat/board/${boardId}`),
-    enabled: Boolean(boardId)
+    enabled: !!boardId
   });
   const { data: currentUser } = useQuery<UserResponse>({
     queryKey: ['userInfo'],
@@ -96,8 +98,10 @@ export default function BoardDetailPage({ boardId }: Props) {
       queryClient.invalidateQueries({ queryKey: ['board-comments', boardId] });
     }
   });
+  console.log(boardData, 'boardData');
 
   const board = boardData?.board;
+  console.log(board, 'board');
   const comments = commentsData?.comments ?? [];
   const images = board?.images ?? [];
   const tags = board?.boardTag?.hashtag
@@ -106,7 +110,7 @@ export default function BoardDetailPage({ boardId }: Props) {
         .map((tag) => tag.trim())
         .filter(Boolean)
     : [];
-  const { color, name } = getCategoryData(board?.category!);
+  // const { color, name } = getCategoryData(board?.category as string);
 
   useEffect(() => {
     if (selectedImage === null) return;
@@ -158,10 +162,8 @@ export default function BoardDetailPage({ boardId }: Props) {
           <div>
             <header className="rounded-[18px] border border-slate-200 bg-white px-5 py-6 sm:px-[30px] sm:py-[27px]">
               <span
-                className={`mb-3 inline-flex rounded-md px-2.5 py-1 text-[10px] font-bold ${color}`}
-              >
-                {name}
-              </span>
+                className={`mb-3 inline-flex rounded-md px-2.5 py-1 text-[10px] font-bold `}
+              ></span>
               <h1 className="text-2xl font-extrabold leading-snug tracking-[-0.7px] text-slate-900 sm:text-[27px]">
                 {board.title}
               </h1>

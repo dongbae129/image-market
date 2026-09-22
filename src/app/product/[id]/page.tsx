@@ -63,33 +63,6 @@ export default async function ProductDetail({ params }: Props) {
       <div>
         <div className="productwrapout">
           <ProductPage key={id} />
-          {/* <div className="productwrapin">
-          <ProductImage product={data.product} />
-          <div className="userInfo">
-            <ProductInfo productId={productId?.toString()} />
-            <ProductChat data={data} />
-            <ProductChatForm data={data} />
-          </div>
-        </div> */}
-
-          {/* <style jsx>{`
-          
-          .productwrapout {
-            position: relative;
-            margin-top: 30px;
-            margin-bottom: 30px;
-            display: flex;
-            width: 100%;
-            justify-content: center;
-          }
-          
-
-          .userInfo {
-            position: relative;
-            width: 50%;
-            max-height: 80vh;
-          }
-        `}</style> */}
         </div>
       </div>
     </HydrationBoundary>

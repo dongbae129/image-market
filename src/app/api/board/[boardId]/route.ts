@@ -35,7 +35,15 @@ export const GET = async (req: NextRequest, { params }: Props) => {
           select: {
             id: true,
             email: true,
-            name: true
+            name: true,
+            image: true
+          }
+        },
+        images: {
+          select: {
+            id: true,
+            image: true,
+            dominantColor: true
           }
         },
         boardChat: {

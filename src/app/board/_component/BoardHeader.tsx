@@ -104,7 +104,7 @@ export default function Header() {
               className="w-9 h-9 rounded-full bg-pink-100 p-0.5 border border-slate-200 overflow-hidden hover:opacity-90 transition"
             >
               <img
-                src="localimages/emptyuser2.png"
+                src="/localimages/emptyuser2.png"
                 alt="Avatar"
                 className="w-full h-full object-cover rounded-full"
               />

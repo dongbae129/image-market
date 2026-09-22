@@ -1,0 +1,1944 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Pinz - 게시글 상세</title>
+
+    <style>
+      /* =========================================================
+       RESET
+    ========================================================= */
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+
+        background: #f7f8fa;
+
+        color: #172033;
+
+        font-family: -apple-system, BlinkMacSystemFont, 'Pretendard',
+          'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* =========================================================
+       HEADER
+    ========================================================= */
+
+      .header {
+        height: 68px;
+
+        background: #ffffff;
+
+        border-bottom: 1px solid #e8ebf0;
+
+        display: flex;
+        align-items: center;
+
+        padding: 0 68px;
+
+        gap: 28px;
+      }
+
+      /* LOGO */
+
+      .logo {
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+
+        color: #172033;
+
+        font-size: 21px;
+        font-weight: 800;
+
+        white-space: nowrap;
+      }
+
+      .logo-mark {
+        width: 28px;
+        height: 28px;
+
+        border-radius: 50%;
+
+        background: linear-gradient(
+          135deg,
+          #ffc94f 0%,
+          #ff6c65 45%,
+          #7657ef 100%
+        );
+
+        position: relative;
+      }
+
+      .logo-mark::after {
+        content: '';
+
+        position: absolute;
+
+        width: 11px;
+        height: 11px;
+
+        border-radius: 50%;
+
+        background: #ffffff;
+
+        left: 8.5px;
+        top: 8.5px;
+      }
+
+      /* NAV */
+
+      .nav {
+        display: flex;
+
+        align-items: center;
+
+        gap: 28px;
+
+        margin-left: 4px;
+      }
+
+      .nav a {
+        position: relative;
+
+        color: #8993a5;
+
+        text-decoration: none;
+
+        font-size: 13px;
+
+        font-weight: 600;
+      }
+
+      .nav a.active {
+        color: #131c30;
+      }
+
+      .nav a.active::after {
+        content: '';
+
+        position: absolute;
+
+        left: 0;
+        right: 0;
+
+        bottom: -22px;
+
+        height: 2px;
+
+        background: #131c30;
+      }
+
+      /* SEARCH */
+
+      .search {
+        width: 500px;
+        height: 42px;
+
+        margin-left: 35px;
+
+        border: 1px solid #e2e6ec;
+
+        border-radius: 23px;
+
+        background: #ffffff;
+
+        display: flex;
+        align-items: center;
+
+        color: #9aa3b2;
+
+        font-size: 12px;
+      }
+
+      .search-type {
+        height: 25px;
+
+        padding: 0 14px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 6px;
+
+        border-right: 1px solid #edf0f4;
+
+        color: #39445a;
+
+        white-space: nowrap;
+      }
+
+      .search-text {
+        flex: 1;
+
+        padding-left: 15px;
+      }
+
+      .search-icon {
+        padding: 0 15px;
+
+        color: #334057;
+
+        font-size: 21px;
+      }
+
+      /* HEADER ACTION */
+
+      .header-actions {
+        margin-left: auto;
+
+        display: flex;
+        align-items: center;
+
+        gap: 21px;
+      }
+
+      .pay {
+        font-size: 12px;
+        font-weight: 700;
+
+        color: #303b50;
+      }
+
+      .upload {
+        border: none;
+
+        padding: 10px 17px;
+
+        border-radius: 20px;
+
+        background: #111a2d;
+
+        color: #ffffff;
+
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .notification {
+        font-size: 19px;
+
+        color: #374158;
+
+        position: relative;
+      }
+
+      .notification::after {
+        content: '';
+
+        width: 6px;
+        height: 6px;
+
+        position: absolute;
+
+        top: -1px;
+        right: -2px;
+
+        border-radius: 50%;
+
+        background: #ff5571;
+      }
+
+      .profile {
+        width: 31px;
+        height: 31px;
+
+        border-radius: 50%;
+
+        background: #e9ecf1;
+
+        border: 3px solid #f1e9ef;
+      }
+
+      /* =========================================================
+       PAGE
+    ========================================================= */
+
+      .page {
+        width: 1200px;
+
+        margin: 0 auto;
+
+        padding: 24px 0 90px;
+      }
+
+      /* BREADCRUMB */
+
+      .breadcrumb {
+        margin-bottom: 17px;
+
+        color: #8993a5;
+
+        font-size: 11px;
+      }
+
+      .breadcrumb span {
+        margin: 0 8px;
+
+        color: #c0c6d0;
+      }
+
+      /* =========================================================
+       MAIN LAYOUT
+    ========================================================= */
+
+      .layout {
+        display: grid;
+
+        grid-template-columns: minmax(0, 820px) 300px;
+
+        gap: 24px;
+
+        align-items: start;
+      }
+
+      /* =========================================================
+       POST HEADER
+    ========================================================= */
+
+      .post-header {
+        background: #ffffff;
+
+        border: 1px solid #e5e9ef;
+
+        border-radius: 18px;
+
+        padding: 27px 30px 24px;
+      }
+
+      /* 게시판 이름 */
+
+      .board-label {
+        display: inline-flex;
+
+        align-items: center;
+
+        padding: 6px 10px;
+
+        border-radius: 7px;
+
+        background: #eff0ff;
+
+        color: #6153dd;
+
+        font-size: 10px;
+
+        font-weight: 700;
+
+        margin-bottom: 13px;
+      }
+
+      /* 실제 게시글 제목 */
+
+      .post-title {
+        margin: 0;
+
+        color: #121b2e;
+
+        font-size: 27px;
+
+        line-height: 1.4;
+
+        letter-spacing: -0.7px;
+
+        font-weight: 800;
+      }
+
+      /* 제목 아래 설명 */
+
+      .post-description {
+        margin: 9px 0 20px;
+
+        color: #7e889a;
+
+        font-size: 13px;
+
+        line-height: 1.7;
+      }
+
+      /* 작성자 메타 */
+
+      .post-meta {
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+
+        color: #8d97a7;
+
+        font-size: 11px;
+      }
+
+      .author {
+        display: flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        color: #303b50;
+
+        font-weight: 700;
+      }
+
+      .author-avatar {
+        width: 27px;
+        height: 27px;
+
+        border-radius: 50%;
+
+        background: linear-gradient(135deg, #e6e7ec, #d5d8df);
+      }
+
+      .pro {
+        padding: 3px 6px;
+
+        border-radius: 5px;
+
+        background: #f0f2f5;
+
+        color: #6c7688;
+
+        font-size: 8px;
+
+        font-weight: 700;
+      }
+
+      .meta-dot {
+        color: #c7ccd4;
+      }
+
+      /* =========================================================
+       ARTICLE
+    ========================================================= */
+
+      .article-card {
+        margin-top: 18px;
+
+        background: #ffffff;
+
+        border: 1px solid #e5e9ef;
+
+        border-radius: 18px;
+
+        padding: 32px 30px 26px;
+      }
+
+      /* 본문 */
+
+      .article-body {
+        color: #566176;
+
+        font-size: 14px;
+
+        line-height: 2;
+      }
+
+      .article-body h2 {
+        margin: 0 0 14px;
+
+        color: #172033;
+
+        font-size: 20px;
+
+        line-height: 1.5;
+
+        font-weight: 800;
+      }
+
+      .article-body p {
+        margin: 0 0 17px;
+      }
+
+      /* 인용 */
+
+      .quote {
+        margin: 24px 0;
+
+        padding: 18px 21px;
+
+        border-radius: 11px;
+
+        background: #f6f5ff;
+
+        color: #6358d3;
+
+        font-size: 13px;
+
+        font-weight: 600;
+      }
+
+      /* =========================================================
+       IMAGE THUMBNAIL CAROUSEL
+    ========================================================= */
+
+      .post-images {
+        margin-top: 30px;
+
+        padding-top: 24px;
+
+        border-top: 1px solid #edf0f4;
+      }
+
+      /* 사진 제목 */
+
+      .post-images-header {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        margin-bottom: 12px;
+      }
+
+      .post-images-title {
+        color: #303b50;
+
+        font-size: 12px;
+
+        font-weight: 800;
+      }
+
+      .post-images-count {
+        color: #9ba3b1;
+
+        font-size: 10px;
+      }
+
+      /* 캐러셀 전체 */
+
+      .carousel-wrap {
+        position: relative;
+      }
+
+      /* 좌우 스크롤 버튼 */
+
+      .carousel-arrow {
+        position: absolute;
+
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        width: 30px;
+        height: 30px;
+
+        z-index: 3;
+
+        border: 1px solid #e2e5eb;
+
+        border-radius: 50%;
+
+        background: rgba(255, 255, 255, 0.95);
+
+        color: #4c576b;
+
+        font-size: 17px;
+
+        box-shadow: 0 3px 12px rgba(30, 40, 60, 0.08);
+      }
+
+      .carousel-arrow.left {
+        left: -8px;
+      }
+
+      .carousel-arrow.right {
+        right: -8px;
+      }
+
+      /* 썸네일 컨테이너 */
+
+      .thumbnail-carousel {
+        display: flex;
+
+        gap: 10px;
+
+        overflow-x: auto;
+
+        scroll-behavior: smooth;
+
+        scrollbar-width: none;
+
+        padding: 2px 2px 5px;
+      }
+
+      .thumbnail-carousel::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* 썸네일 */
+
+      .image-thumb {
+        flex: 0 0 112px;
+
+        width: 112px;
+        height: 112px;
+
+        padding: 0;
+
+        border: none;
+
+        border-radius: 10px;
+
+        overflow: hidden;
+
+        background: #edf0f4;
+
+        cursor: pointer;
+
+        position: relative;
+      }
+
+      .image-thumb img {
+        width: 100%;
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+
+        transition:
+          transform 0.2s ease,
+          opacity 0.2s ease;
+      }
+
+      .image-thumb:hover img {
+        transform: scale(1.04);
+
+        opacity: 0.9;
+      }
+
+      /* 마지막 이미지에 + 표시 */
+
+      .image-more {
+        position: absolute;
+
+        inset: 0;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        background: rgba(15, 21, 35, 0.35);
+
+        color: white;
+
+        font-size: 13px;
+
+        font-weight: 700;
+      }
+
+      /* =========================================================
+       TAGS
+    ========================================================= */
+
+      .tags {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 7px;
+
+        margin-top: 24px;
+
+        padding-top: 20px;
+
+        border-top: 1px solid #edf0f4;
+      }
+
+      .tag {
+        padding: 7px 10px;
+
+        border-radius: 15px;
+
+        background: #f3f5f8;
+
+        color: #737e90;
+
+        font-size: 10px;
+      }
+
+      /* =========================================================
+       POST ACTION
+    ========================================================= */
+
+      .post-actions {
+        display: flex;
+
+        justify-content: flex-end;
+
+        gap: 7px;
+
+        margin-top: 21px;
+      }
+
+      .action {
+        height: 36px;
+
+        padding: 0 14px;
+
+        border: 1px solid #e0e4eb;
+
+        border-radius: 19px;
+
+        background: #ffffff;
+
+        color: #566176;
+
+        font-size: 11px;
+      }
+
+      .action.like {
+        color: #6154dc;
+
+        border-color: #dcd8ff;
+      }
+
+      /* =========================================================
+       COMMENTS
+    ========================================================= */
+
+      .comments-card {
+        margin-top: 42px;
+
+        background: #ffffff;
+
+        border: 1px solid #e5e9ef;
+
+        border-radius: 18px;
+
+        padding: 27px 30px 31px;
+      }
+
+      /* 댓글 헤더 */
+
+      .comments-header {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        margin-bottom: 20px;
+      }
+
+      .comments-title {
+        color: #172033;
+
+        font-size: 17px;
+
+        font-weight: 800;
+      }
+
+      .sort {
+        border: none;
+
+        background: transparent;
+
+        color: #8c95a4;
+
+        font-size: 10px;
+      }
+
+      /* 댓글 입력 */
+
+      .comment-input {
+        display: flex;
+
+        gap: 11px;
+
+        margin-bottom: 23px;
+      }
+
+      .comment-avatar {
+        width: 35px;
+        height: 35px;
+
+        flex: 0 0 auto;
+
+        border-radius: 50%;
+
+        background: #e9ecf1;
+      }
+
+      .input-box {
+        position: relative;
+
+        flex: 1;
+
+        height: 69px;
+
+        border: 1px solid #dfe4eb;
+
+        border-radius: 11px;
+
+        padding: 13px;
+
+        color: #a0a8b5;
+
+        font-size: 11px;
+      }
+
+      .comment-submit {
+        position: absolute;
+
+        right: 8px;
+        bottom: 8px;
+
+        border: none;
+
+        border-radius: 16px;
+
+        padding: 7px 13px;
+
+        background: #6254e6;
+
+        color: #ffffff;
+
+        font-size: 10px;
+
+        font-weight: 700;
+      }
+
+      /* 댓글 */
+
+      .comment {
+        display: flex;
+
+        gap: 11px;
+
+        padding: 18px 0;
+
+        border-top: 1px solid #edf0f4;
+      }
+
+      .comment-content {
+        flex: 1;
+      }
+
+      .comment-user {
+        color: #303b50;
+
+        font-size: 11px;
+
+        font-weight: 800;
+      }
+
+      .comment-time {
+        margin-left: 7px;
+
+        color: #a0a8b5;
+
+        font-size: 9px;
+
+        font-weight: 400;
+      }
+
+      .comment-text {
+        margin-top: 6px;
+
+        color: #697488;
+
+        font-size: 11px;
+
+        line-height: 1.7;
+      }
+
+      .comment-actions {
+        display: flex;
+
+        gap: 13px;
+
+        margin-top: 7px;
+
+        color: #9099a8;
+
+        font-size: 9px;
+      }
+
+      /* =========================================================
+       SIDEBAR
+    ========================================================= */
+
+      .side-card {
+        background: #ffffff;
+
+        border: 1px solid #e5e9ef;
+
+        border-radius: 18px;
+
+        padding: 21px;
+
+        margin-bottom: 16px;
+      }
+
+      .side-title {
+        margin-bottom: 17px;
+
+        color: #1c263a;
+
+        font-size: 14px;
+
+        font-weight: 800;
+      }
+
+      /* 작성자 */
+
+      .creator {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+      }
+
+      .creator-avatar {
+        width: 51px;
+        height: 51px;
+
+        flex: 0 0 auto;
+
+        border-radius: 50%;
+
+        background: linear-gradient(135deg, #e8e9ed, #d4d7de);
+      }
+
+      .creator-info {
+        min-width: 0;
+      }
+
+      .creator-name {
+        color: #303b50;
+
+        font-size: 13px;
+
+        font-weight: 800;
+      }
+
+      .creator-description {
+        margin-top: 5px;
+
+        color: #929baa;
+
+        font-size: 9px;
+      }
+
+      .creator-stat {
+        margin-top: 5px;
+
+        color: #9aa2b0;
+
+        font-size: 9px;
+      }
+
+      .follow {
+        margin-left: auto;
+
+        padding: 7px 10px;
+
+        border: 1px solid #8376ed;
+
+        border-radius: 17px;
+
+        background: #ffffff;
+
+        color: #6255dc;
+
+        font-size: 9px;
+
+        font-weight: 700;
+
+        white-space: nowrap;
+      }
+
+      /* 반응 */
+
+      .reaction-box {
+        background: #f8f7ff;
+
+        border-color: #e4e1ff;
+      }
+
+      .reaction-title {
+        color: #344057;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        margin-bottom: 7px;
+      }
+
+      .reaction-description {
+        color: #969eae;
+
+        font-size: 9px;
+
+        line-height: 1.5;
+
+        margin-bottom: 12px;
+      }
+
+      .reaction-buttons {
+        display: flex;
+
+        gap: 8px;
+      }
+
+      .reaction-buttons button {
+        flex: 1;
+
+        height: 34px;
+
+        border-radius: 9px;
+
+        border: 1px solid #ddd9ff;
+
+        background: #ffffff;
+
+        color: #6255dc;
+
+        font-size: 10px;
+      }
+
+      .reaction-buttons .active {
+        background: #6254e6;
+
+        border-color: #6254e6;
+
+        color: #ffffff;
+      }
+
+      /* 관련 게시글 */
+
+      .related-item {
+        display: flex;
+
+        gap: 10px;
+
+        padding: 11px 0;
+
+        border-bottom: 1px solid #edf0f4;
+      }
+
+      .related-item:last-child {
+        border-bottom: none;
+      }
+
+      .related-image {
+        width: 64px;
+        height: 64px;
+
+        flex: 0 0 auto;
+
+        object-fit: cover;
+
+        border-radius: 8px;
+      }
+
+      .related-content {
+        min-width: 0;
+      }
+
+      .related-title {
+        color: #354056;
+
+        font-size: 10px;
+
+        line-height: 1.5;
+
+        font-weight: 700;
+      }
+
+      .related-meta {
+        margin-top: 6px;
+
+        color: #9ba3b0;
+
+        font-size: 8px;
+
+        line-height: 1.5;
+      }
+
+      /* =========================================================
+       IMAGE VIEWER MODAL
+    ========================================================= */
+
+      .image-viewer {
+        position: fixed;
+
+        inset: 0;
+
+        z-index: 9999;
+
+        display: none;
+
+        align-items: center;
+
+        justify-content: center;
+
+        background: rgba(8, 12, 21, 0.91);
+      }
+
+      .image-viewer.open {
+        display: flex;
+      }
+
+      /* 확대 이미지 */
+
+      .viewer-content {
+        position: relative;
+
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+      }
+
+      .viewer-content img {
+        max-width: 84vw;
+
+        max-height: 84vh;
+
+        object-fit: contain;
+
+        border-radius: 5px;
+
+        display: block;
+
+        user-select: none;
+      }
+
+      /* 닫기 */
+
+      .viewer-close {
+        position: fixed;
+
+        top: 24px;
+        right: 28px;
+
+        z-index: 10;
+
+        width: 43px;
+        height: 43px;
+
+        border: none;
+
+        border-radius: 50%;
+
+        background: rgba(255, 255, 255, 0.12);
+
+        color: #ffffff;
+
+        font-size: 27px;
+
+        line-height: 1;
+
+        cursor: pointer;
+      }
+
+      /* 좌우 */
+
+      .viewer-arrow {
+        position: fixed;
+
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        z-index: 10;
+
+        width: 48px;
+        height: 48px;
+
+        border: none;
+
+        border-radius: 50%;
+
+        background: rgba(255, 255, 255, 0.13);
+
+        color: #ffffff;
+
+        font-size: 31px;
+
+        cursor: pointer;
+
+        transition: background 0.15s ease;
+      }
+
+      .viewer-arrow:hover {
+        background: rgba(255, 255, 255, 0.22);
+      }
+
+      .viewer-prev {
+        left: 28px;
+      }
+
+      .viewer-next {
+        right: 28px;
+      }
+
+      /* 이미지 번호 */
+
+      .viewer-count {
+        position: absolute;
+
+        bottom: 34px;
+
+        left: 50%;
+
+        transform: translateX(-50%);
+
+        padding: 7px 12px;
+
+        border-radius: 15px;
+
+        background: rgba(0, 0, 0, 0.35);
+
+        color: rgba(255, 255, 255, 0.9);
+
+        font-size: 11px;
+      }
+
+      /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+      @media (max-width: 1250px) {
+        .header {
+          padding: 0 30px;
+        }
+
+        .page {
+          width: calc(100% - 40px);
+        }
+      }
+
+      @media (max-width: 950px) {
+        .header {
+          padding: 0 20px;
+        }
+
+        .search {
+          width: 300px;
+
+          margin-left: 10px;
+        }
+
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          display: none;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .header {
+          height: 60px;
+        }
+
+        .nav {
+          display: none;
+        }
+
+        .search {
+          flex: 1;
+
+          width: auto;
+        }
+
+        .header-actions {
+          gap: 10px;
+        }
+
+        .pay,
+        .notification {
+          display: none;
+        }
+
+        .page {
+          width: calc(100% - 24px);
+
+          padding-top: 15px;
+        }
+
+        .post-header,
+        .article-card,
+        .comments-card {
+          border-radius: 14px;
+
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+
+        .post-title {
+          font-size: 22px;
+        }
+
+        .image-thumb {
+          flex-basis: 94px;
+
+          width: 94px;
+          height: 94px;
+        }
+
+        .viewer-arrow {
+          width: 40px;
+          height: 40px;
+        }
+
+        .viewer-prev {
+          left: 12px;
+        }
+
+        .viewer-next {
+          right: 12px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- =========================================================
+       PAGE
+  ========================================================= -->
+
+    <main class="page">
+      <!-- Breadcrumb -->
+
+      <div class="breadcrumb">
+        BOARD
+
+        <span>›</span>
+
+        게시글 상세
+      </div>
+
+      <div class="layout">
+        <!-- =====================================================
+           LEFT CONTENT
+      ====================================================== -->
+
+        <section>
+          <!-- ===================================================
+             POST HEADER
+
+             게시판명과 게시글 제목을 분리
+        ==================================================== -->
+
+          <div class="post-header">
+            <div class="board-label">크리에이터 게시판</div>
+
+            <h1 class="post-title">
+              지금 가장 가고 싶은 유럽 여행지 BEST 5 ✈️
+            </h1>
+
+            <p class="post-description">
+              최근 다녀온 유럽 여행 경험을 바탕으로, 꼭 가보고 싶은 여행지 5곳을
+              정리해봤어요!
+            </p>
+
+            <div class="post-meta">
+              <div class="author">
+                <div class="author-avatar"></div>
+
+                지민이
+              </div>
+
+              <span class="pro"> PRO </span>
+
+              <span class="meta-dot"> · </span>
+
+              <span> 2026.08.10 </span>
+
+              <span class="meta-dot"> · </span>
+
+              <span> ◉ 3,420 </span>
+
+              <span class="meta-dot"> · </span>
+
+              <span> ▢ 42 </span>
+            </div>
+          </div>
+
+          <!-- ===================================================
+             ARTICLE
+
+             큰 이미지는 없음
+             본문 하단에 썸네일 캐러셀
+        ==================================================== -->
+
+          <article class="article-card">
+            <!-- 본문 -->
+
+            <div class="article-body">
+              <h2>1. 산토리니 (그리스)</h2>
+
+              <p>
+                에메랄드빛 바다와 하얀 건물들이 어우러진 산토리니는 정말 꿈같은
+                곳이었어요.
+              </p>
+
+              <p>
+                특히 해질녘에 보는 노을이 너무 아름다워서, 지금도 그때의 풍경이
+                생생하게 기억나요.
+              </p>
+
+              <div class="quote">“인생에 한 번쯤은 꼭 가봐야 할 곳!”</div>
+
+              <p>다음에 또 가고 싶은 여행지예요. 여러분도 꼭 가보세요! 😊</p>
+
+              <p>
+                여행을 계획하고 있다면 여유롭게 며칠 머무르면서 섬 곳곳을 천천히
+                둘러보는 것을 추천해요.
+              </p>
+            </div>
+
+            <!-- =================================================
+               IMAGE THUMBNAIL CAROUSEL
+          ================================================== -->
+
+            <div class="post-images">
+              <div class="post-images-header">
+                <span class="post-images-title"> 사진 </span>
+
+                <span class="post-images-count"> 5장 </span>
+              </div>
+
+              <div class="carousel-wrap">
+                <!-- 왼쪽 -->
+
+                <button
+                  class="carousel-arrow left"
+                  onclick="scrollThumbnails(-1)"
+                  aria-label="이전 사진"
+                >
+                  ‹
+                </button>
+
+                <!-- 썸네일 -->
+
+                <div class="thumbnail-carousel" id="thumbnailCarousel">
+                  <button class="image-thumb" onclick="openImageViewer(0)">
+                    <img
+                      src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=400&q=80"
+                      alt="산토리니 여행 사진 1"
+                    />
+                  </button>
+
+                  <button class="image-thumb" onclick="openImageViewer(1)">
+                    <img
+                      src="https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=400&q=80"
+                      alt="산토리니 여행 사진 2"
+                    />
+                  </button>
+
+                  <button class="image-thumb" onclick="openImageViewer(2)">
+                    <img
+                      src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=80"
+                      alt="산토리니 여행 사진 3"
+                    />
+                  </button>
+
+                  <button class="image-thumb" onclick="openImageViewer(3)">
+                    <img
+                      src="https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=400&q=80"
+                      alt="유럽 여행 사진 4"
+                    />
+                  </button>
+
+                  <button class="image-thumb" onclick="openImageViewer(4)">
+                    <img
+                      src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=400&q=80"
+                      alt="파리 여행 사진 5"
+                    />
+                  </button>
+                </div>
+
+                <!-- 오른쪽 -->
+
+                <button
+                  class="carousel-arrow right"
+                  onclick="scrollThumbnails(1)"
+                  aria-label="다음 사진"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+
+            <!-- TAG -->
+
+            <div class="tags">
+              <span class="tag"> #유럽여행 </span>
+
+              <span class="tag"> #산토리니 </span>
+
+              <span class="tag"> #여행후기 </span>
+
+              <span class="tag"> #여행추천 </span>
+
+              <span class="tag"> #감성사진 </span>
+            </div>
+
+            <!-- ACTION -->
+
+            <div class="post-actions">
+              <button class="action like">♡ 좋아요 210</button>
+
+              <button class="action">↗ 공유하기</button>
+
+              <button class="action">⋯</button>
+            </div>
+          </article>
+
+          <!-- ===================================================
+             COMMENTS
+
+             본문과 42px 분리
+        ==================================================== -->
+
+          <section class="comments-card">
+            <div class="comments-header">
+              <div class="comments-title">댓글 42</div>
+
+              <button class="sort">최신순⌄</button>
+            </div>
+
+            <!-- 댓글 입력 -->
+
+            <div class="comment-input">
+              <div class="comment-avatar"></div>
+
+              <div class="input-box">
+                댓글을 입력하세요.
+
+                <button class="comment-submit">댓글 작성</button>
+              </div>
+            </div>
+
+            <!-- 댓글 1 -->
+
+            <div class="comment">
+              <div class="comment-avatar"></div>
+
+              <div class="comment-content">
+                <div class="comment-user">
+                  지민이
+
+                  <span class="comment-time"> 2시간 전 </span>
+                </div>
+
+                <div class="comment-text">
+                  와 사진 너무 예뻐요! 저도 이번에 비슷한 곳 다녀왔는데 정말
+                  좋더라구요 ㅎㅎ
+                </div>
+
+                <div class="comment-actions">
+                  ♡ 12
+                  <span>▢ 답글</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 댓글 2 -->
+
+            <div class="comment">
+              <div class="comment-avatar"></div>
+
+              <div class="comment-content">
+                <div class="comment-user">
+                  유나
+
+                  <span class="comment-time"> 3시간 전 </span>
+                </div>
+
+                <div class="comment-text">
+                  저도 여기 꼭 가보고 싶어요! 혹시 위치가 어디인가요?
+                </div>
+
+                <div class="comment-actions">
+                  ♡ 9
+                  <span>▢ 답글</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 댓글 3 -->
+
+            <div class="comment">
+              <div class="comment-avatar"></div>
+
+              <div class="comment-content">
+                <div class="comment-user">
+                  태현
+
+                  <span class="comment-time"> 4시간 전 </span>
+                </div>
+
+                <div class="comment-text">
+                  사진 색감이 너무 좋네요! 어떤 카메라로 촬영하셨나요?
+                </div>
+
+                <div class="comment-actions">
+                  ♡ 6
+                  <span>▢ 답글</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <!-- =====================================================
+           SIDEBAR
+      ====================================================== -->
+
+        <aside class="sidebar">
+          <!-- 작성자 -->
+
+          <div class="side-card">
+            <div class="side-title">작성자 정보</div>
+
+            <div class="creator">
+              <div class="creator-avatar"></div>
+
+              <div class="creator-info">
+                <div class="creator-name">
+                  지민이
+
+                  <span class="pro"> PRO </span>
+                </div>
+
+                <div class="creator-description">
+                  여행을 좋아하는 크리에이터
+                </div>
+
+                <div class="creator-stat">게시글 24 · 팔로워 3.2K</div>
+              </div>
+
+              <button class="follow">+ 팔로우</button>
+            </div>
+          </div>
+
+          <!-- 좋아요 -->
+
+          <!-- <div class="side-card reaction-box">
+            <div class="reaction-title">♡ 이 게시글이 마음에 드셨나요?</div>
+
+            <div class="reaction-description">
+              좋아요를 누르면 더 많은 새글을 볼 수 있어요!
+            </div>
+
+            <div class="reaction-buttons">
+              <button class="active">♡ 좋아요 210</button>
+
+              <button>↗ 공유하기</button>
+            </div>
+          </div> -->
+
+          <!-- 관련 게시글 -->
+
+          <div class="side-card">
+            <div class="side-title">관련 게시글</div>
+
+            <div class="related-item">
+              <img
+                class="related-image"
+                src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=200&q=80"
+                alt=""
+              />
+
+              <div class="related-content">
+                <div class="related-title">유럽에서 꼭 가봐야 할 5곳</div>
+
+                <div class="related-meta">지민이 · 2026.08.05</div>
+
+                <div class="related-meta">♡ 98　▢ 18</div>
+              </div>
+            </div>
+
+            <div class="related-item">
+              <img
+                class="related-image"
+                src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=200&q=80"
+                alt=""
+              />
+
+              <div class="related-content">
+                <div class="related-title">비오는 날의 유럽 감성 여행</div>
+
+                <div class="related-meta">지민이 · 2026.07.28</div>
+
+                <div class="related-meta">♡ 76　▢ 12</div>
+              </div>
+            </div>
+
+            <div class="related-item">
+              <img
+                class="related-image"
+                src="https://images.unsplash.com/photo-1526481280695-3c687fd643ed?auto=format&fit=crop&w=200&q=80"
+                alt=""
+              />
+
+              <div class="related-content">
+                <div class="related-title">여행 준비 꿀팁 모음</div>
+
+                <div class="related-meta">지민이 · 2026.07.20</div>
+
+                <div class="related-meta">♡ 54　▢ 9</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 추천 태그 -->
+
+          <div class="side-card">
+            <div class="side-title">이런 게시글은 어때요?</div>
+
+            <div class="tags">
+              <span class="tag"> #유럽여행 </span>
+
+              <span class="tag"> #여행추천 </span>
+
+              <span class="tag"> #여행후기 </span>
+
+              <span class="tag"> #감성사진 </span>
+
+              <span class="tag"> #여행지 </span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- =========================================================
+       IMAGE VIEWER MODAL
+
+       썸네일 클릭하면 이 부분이 열림
+  ========================================================= -->
+
+    <div class="image-viewer" id="imageViewer">
+      <!-- 닫기 -->
+
+      <button class="viewer-close" id="viewerClose" aria-label="닫기">×</button>
+
+      <!-- 이전 -->
+
+      <button
+        class="viewer-arrow viewer-prev"
+        id="viewerPrev"
+        aria-label="이전 이미지"
+      >
+        ‹
+      </button>
+
+      <!-- 이미지 -->
+
+      <div class="viewer-content">
+        <img id="viewerImage" src="" alt="게시글 이미지" />
+
+        <div class="viewer-count" id="viewerCount">1 / 5</div>
+      </div>
+
+      <!-- 다음 -->
+
+      <button
+        class="viewer-arrow viewer-next"
+        id="viewerNext"
+        aria-label="다음 이미지"
+      >
+        ›
+      </button>
+    </div>
+
+    <!-- =========================================================
+       JAVASCRIPT
+  ========================================================= -->
+
+    <script>
+      /* ========================================================
+       IMAGE DATA
+
+       실제 Next.js에서는 API에서 받은 image URL 배열로 대체
+    ======================================================== */
+
+      const postImages = [
+        'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1800&q=90',
+
+        'https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=1800&q=90',
+
+        'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1800&q=90',
+
+        'https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1800&q=90',
+
+        'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1800&q=90'
+      ];
+
+      /* ========================================================
+       DOM
+    ======================================================== */
+
+      const imageViewer = document.getElementById('imageViewer');
+
+      const viewerImage = document.getElementById('viewerImage');
+
+      const viewerCount = document.getElementById('viewerCount');
+
+      const viewerClose = document.getElementById('viewerClose');
+
+      const viewerPrev = document.getElementById('viewerPrev');
+
+      const viewerNext = document.getElementById('viewerNext');
+
+      const thumbnailCarousel = document.getElementById('thumbnailCarousel');
+
+      /* 현재 이미지 */
+
+      let currentImageIndex = 0;
+
+      /* ========================================================
+       IMAGE VIEWER
+    ======================================================== */
+
+      function openImageViewer(index) {
+        currentImageIndex = index;
+
+        updateViewer();
+
+        imageViewer.classList.add('open');
+
+        /*
+        Modal이 열렸을 때
+        배경 페이지 스크롤 방지
+      */
+
+        document.body.style.overflow = 'hidden';
+      }
+
+      function updateViewer() {
+        viewerImage.src = postImages[currentImageIndex];
+
+        viewerCount.textContent = `${currentImageIndex + 1} / ${postImages.length}`;
+      }
+
+      function nextImage() {
+        currentImageIndex = (currentImageIndex + 1) % postImages.length;
+
+        updateViewer();
+      }
+
+      function previousImage() {
+        currentImageIndex =
+          (currentImageIndex - 1 + postImages.length) % postImages.length;
+
+        updateViewer();
+      }
+
+      function closeImageViewer() {
+        imageViewer.classList.remove('open');
+
+        document.body.style.overflow = '';
+      }
+
+      /* ========================================================
+       EVENT
+    ======================================================== */
+
+      viewerNext.addEventListener('click', function (event) {
+        event.stopPropagation();
+
+        nextImage();
+      });
+
+      viewerPrev.addEventListener('click', function (event) {
+        event.stopPropagation();
+
+        previousImage();
+      });
+
+      viewerClose.addEventListener('click', function (event) {
+        event.stopPropagation();
+
+        closeImageViewer();
+      });
+
+      /*
+      Modal 배경 클릭하면 닫기
+
+      단, 이미지나 버튼을 클릭한 경우에는 닫지 않음
+    */
+
+      imageViewer.addEventListener('click', function (event) {
+        if (event.target === imageViewer) {
+          closeImageViewer();
+        }
+      });
+
+      /* ========================================================
+       KEYBOARD
+    ======================================================== */
+
+      document.addEventListener('keydown', function (event) {
+        if (!imageViewer.classList.contains('open')) {
+          return;
+        }
+
+        if (event.key === 'Escape') {
+          closeImageViewer();
+        }
+
+        if (event.key === 'ArrowRight') {
+          nextImage();
+        }
+
+        if (event.key === 'ArrowLeft') {
+          previousImage();
+        }
+      });
+
+      /* ========================================================
+       THUMBNAIL CAROUSEL
+    ======================================================== */
+
+      function scrollThumbnails(direction) {
+        const scrollAmount = 370;
+
+        thumbnailCarousel.scrollBy({
+          left: direction * scrollAmount,
+
+          behavior: 'smooth'
+        });
+      }
+    </script>
+  </body>
+</html>

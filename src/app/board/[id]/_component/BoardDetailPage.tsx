@@ -1,8 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient
+} from '@tanstack/react-query';
 import sanitizeHtml from 'sanitize-html';
 import {
   ChevronLeft,
@@ -19,6 +24,13 @@ import { getFetch, newAxios } from '@libs/client/fetcher';
 import Image from 'next/image';
 import { getCategoryData } from '@app/board/_lib/utils';
 import axios from 'axios';
+import { useInView } from 'react-intersection-observer';
+import UserInfocard from '@app/board/[id]/_component/UserInfocard';
+import BoardTags from '@app/board/[id]/_component/BoardTags';
+import BoardCommentItem from '@app/board/[id]/_component/BoardCommentItem';
+import { BoardChat } from '@prisma/client';
+import BoardMainNav from '@app/board/[id]/_component/BoardMainNav';
+import BoardCommentForm from '@app/board/[id]/_component/BoardCommentForm';
 
 type BoardImage = { id: number; image: string; dominantColor: string | null };
 type BoardDetailResponse = {
@@ -43,6 +55,13 @@ type BoardDetailResponse = {
     images: BoardImage[];
   };
 };
+type BoardCommentResponse = BoardChat & {
+  user: {
+    image: string;
+    name: string;
+  };
+};
+
 type CommentResponse = {
   ok: boolean;
   comments: Array<{
@@ -61,7 +80,7 @@ const avatarClass =
 const getImageSrc = (image: string) =>
   image.startsWith('http') || image.startsWith('/') ? image : `/474x/${image}`;
 
-const formatDate = (value: string) =>
+export const formatDate = (value: Date | string) =>
   new Intl.DateTimeFormat('ko-KR', {
     year: 'numeric',
     month: '2-digit',
@@ -73,17 +92,50 @@ export default function BoardDetailPage({ boardId }: Props) {
   const thumbnailRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [comment, setComment] = useState('');
+  const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
   const { data: boardData, isLoading } = useQuery<BoardDetailResponse>({
     queryKey: ['board-detail', boardId],
     queryFn: async () => (await axios(`/api/board/${boardId}`)).data,
     enabled: !!boardId,
     staleTime: 1000 * 60
   });
-  const { data: commentsData } = useQuery<CommentResponse>({
+  // const { data: commentsData } = useQuery<CommentResponse>({
+  //   queryKey: ['board-comments', boardId],
+  //   queryFn: () => getFetch(`/api/chat/board/${boardId}?comment=0`),
+  //   enabled: !!boardId
+  // });
+  const getBoardComments = async ({ pageParam = 0 }: { pageParam: number }) => {
+    try {
+      const res = await axios(
+        `/api/chat/board/${boardId}?comment=${pageParam}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('comment test fail');
+    }
+  };
+  const {
+    data: commentsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status
+  } = useInfiniteQuery({
     queryKey: ['board-comments', boardId],
-    queryFn: () => getFetch(`/api/chat/board/${boardId}`),
-    enabled: !!boardId
+    queryFn: getBoardComments,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      const lastPageLength = lastPage?.comments.length;
+      if (lastPageLength === 0 || lastPageLength < 3) return undefined;
+      return lastPageLength >= 3 && lastPage.comments[lastPageLength - 1].id;
+    }
   });
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
   const { data: currentUser } = useQuery<UserResponse>({
     queryKey: ['userInfo'],
     queryFn: () => getFetch('/api/user')
@@ -101,8 +153,7 @@ export default function BoardDetailPage({ boardId }: Props) {
   console.log(boardData, 'boardData');
 
   const board = boardData?.board;
-  console.log(board, 'board');
-  const comments = commentsData?.comments ?? [];
+
   const images = board?.images ?? [];
   const tags = board?.boardTag?.hashtag
     ? board.boardTag.hashtag
@@ -148,7 +199,7 @@ export default function BoardDetailPage({ boardId }: Props) {
         : (index + direction + images.length) % images.length
     );
   const authorName = board.user.name || board.user.email;
-
+  const boardUserTrue = currentUser?.user?.id === board.userId;
   return (
     <main className="min-h-screen bg-[#f7f8fa] pb-20 text-slate-800">
       <div className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-0">
@@ -183,7 +234,7 @@ export default function BoardDetailPage({ boardId }: Props) {
                 </span>
                 <span className="text-slate-300">·</span>
                 <span className="inline-flex items-center gap-1">
-                  <MessageCircle size={12} /> {comments.length}
+                  {/* <MessageCircle size={12} /> {commentsData.length} */}
                 </span>
               </div>
             </header>
@@ -197,14 +248,14 @@ export default function BoardDetailPage({ boardId }: Props) {
               />
               {images.length > 0 && (
                 <section className="mt-7 border-t border-slate-100 pt-6">
-                  <div className="mb-3 flex items-center justify-between text-xs">
+                  {/* <div className="mb-3 flex items-center justify-between text-xs">
                     <strong className="text-slate-700">사진</strong>
                     <span className="text-[10px] text-slate-400">
                       {images.length}장
                     </span>
-                  </div>
+                  </div> */}
                   <div className="relative">
-                    <button
+                    {/* <button
                       type="button"
                       aria-label="이전 사진"
                       onClick={() =>
@@ -216,7 +267,7 @@ export default function BoardDetailPage({ boardId }: Props) {
                       className="absolute left-[-8px] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-sm"
                     >
                       <ChevronLeft size={17} />
-                    </button>
+                    </button> */}
                     <div
                       ref={thumbnailRef}
                       className="no-scrollbar flex gap-2.5 overflow-x-auto px-0.5 pb-1"
@@ -238,7 +289,7 @@ export default function BoardDetailPage({ boardId }: Props) {
                         </button>
                       ))}
                     </div>
-                    <button
+                    {/* <button
                       type="button"
                       aria-label="다음 사진"
                       onClick={() =>
@@ -250,7 +301,7 @@ export default function BoardDetailPage({ boardId }: Props) {
                       className="absolute right-[-8px] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-sm"
                     >
                       <ChevronRight size={17} />
-                    </button>
+                    </button> */}
                   </div>
                 </section>
               )}
@@ -266,141 +317,54 @@ export default function BoardDetailPage({ boardId }: Props) {
                   ))}
                 </div>
               )}
-              <div className="mt-5 flex justify-end gap-2">
-                <button
-                  type="button"
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-indigo-100 px-3.5 text-[11px] text-indigo-600 transition hover:bg-indigo-50"
-                >
-                  <Heart size={14} /> 좋아요 {board.likeCount}
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 px-3.5 text-[11px] text-slate-600 transition hover:bg-slate-50"
-                >
-                  <Share2 size={14} /> 공유하기
-                </button>
-                <button
-                  type="button"
-                  aria-label="더보기"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
-                >
-                  <MoreHorizontal size={16} />
-                </button>
-              </div>
+              <BoardMainNav likeCount={board.likeCount} />
             </article>
 
             <section className="mt-[42px] rounded-[18px] border border-slate-200 bg-white px-5 py-7 sm:px-[30px] sm:py-[27px]">
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-[17px] font-extrabold text-slate-800">
-                  댓글 {comments.length}
+                  댓글 몇개
                 </h2>
                 <button type="button" className="text-[10px] text-slate-400">
                   최신순⌄
                 </button>
               </div>
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  if (comment.trim()) createComment.mutate(comment.trim());
-                }}
-                className="mb-6 flex gap-3"
-              >
-                <span className={`${avatarClass} h-9 w-9 text-xs`}>나</span>
-                <div className="relative flex-1">
-                  <textarea
-                    value={comment}
-                    onChange={(event) => setComment(event.target.value)}
-                    placeholder="댓글을 입력하세요."
-                    className="h-[69px] w-full resize-none rounded-[11px] border border-slate-200 p-3 pr-24 text-xs outline-none transition focus:border-indigo-300"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!comment.trim() || createComment.isPending}
-                    className="absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-indigo-600 px-3 py-1.5 text-[10px] font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
-                  >
-                    <Send size={11} /> 댓글 작성
-                  </button>
-                </div>
-              </form>
-              {comments.map((item) => (
-                <article
-                  key={item.id}
-                  className="flex gap-3 border-t border-slate-100 py-[18px]"
+              <BoardCommentForm
+                avatarClass={avatarClass}
+                boardId={boardId}
+                comment={comment}
+                setComment={setComment}
+              />
+              <div>
+                {commentsData?.pages.map((page, index) => (
+                  <React.Fragment key={index}>
+                    {page.comments.map((item: BoardCommentResponse) => (
+                      <BoardCommentItem
+                        item={item}
+                        avatarClass={avatarClass}
+                        key={item.id}
+                      />
+                    ))}
+                  </React.Fragment>
+                ))}
+                <div
+                  ref={inViewRef}
+                  className="h-14 w-full flex justify-center items-center shrink-0"
                 >
-                  <span className={`${avatarClass} h-9 w-9 text-xs`}>
-                    {item.user.name?.slice(0, 1) ?? 'U'}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-extrabold text-slate-700">
-                      {item.user.name || '익명'}{' '}
-                      <span className="ml-2 text-[9px] font-normal text-slate-400">
-                        {formatDate(item.createdAt)}
-                      </span>
-                    </p>
-                    <div
-                      className="mt-1.5 text-[11px] leading-relaxed text-slate-500"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(item.description)
-                      }}
-                    />
-                  </div>
-                </article>
-              ))}
+                  {isFetchingNextPage && <Spinner />}
+                </div>
+              </div>
             </section>
           </div>
 
           <aside className="space-y-4">
-            <section className="rounded-[18px] border border-slate-200 bg-white p-5">
-              <h2 className="mb-4 text-sm font-extrabold text-slate-800">
-                작성자 정보
-              </h2>
-              <div className="flex items-center gap-3">
-                <span className={`${avatarClass} h-[51px] w-[51px] text-lg`}>
-                  {authorName.slice(0, 1)}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-extrabold text-slate-700">
-                    {authorName}
-                  </p>
-                  <p className="mt-1 text-[9px] text-slate-400">크리에이터</p>
-                  <p className="mt-1 text-[9px] text-slate-400">
-                    게시글을 공유하는 멤버
-                  </p>
-                </div>
-                {currentUser?.user?.id === board.userId ? (
-                  <Link
-                    href={`/board/${board.id}/setting`}
-                    className="shrink-0 rounded-full border border-indigo-300 px-2.5 py-1.5 text-[9px] font-bold text-indigo-600"
-                  >
-                    수정
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    className="shrink-0 rounded-full border border-indigo-300 px-2.5 py-1.5 text-[9px] font-bold text-indigo-600"
-                  >
-                    + 팔로우
-                  </button>
-                )}
-              </div>
-            </section>
-            {tags.length > 0 && (
-              <section className="rounded-[18px] border border-slate-200 bg-white p-5">
-                <h2 className="mb-4 text-sm font-extrabold text-slate-800">
-                  이런 게시글은 어때요?
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-slate-100 px-2.5 py-1.5 text-[10px] text-slate-500"
-                    >
-                      #{tag.replace(/^#/, '')}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            )}
+            <UserInfocard
+              authorName={authorName}
+              boardId={board.id}
+              avatarClass={avatarClass}
+              boardUserTrue={boardUserTrue}
+            />
+            <BoardTags tags={tags} />
           </aside>
         </div>
       </div>
@@ -451,5 +415,29 @@ export default function BoardDetailPage({ boardId }: Props) {
         </div>
       )}
     </main>
+  );
+}
+function Spinner() {
+  return (
+    <svg
+      className="animate-spin h-6 w-6 text-gray-400"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
   );
 }

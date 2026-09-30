@@ -67,24 +67,24 @@ export const GET = async (req: NextRequest, res) => {
   }
 };
 export const POST = async (req: NextRequest, res: NextResponse) => {
-  // const auth = checkAuth();
-  // if (auth.checkError) {
-  //   return NextResponse.json(
-  //     {
-  //       ok: false,
-  //       auth
-  //     },
-  //     {
-  //       status: 401
-  //     }
-  //   );
-  // }
-  // const userId = auth?.payload?.id;
+  const auth = checkAuth();
+  if (auth.checkError || !auth.userId) {
+    return NextResponse.json(
+      {
+        ok: false,
+        auth
+      },
+      {
+        status: 401
+      }
+    );
+  }
+  const userId = Number(auth?.userId);
 
   // const test = await req.json();
   const productInfo = await req.json();
   const now = dbNow();
-  const userId = 2;
+
   let feenId = null;
 
   try {

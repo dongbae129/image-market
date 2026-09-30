@@ -38,6 +38,7 @@ interface VerifyType {
   err?: VerifyErrors;
   checkError?: boolean;
   userId?: string;
+  message?: string;
   // payload?: string | JwtPayload | undefined;
 }
 type AccessTokenType = {

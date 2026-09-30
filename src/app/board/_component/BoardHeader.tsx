@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Search, Gem, Upload, Bell } from 'lucide-react';
 import SearchBox from '@components/SearchInput';
+import ThemeToggle from '@components/themeToggle';
 
 export default function Header() {
   const pathname = usePathname();
@@ -109,6 +110,7 @@ export default function Header() {
                 className="w-full h-full object-cover rounded-full"
               />
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </div>

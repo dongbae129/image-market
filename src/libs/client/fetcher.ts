@@ -77,7 +77,7 @@ newAxios.interceptors.response.use(
     return Promise.reject(err);
   }
 );
-/**data fetch with url or headers */
+/**data fetch using privateApi with url or headers */
 export const getFetch = async (url: string, headers?: any): Promise<any> => {
   const res = await privateApi.get(url);
   return res.data;

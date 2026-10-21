@@ -4,103 +4,169 @@ import { checkAuth } from '@libs/server/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { dbNow } from '@libs/server/utils';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { getPostsQuerySchema } from '@app/board/types/board';
 
-export const GET = async (req: NextRequest) => {
-  const searchParams = req.nextUrl.searchParams;
-  const searchQuery = searchParams.get('search');
-  const id = searchParams.get('id');
-
-  let lastId: number | null = 0;
-  lastId = id ? +id.toString() : null;
-
+export async function GET(request: NextRequest) {
+  const pageLlimit = 7;
   try {
-    if (!lastId)
+    const { searchParams } = new URL(request.url);
+    const parseResult = getPostsQuerySchema.safeParse({
+      page: searchParams.get('page') ?? undefined,
+      limit: pageLlimit
+    });
+
+    if (!parseResult.success) {
       return NextResponse.json(
         {
-          ok: false
+          error: 'Invalid query parameters',
+          details: parseResult.error.flatten()
         },
-        {
-          status: 404
-        }
+        { status: 400 }
       );
-    const takeCount = Number(process.env.NEXT_PUBLIC_POST_COUNT);
-    const skip = (lastId - 1) * takeCount;
-    console.log(lastId, 'lastId');
-    const boards = await client.board.findMany({
-      take: takeCount,
-      skip: skip,
-      // skip: lastId ? takeCount * lastId : 0,
-      // ...(lastId && { cursor: { id: takeCount * lastId } }),
-      where: {
-        ...(searchQuery
-          ? {
-              title: {
-                contains: searchQuery.toString()
-              }
+    }
+
+    const { page, limit } = parseResult.data;
+    const skip = (page - 1) * limit;
+
+    // $transaction을 통해 데이터 목록 조회와 총 개수 조회를 일관성 있게 병렬 처리
+    const [totalItems, boards] = await client.$transaction([
+      client.board.count(),
+      client.board.findMany({
+        take: limit,
+        skip,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              name: true
             }
-          : {})
-      },
-      include: {
-        user: {
-          select: {
-            name: true
-          }
-        },
-        boardHit: {
-          select: {
-            hit: true
-          }
-        },
-        images: {
-          select: {
-            image: true
-          }
-        },
-        boardTag: {
-          select: {
-            hashtag: true
-          }
-        },
-        _count: {
-          select: {
-            boardChat: true
+          },
+          images: {
+            select: {
+              image: true
+            }
+          },
+          boardTag: {
+            select: {
+              hashtag: true
+            }
           }
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+      })
+    ]);
 
-    const boardCount = await client.board.count({
-      where: {
-        ...(searchQuery
-          ? {
-              title: {
-                contains: searchQuery.toString()
-              }
-            }
-          : {})
-      }
-    });
+    const totalPages = Math.ceil(totalItems / limit);
+
     return NextResponse.json({
-      ok: true,
       boards,
-      boardCount
+      meta: {
+        page,
+        limit,
+        totalItems,
+        totalPages: totalPages === 0 ? 1 : totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
     });
   } catch (error) {
-    console.log(error, 'boards get error');
+    console.error('[GET /api/posts Error]:', error);
     return NextResponse.json(
-      {
-        ok: false,
-        message: error
-      },
-      {
-        status: 500
-      }
+      { error: 'Internal Server Error' },
+      { status: 500 }
     );
   }
-};
+}
+// export const GET = async (req: NextRequest) => {
+//   const searchParams = req.nextUrl.searchParams;
+//   const searchQuery = searchParams.get('search');
+//   const id = searchParams.get('id');
+
+//   let lastId: number | null = 0;
+//   lastId = id ? +id.toString() : null;
+
+//   try {
+//     if (!lastId)
+//       return NextResponse.json(
+//         {
+//           ok: false
+//         },
+//         {
+//           status: 404
+//         }
+//       );
+//     const takeCount = Number(process.env.NEXT_PUBLIC_POST_COUNT);
+//     const skip = (lastId - 1) * takeCount;
+//     console.log(lastId, 'lastId');
+//     const boards = await client.board.findMany({
+//       take: takeCount,
+//       skip: skip,
+//       // skip: lastId ? takeCount * lastId : 0,
+//       // ...(lastId && { cursor: { id: takeCount * lastId } }),
+//       where: {
+//         ...(searchQuery
+//           ? {
+//               title: {
+//                 contains: searchQuery.toString()
+//               }
+//             }
+//           : {})
+//       },
+//       include: {
+//         user: {
+//           select: {
+//             name: true
+//           }
+//         },
+//         boardHit: {
+//           select: {
+//             hit: true
+//           }
+//         },
+//         images: {
+//           select: {
+//             image: true
+//           }
+//         },
+//         boardTag: {
+//           select: {
+//             hashtag: true
+//           }
+//         }
+//       },
+//       orderBy: {
+//         createdAt: 'desc'
+//       }
+//     });
+
+//     const boardCount = await client.board.count({
+//       where: {
+//         ...(searchQuery
+//           ? {
+//               title: {
+//                 contains: searchQuery.toString()
+//               }
+//             }
+//           : {})
+//       }
+//     });
+//     return NextResponse.json({
+//       ok: true,
+//       boards,
+//       boardCount
+//     });
+//   } catch (error) {
+//     console.log(error, 'boards get error');
+//     return NextResponse.json(
+//       {
+//         ok: false,
+//         message: error
+//       },
+//       {
+//         status: 500
+//       }
+//     );
+//   }
+// };
 export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();

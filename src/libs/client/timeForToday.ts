@@ -9,7 +9,7 @@ export const timeForToday = (value: Date) => {
   const betweenTime = Math.floor(
     (today.getTime() - timeValue.getTime()) / 1000 / 60
   );
-  console.log(value, timeValue, betweenTime, 'time');
+
   if (betweenTime < 1) return '방금 전';
   if (betweenTime < 60) {
     return `${betweenTime}분 전`;

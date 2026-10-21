@@ -119,31 +119,35 @@ async function getBoardData() {
 }
 
 // Next.js App Router - Server Component (SSR)
-export default async function BoardPage() {
+export default async function BoardPage({ searchParams }) {
   // 서버에서 데이터 즉시 페칭 (SSR)
+  const params = await searchParams;
+  console.log(params, 'params');
+  const page = params.page ? Number(params.page) : 1;
   const { posts, bestPosts, keywords, totalPostCount } = await getBoardData();
   const queryClient = new QueryClient();
 
-  // await queryClient.prefetchQuery({
-  //   queryKey: ['boards', 1, ''],
-  //   queryFn: getBoardsServer
-  // });
-  // const dehydratedState = dehydrate(queryClient);
+  await queryClient.prefetchQuery({
+    queryKey: ['boards', { page }],
+    queryFn: () => getBoardsServer(page)
+  });
+  const dehydratedState = dehydrate(queryClient);
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-slate-800 pb-20">
       <main className="max-w-[1440px] mx-auto px-6 py-8 space-y-6">
         <BoardHero totalPostCount={totalPostCount} />
         <BoardCategoryNav />
+        <HydrationBoundary state={dehydratedState}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+            <div className="lg:col-span-8 w-full">
+              <BoardPostList posts={posts} />
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-          <div className="lg:col-span-8 w-full">
-            <BoardPostList posts={posts} />
+            <div className="lg:col-span-4 w-full">
+              <BoardSidebar bestPosts={bestPosts} keywords={keywords} />
+            </div>
           </div>
-
-          <div className="lg:col-span-4 w-full">
-            <BoardSidebar bestPosts={bestPosts} keywords={keywords} />
-          </div>
-        </div>
+        </HydrationBoundary>
       </main>
     </div>
   );

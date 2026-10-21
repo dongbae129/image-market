@@ -95,10 +95,17 @@ export default function BoardDetailPage({ boardId }: Props) {
   const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
   const { data: boardData, isLoading } = useQuery<BoardDetailResponse>({
     queryKey: ['board-detail', boardId],
-    queryFn: async () => (await axios(`/api/board/${boardId}`)).data,
+
+    queryFn: async () => {
+      const res = await axios(`/api/board/${boardId}`);
+      const data = res.data;
+      console.log(data, 'client data');
+      return data;
+    },
     enabled: !!boardId,
-    staleTime: 1000 * 60
+    staleTime: 2000
   });
+  console.log(boardData, 'boardData');
   // const { data: commentsData } = useQuery<CommentResponse>({
   //   queryKey: ['board-comments', boardId],
   //   queryFn: () => getFetch(`/api/chat/board/${boardId}?comment=0`),
@@ -150,10 +157,9 @@ export default function BoardDetailPage({ boardId }: Props) {
       queryClient.invalidateQueries({ queryKey: ['board-comments', boardId] });
     }
   });
-  console.log(boardData, 'boardData');
 
   const board = boardData?.board;
-
+  console.log(board, '@BO');
   const images = board?.images ?? [];
   const tags = board?.boardTag?.hashtag
     ? board.boardTag.hashtag
@@ -234,7 +240,7 @@ export default function BoardDetailPage({ boardId }: Props) {
                 </span>
                 <span className="text-slate-300">·</span>
                 <span className="inline-flex items-center gap-1">
-                  {/* <MessageCircle size={12} /> {commentsData.length} */}
+                  <MessageCircle size={12} /> {board.commentCount}
                 </span>
               </div>
             </header>
@@ -323,7 +329,7 @@ export default function BoardDetailPage({ boardId }: Props) {
             <section className="mt-[42px] rounded-[18px] border border-slate-200 bg-white px-5 py-7 sm:px-[30px] sm:py-[27px]">
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-[17px] font-extrabold text-slate-800">
-                  댓글 몇개
+                  댓글 {board.commentCount}개
                 </h2>
                 <button type="button" className="text-[10px] text-slate-400">
                   최신순⌄

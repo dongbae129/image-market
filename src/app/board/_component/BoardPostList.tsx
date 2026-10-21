@@ -1,40 +1,38 @@
 'use client';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BoardPostCard from './BoardPostCard';
-import { Post } from './boardTypes';
 import { useQuery } from '@tanstack/react-query';
 import { getBoardsServer } from '@app/board/_lib/getBoardsServer';
 import { Board } from '@prisma/client';
 import BoardNotice from '@app/board/_component/BoardNotice';
+import { useSearchParams } from 'next/navigation';
+import { Pagination } from '@app/board/_component/Pagination';
 
-interface BoardPostListProps {
-  posts: Post[];
-}
-type BoardResponse = {
-  ok: boolean;
-  boards: Board[];
-  boardCount: number;
-};
-export default function BoardPostList({ posts }: BoardPostListProps) {
-  const { data } = useQuery<BoardResponse>({
-    queryKey: ['boards', 1, ''],
-    queryFn: getBoardsServer
+export default function BoardPostList() {
+  // const router = useRouter();
+  // const pathName = usePathname();
+  const searchParams = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
+
+  const { data } = useQuery({
+    queryKey: ['boards', { page: currentPage }],
+    queryFn: () => getBoardsServer(currentPage),
+    staleTime: 5 * 1000
   });
   console.log(data, 'board ata');
-
+  const { page, totalPages } = data.meta;
   return (
     <div className="w-full space-y-3">
       <BoardNotice />
 
-      {data?.boards.map((board) => (
+      {data?.boards.map((board: Board) => (
         <BoardPostCard key={board.id} post={board} />
       ))}
 
       {/* {posts.map((post) => (
         <BoardPostCard key={post.id} post={post} />
       ))} */}
-
-      <div className="flex items-center justify-center gap-1.5 pt-6">
+      <Pagination currentPage={page} totalPages={totalPages} />
+      {/* <div className="flex items-center justify-center gap-1.5 pt-6">
         <button className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-bold transition">
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -50,7 +48,7 @@ export default function BoardPostList({ posts }: BoardPostListProps) {
         <button className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700 text-xs font-bold transition">
           <ChevronRight className="w-4 h-4" />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

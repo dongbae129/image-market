@@ -15,6 +15,7 @@ type Props = {
 };
 export const GET = async (req: NextRequest, { params }: Props) => {
   const { boardId } = params;
+  console.log(boardId, 'boardId');
   if (!boardId)
     return NextResponse.json(
       {
@@ -25,76 +26,62 @@ export const GET = async (req: NextRequest, { params }: Props) => {
         status: 401
       }
     );
+
   try {
-    const board = await client.board.findUnique({
-      where: {
-        id: +boardId.toString()
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            image: true
-          }
-        },
-        images: {
-          select: {
-            id: true,
-            image: true,
-            dominantColor: true
-          }
-        },
-        boardChat: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                image: true
-              }
-            }
-          }
-        },
-        boardHit: {
-          select: {
-            hit: true
-          }
-        },
-        boardTag: {
-          select: {
-            hashtag: true
-          }
-        }
-      }
-    });
-    if (board) {
-      await client.boardHit.update({
+    const board = await client.$transaction(async (tx) => {
+      const findBoard = await tx.board.findUnique({
         where: {
-          boardId: board.id
+          id: +boardId
+        }
+      });
+      if (!findBoard) throw new Error('Board not found');
+      const updatedBoard = await tx.board.update({
+        where: {
+          id: +boardId
         },
         data: {
-          hit: {
+          viewCount: {
             increment: 1
+          }
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              image: true
+            }
+          },
+          images: {
+            select: {
+              id: true,
+              image: true,
+              dominantColor: true
+            }
+          },
+          boardChat: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  image: true
+                }
+              }
+            }
+          },
+          boardTag: {
+            select: {
+              hashtag: true
+            }
           }
         }
       });
-      if (board.boardHit) board.boardHit.hit++;
-      return NextResponse.json({
-        ok: true,
-        board
-      });
-    } else {
-      return NextResponse.json(
-        {
-          ok: false,
-          message: 'fail to find the board'
-        },
-        {
-          status: 401
-        }
-      );
-    }
+      return updatedBoard;
+    });
+    return NextResponse.json({
+      board
+    });
   } catch (error) {
     console.error(error, 'getBoardDetail Error');
     return NextResponse.json(

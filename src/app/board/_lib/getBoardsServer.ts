@@ -1,10 +1,13 @@
-export const getBoardsServer = async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/board?id=1`, {
-    next: {
-      tags: ['boards']
-    },
-    cache: 'no-store'
-  });
+export const getBoardsServer = async (page: number) => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/board?page=${page}`,
+    {
+      next: {
+        tags: ['boards']
+      },
+      cache: 'no-store'
+    }
+  );
 
   if (!res.ok) throw new Error('board server fail');
   return res.json();

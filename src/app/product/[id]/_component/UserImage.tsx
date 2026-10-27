@@ -1,45 +1,23 @@
-import Image from 'next/image';
 import React from 'react';
 
 type UserImageProps = {
-  user: {
-    email: string;
-    name: string;
-  };
+  user: { email: string; name: string; image?: string | null };
 };
 function UserImage({ user }: UserImageProps) {
   return (
-    <>
-      <div className="useraccountinfo">
-        <div className="userimage">
-          <img src="/localimages/emptyuser.png" alt="userImage" />
-        </div>
-        <div className="useremail">{user.email}</div>
+    <div className="useraccountinfo">
+      <div className="userimage">
+        {user.image ? (
+          <img src={user.image} alt="" />
+        ) : (
+          <span aria-hidden="true">{user.name.slice(0, 1) || '🙂'}</span>
+        )}
       </div>
-      <style jsx>{`
-        .useraccountinfo {
-          display: flex;
-          width: 80%;
-          word-break: break-all;
-        }
-        .userimage {
-          width: 50px;
-          min-width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          margin-right: 5px;
-          overflow: hidden;
-          position: relative;
-        }
-        .useremail {
-          margin-right: 16px;
-          padding: 5px;
-          font-size: 16px;
-          font-weight: 600;
-        }
-      `}</style>
-    </>
+      <div className="person">
+        <strong>{user.name}</strong>
+        <span className="useremail">{user.email}</span>
+      </div>
+    </div>
   );
 }
-
 export default UserImage;

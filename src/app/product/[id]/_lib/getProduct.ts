@@ -12,10 +12,10 @@ export const getProduct = async (productId: string): Promise<ProductClient> => {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/product/${productId}`,
     {
+      cache: 'no-store',
       next: {
         tags: ['product', productId]
       }
-      //   cache: 'no-store'
     }
   );
 

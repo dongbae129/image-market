@@ -10,10 +10,7 @@ import ProductModal from './ProductModal';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
 import sanitizeHtml from 'sanitize-html';
 export interface UserHashtagHit {
-  user: {
-    email: string;
-    name: string;
-  };
+  user: { email: string; name: string; image?: string | null };
   hashtag: HashTag;
   productHit: ProductHit;
 }
@@ -23,31 +20,24 @@ export type ProductDetailType = {
 };
 type ProductInfoProps = {
   productId: string;
+  data?: ProductDetailType;
 };
-function ProductInfo({ productId }: ProductInfoProps) {
+function ProductInfo({ productId, data: initialData }: ProductInfoProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [paidDown, setPaidDown] = useState(false);
-  const {
-    register,
-
-    watch
-  } = useForm();
+  const { register, watch } = useForm();
   const watchAuth = watch('checkAuth');
-
-  // const getProduct = () =>
-  //   axios.get(`/api/product/${productId}`).then((res) => res.data);
-  const { data, isLoading, isSuccess } = useQuery<any, any, ProductDetailType>({
+  const { data: queryData } = useQuery<ProductDetailType>({
     queryKey: ['product', productId],
-    queryFn: () => getProduct(productId),
-    enabled: !!productId
+    queryFn: async () =>
+      (await getProduct(productId)) as unknown as ProductDetailType,
+    enabled: !!productId && !initialData,
+    initialData: initialData
   });
-  const onClickDelete = () => {
-    setModalOpen((prev) => !prev);
-  };
-  const onClickDown = () => {
-    setPaidDown((prev) => !prev);
-  };
-  // if (isLoading) return null;
+  const data = initialData?.product ? initialData : queryData;
+  const product = data?.product;
+  const onClickDelete = () => setModalOpen((prev) => !prev);
+  const onClickDown = () => setPaidDown((prev) => !prev);
   return (
     <>
       <ProductModal
@@ -57,91 +47,47 @@ function ProductInfo({ productId }: ProductInfoProps) {
         setModalOpen={setModalOpen}
         setPaidDown={setPaidDown}
       />
-
-      {isSuccess && (
+      {product && (
         <>
           <div className="productInfo">
-            <UserImage user={data?.product?.user} />
-
+            <UserImage user={product.user} />
             <ProductBtnModifty
-              product={data?.product}
+              product={product}
               onClickDelete={onClickDelete}
               productId={productId}
               onClickDown={onClickDown}
               watchAuth={watchAuth}
             />
-
-            <Input
-              label="checkAuth"
-              name="checkAuth"
-              type="checkbox"
-              register={register('checkAuth')}
-            />
+            <div className="product-auth-control">
+              <Input
+                label="checkAuth"
+                name="checkAuth"
+                type="checkbox"
+                register={register('checkAuth')}
+              />
+            </div>
           </div>
-
-          <div>
-            <h1>{data?.product.title}</h1>
-          </div>
-          <br />
+          <h1>{product.title}</h1>
           <div
+            className="product-description"
             dangerouslySetInnerHTML={{
-              __html: sanitizeHtml(data?.product?.description as string)
+              __html: sanitizeHtml(product.description ?? '')
             }}
           />
-          {/* <div
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(data?.product?.description as string)
-            }}
-          /> */}
-          <div className="hashtagwrap" role="hashtag">
-            {data?.product.hashtag?.hashtag?.length > 0 &&
-              data?.product.hashtag?.hashtag.split(',').map((hash, i) => (
-                <span className="hashtag" key={i + hash}>
+          <div className="hashtagwrap" role="list" aria-label="작품 태그">
+            {product.hashtag?.hashtag
+              ?.split(',')
+              .filter(Boolean)
+              .map((hash, i) => (
+                <span className="hashtag" key={`${hash}-${i}`}>
                   <span>#</span>
-                  <span>{hash}</span>
+                  <span>{hash.trim()}</span>
                 </span>
-                // <span key={i}>#{hash}</span>
               ))}
           </div>
         </>
       )}
-      <style jsx>{`
-        .productInfo {
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          position: relative;
-        }
-        .hashtagwrap {
-          padding-top: 10px;
-        }
-        .hashtag {
-          background-color: #f8f9fa;
-          display: inline-block;
-          border-radius: 1rem;
-          height: 2rem;
-          line-height: 2rem;
-          padding-left: 1rem;
-          padding-right: 1rem;
-          margin-right: 0.75rem;
-          margin-bottom: 1rem;
-          &:hover {
-            cursor: pointer;
-            background-color: darkgray;
-          }
-          span {
-            font-weight: bold;
-          }
-
-          span:nth-child(1) {
-            color: #12b886;
-            font-weight: bold;
-            padding-right: 0.2rem;
-          }
-        }
-      `}</style>
     </>
   );
 }
-
 export default ProductInfo;

@@ -1,18 +1,14 @@
 import { HashTag, Product, ProductHit } from '@prisma/client';
-
-// import { useGetProduct } from './_lib/useGetProduct';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient
-} from '@tanstack/react-query';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
 import ProductPage from '@app/product/[id]/_component/ProductPage';
+import { notFound } from 'next/navigation';
+import './product-detail.css';
 
 export interface UserHashtagHit {
   user: {
     email: string;
     name: string;
+    image?: string | null;
   };
   hashtag: HashTag;
   productHit: ProductHit;
@@ -41,30 +37,19 @@ type Props = {
   };
 };
 export default async function ProductDetail({ params }: Props) {
-  // console.log(params, 'params');
   const { id } = await params;
-  console.log(id, 'id11', typeof id);
-  const queryClient = new QueryClient();
+  const data = await getProduct(id);
+  if (!data?.ok || !data.product) notFound();
 
-  // 2. 데이터 미리 가져오기 (Prefetch) -> SSR HTML에 데이터 포함
-  await queryClient.prefetchQuery({
-    queryKey: ['product', id],
-    queryFn: () => getProduct(id)
-  });
-
-  // const productId = params.id;
-
-  // const { data, isLoading } = useGetProduct(productId?.toString() as string);
-
-  // if (isLoading) return <div>Loading Data....</div>;
-  // if (!data?.ok) return <div>해당 상품은 존재하지 않습니다</div>;
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <div>
-        <div className="productwrapout">
-          <ProductPage key={id} />
-        </div>
+    <div>
+      <div className="productwrapout">
+        <ProductPage
+          key={id}
+          id={id}
+          initialData={data as unknown as ProductDetailType}
+        />
       </div>
-    </HydrationBoundary>
+    </div>
   );
 }

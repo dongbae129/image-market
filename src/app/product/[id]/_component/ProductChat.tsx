@@ -1,143 +1,138 @@
 'use client';
-import { getFetch } from '@libs/client/fetcher';
-import React, { useRef, useState } from 'react';
-import { RiArrowDownSLine, RiArrowRightSLine } from 'react-icons/ri';
-import { useQuery } from '@tanstack/react-query';
-
-import { ProductDetailType } from './ProductInfo';
 import { Chat } from '@prisma/client';
+import axios from 'axios';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { RiArrowDownSLine } from 'react-icons/ri';
+import { ProductDetailType } from './ProductInfo';
+import { timeForToday } from '@libs/client/timeForToday';
+import { Spinner } from '@app/@modal/(.)product/[id]/page';
 
 type ProductChatProps = {
   data: ProductDetailType | undefined;
+  totalCount?: number;
 };
 export interface CommentWithUser extends Chat {
-  user: {
-    name: string;
-  };
+  user: { name: string; image?: string | null };
 }
 interface ChatResponse {
   ok: boolean;
   comments: CommentWithUser[];
 }
-function ProductChat({ data }: ProductChatProps) {
-  const [chatOpen, setChatOpen] = useState(false);
-  const arrowRef = useRef<HTMLSpanElement>(null);
 
-  const { data: chats } = useQuery<ChatResponse>({
-    queryKey: ['getChats', data?.product?.id],
-    queryFn: getFetch(`/api/chat/product/${data?.product?.id}`),
-
-    enabled: !!data?.product?.id,
-    select: (chat) => {
-      // if (chat?.comments?.length > 0) setChatOpen(true);
-      return chat;
-    }
+function ProductChat({ data, totalCount }: ProductChatProps) {
+  const [expanded, setExpanded] = useState(false);
+  const { ref: inViewRef, inView } = useInView({
+    threshold: 0.5,
+    skip: !expanded
   });
+  const {
+    data: chats,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status
+  } = useInfiniteQuery<ChatResponse>({
+    queryKey: ['getChats', data?.product?.id],
+    queryFn: ({ pageParam = 0 }) =>
+      axios(`/api/chat/product/${data?.product?.id}?comment=${pageParam}`).then(
+        (res) => res.data
+      ),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      const lastComment = lastPage.comments.at(-1);
+      return lastPage.comments.length === 3 ? lastComment?.id : undefined;
+    },
+    enabled: !!data?.product?.id
+  });
+  const comments = chats?.pages.flatMap((page) => page.comments) ?? [];
+  const canExpand = (totalCount ?? comments.length) > 2;
+
+  useEffect(() => {
+    if (inView && expanded && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, expanded, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
-    <>
-      <div className="arrowopen">
-        <span data-testid="test">댓글: {chats?.comments?.length || 0}개</span>
-        <span
-          ref={arrowRef}
-          onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.9)')}
-          onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-          onClick={() => setChatOpen((prev) => !prev)}
-        >
-          {chatOpen ? (
-            <RiArrowDownSLine size={40} />
-          ) : (
-            <RiArrowRightSLine size={40} />
-          )}
-        </span>
+    <section className="product-chat">
+      <div className="product-comments-heading">
+        <h2>
+          작품 이야기{' '}
+          <span>{(totalCount ?? comments.length).toLocaleString('ko-KR')}</span>
+        </h2>
+        {canExpand && (
+          <button
+            className="comments-toggle"
+            type="button"
+            aria-label={expanded ? '댓글 접기' : '댓글 더 보기'}
+            aria-expanded={expanded}
+            aria-controls="product-comments-list"
+            onClick={() => setExpanded((current) => !current)}
+          >
+            <span className="comments-toggle-label">
+              {expanded ? '접기' : '더보기'}
+            </span>
+            <RiArrowDownSLine aria-hidden="true" />
+          </button>
+        )}
       </div>
-      <div className="chatwrap">
-        {chats?.comments?.map((comment) => (
-          <div data-testid="chat" key={comment?.id}>
-            <div className="chatInfo">
-              <div>
-                <div className="chatuserimage_inner">
-                  <div className="chatuserimage"></div>
-                </div>
-                <div className="chatuserInfo">
-                  <div className="chatusername">{comment?.user?.name}</div>
-                  <div className="userchat">{comment?.description}</div>
-                </div>
-              </div>
-            </div>
+
+      <div
+        className="product-comments-list"
+        id="product-comments-list"
+        aria-live="polite"
+      >
+        {status === 'pending' ? (
+          <div
+            className="product-comments-initial-loading"
+            role="status"
+            aria-label="댓글을 불러오는 중"
+          >
+            <Spinner />
           </div>
-        ))}
+        ) : (
+          <>
+            {comments.map((comment, index) => (
+              <article
+                className="product-comment"
+                data-testid="chat"
+                key={comment.id}
+                hidden={!expanded && index > 1}
+              >
+                <span className="product-comment-avatar" aria-hidden="true">
+                  {comment.user?.image ? (
+                    <img src={comment.user.image} alt="" />
+                  ) : (
+                    comment.user?.name?.slice(0, 1) || '🙂'
+                  )}
+                </span>
+                <div className="product-comment-copy">
+                  <div className="product-comment-author">
+                    {comment.user?.name}
+                  </div>
+                  <p>{comment.description}</p>
+                  <small>{timeForToday(new Date(comment.createdAt))}</small>
+                </div>
+              </article>
+            ))}
+            {comments.length === 0 && (
+              <p className="product-comments-empty">첫 댓글을 남겨보세요.</p>
+            )}
+          </>
+        )}
+
+        <div
+          ref={inViewRef}
+          className={`product-comments-sentinel${isFetchingNextPage ? ' is-loading' : ''}`}
+          role={isFetchingNextPage ? 'status' : undefined}
+          aria-label={isFetchingNextPage ? '댓글을 불러오는 중' : undefined}
+        >
+          {isFetchingNextPage && <Spinner />}
+        </div>
       </div>
-      <style jsx>{`
-        :root {
-          --img_inner: 32px;
-        }
-
-        .chatuserimage_inner {
-          width: var(--img_inner);
-          height: var(--img_inner);
-          margin-right: 5px;
-        }
-        .chatuserimage {
-          background: url(/localimages/emptyuser.png) center no-repeat;
-          border-radius: 50%;
-          width: 100%;
-          height: 100%;
-          background-size: cover;
-          margin-right: 5px;
-        }
-        .arrowopen {
-          display: flex;
-          justify-content: start;
-          align-items: center;
-          > span:first-child {
-            font-size: 1.5rem;
-            font-weight: 600;
-          }
-          > span:last-child {
-            display: flex;
-            cursor: pointer;
-            border-radius: 50%;
-
-            :hover {
-              background-color: rgba(0, 0, 0, 0.06);
-            }
-          }
-        }
-        .chatwrap {
-          opacity: ${chatOpen ? 1 : 0};
-          flex-direction: column;
-          width: 100%;
-          height: 40%;
-          overflow-y: scroll;
-          > div {
-            margin-top: 10px;
-            margin-bottom: 10px;
-          }
-
-          .chatInfo {
-            > div {
-              display: flex;
-
-              .chatuserInfo {
-                width: calc(100% - (var(--img_inner) + 5px));
-              }
-
-              .chatusername {
-                font-size: 16px;
-                font-weight: bold;
-              }
-              .userchat {
-                padding: 7px 7px 0 7px;
-                width: 100%;
-                white-space: pre-line;
-                word-break: break-all;
-              }
-            }
-          }
-        }
-      `}</style>
-    </>
+    </section>
   );
 }
 

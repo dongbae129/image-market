@@ -43,6 +43,7 @@ type BoardDetailResponse = {
     createdAt: string;
     viewCount: number;
     likeCount: number;
+    commentCount: number;
     userId: number;
     user: {
       id: number;
@@ -286,6 +287,7 @@ export default function BoardDetailPage({ boardId }: Props) {
                           className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[10px] bg-slate-100"
                         >
                           <Image
+                            className="object-cover object-top"
                             src={`474x/${image.image}`}
                             alt={`게시글 사진 ${index + 1}`}
                             fill
@@ -402,7 +404,7 @@ export default function BoardDetailPage({ boardId }: Props) {
             src={`https://d18ktmttqdka9f.cloudfront.net/736x/${images[selectedImage].image}`}
             alt={`게시글 사진 ${selectedImage + 1}`}
             onClick={(event) => event.stopPropagation()}
-            className="max-h-[84vh] max-w-[84vw] rounded-md object-contain"
+            className="max-h-[84vh] max-w-[84vw] rounded-md object-cover"
           />
           <button
             type="button"

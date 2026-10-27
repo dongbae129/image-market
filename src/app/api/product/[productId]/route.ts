@@ -1,4 +1,4 @@
-import { ResponseType, imgDelete, timeFailed } from '@libs/server/utils';
+import { timeFailed } from '@libs/server/utils';
 import client from '@libs/server/client';
 import { type NextRequest, NextResponse } from 'next/server';
 type Props = {
@@ -45,17 +45,6 @@ export const GET = async (req: NextRequest, { params }: Props) => {
       }
     });
     if (product) {
-      await client.productHit.update({
-        where: {
-          productId: product.id
-        },
-        data: {
-          hit: {
-            increment: 1
-          }
-        }
-      });
-      if (product.productHit) product.productHit.hit++;
       const timeExpired = timeFailed(product);
       return NextResponse.json({
         ok: true,
@@ -72,7 +61,36 @@ export const GET = async (req: NextRequest, { params }: Props) => {
     console.error(error, 'getProductError');
   }
 };
-export const PUT = async (req) => {
+export const POST = async (_req: NextRequest, { params }: Props) => {
+  const { productId } = params;
+  if (!productId) {
+    return NextResponse.json(
+      { ok: false, message: 'missing productId' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await client.productHit.updateMany({
+      where: { productId: Number(productId) },
+      data: { hit: { increment: 1 } }
+    });
+    if (!result.count) {
+      return NextResponse.json(
+        { ok: false, message: 'product not found' },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error(error, 'productHitIncrementError');
+    return NextResponse.json(
+      { ok: false, message: 'failed to record product view' },
+      { status: 500 }
+    );
+  }
+};
+export const PUT = async () => {
   return NextResponse.json({
     message: '???'
   });

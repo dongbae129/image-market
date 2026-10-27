@@ -56,7 +56,7 @@ export const GET = async (req: NextRequest, res) => {
       products
     });
   } catch (e) {
-    console.error(e);
+    console.error(e, 'product what error');
     return NextResponse.json(
       {
         ok: false,

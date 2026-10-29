@@ -27,7 +27,7 @@ function ProductImage({ product, artworkRef }: ProductImageProps) {
           sizes="(max-width: 680px) 100vw, 65vw"
           priority
         />
-        <span className="product-art-badge">{product.auth && 'PRO'}</span>
+        {product.auth && <span className="product-art-badge">PRO</span>}
       </div>
     </article>
   );

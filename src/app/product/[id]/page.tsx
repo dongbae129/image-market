@@ -1,4 +1,9 @@
 import { HashTag, Product, ProductHit } from '@prisma/client';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient
+} from '@tanstack/react-query';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
 import ProductPage from '@app/product/[id]/_component/ProductPage';
 import { notFound } from 'next/navigation';
@@ -38,17 +43,22 @@ type Props = {
 };
 export default async function ProductDetail({ params }: Props) {
   const { id } = await params;
-  const data = await getProduct(id);
+  const queryClient = new QueryClient();
+  const queryKey = ['product', id];
+  await queryClient.prefetchQuery({
+    queryKey,
+    queryFn: () => getProduct(id) as unknown as Promise<ProductDetailType>,
+    staleTime: 5_000
+  });
+  const data = queryClient.getQueryData<ProductDetailType>(queryKey);
   if (!data?.ok || !data.product) notFound();
 
   return (
     <div>
       <div className="productwrapout">
-        <ProductPage
-          key={id}
-          id={id}
-          initialData={data as unknown as ProductDetailType}
-        />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <ProductPage key={id} id={id} />
+        </HydrationBoundary>
       </div>
     </div>
   );

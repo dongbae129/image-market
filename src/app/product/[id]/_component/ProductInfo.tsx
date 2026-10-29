@@ -29,8 +29,8 @@ function ProductInfo({ productId, data: initialData }: ProductInfoProps) {
   const watchAuth = watch('checkAuth');
   const { data: queryData } = useQuery<ProductDetailType>({
     queryKey: ['product', productId],
-    queryFn: async () =>
-      (await getProduct(productId)) as unknown as ProductDetailType,
+    queryFn: () =>
+      getProduct(productId) as unknown as Promise<ProductDetailType>,
     enabled: !!productId && !initialData,
     initialData: initialData
   });

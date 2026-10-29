@@ -29,7 +29,7 @@ function ProductBtnModifty({
   return (
     <>
       <div className="btnwithmodify">
-        <div>
+        {/* <div>
           <button>
             {product.auth ? (
               <div onClick={onClickDown}>저장</div>
@@ -42,15 +42,18 @@ function ProductBtnModifty({
               </a>
             )}
           </button>
-        </div>
+        </div> */}
 
         <div className="svgwrap_div" onClick={onClickModify}>
           {/* <SlOptionsVertical /> */}
-          <SvgIcon svgInfo={modify} viewBox="0 0 1040 1040" />
+          <div className="rotate-90">
+            <SvgIcon svgInfo={modify} viewBox="0 0 1040 1040" />
+          </div>
         </div>
 
         <div className={`modifypost ${modifyOpen ? 'open' : ''}`}>
           <div className="modifypost_mar">
+            <div className="modifypost_pad">이미지 다운로드</div>
             <div className="modifypost_pad">
               <Link href={`/product/${productId}/setting`}>수정하기</Link>
             </div>

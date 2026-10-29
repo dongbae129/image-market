@@ -16,33 +16,27 @@ type ProductDetailType = {
 };
 type ProductPageProps = {
   id: string;
-  initialData: ProductDetailType;
 };
 
 const formatCount = (value?: number) =>
   new Intl.NumberFormat('ko-KR').format(value ?? 0);
 
-export default function ProductPage({ id, initialData }: ProductPageProps) {
+export default function ProductPage({ id }: ProductPageProps) {
   const artworkRef = useRef<HTMLElement>(null);
   const detailsPanelRef = useRef<HTMLElement>(null);
   const trackedHitProductRef = useRef<string | undefined>(undefined);
   const [detailsHeight, setDetailsHeight] = useState<number>();
-  const { data: queryData } = useQuery<ProductDetailType>({
+  const { data } = useQuery<ProductDetailType>({
     queryKey: ['product', id],
     queryFn: () => getProduct(id) as unknown as ProductDetailType,
-    initialData,
-    staleTime: Infinity,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false
+    staleTime: 5 * 1000
   });
-  const data = queryData?.product ? queryData : initialData;
-  const product = data.product;
+  const product = data?.product;
 
   useEffect(() => {
     if (trackedHitProductRef.current === id) return;
     trackedHitProductRef.current = id;
-    void fetch(`/api/product/${id}`, { method: 'POST', keepalive: true }).catch(
+    fetch(`/api/product/${id}`, { method: 'POST', keepalive: true }).catch(
       () => undefined
     );
   }, [id]);

@@ -6,60 +6,107 @@ import ProductInfo from '@app/product/[id]/_component/ProductInfo';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
 import { UserHashtagHit } from '@app/product/[id]/page';
 import DeleteSkeleton from '@components/DeleteSkeleton';
-import LoadingAnimation from '@components/LoadingSkeleton';
 import { Product } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
-export type ProductDetailType = {
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+type ProductDetailType = {
   ok: boolean;
   product: Product & UserHashtagHit;
 };
-type ParamsType = {
-  //   data: ProductDetailType | undefined;
-
+type ProductPageProps = {
   id: string;
 };
-export default function ProductPage() {
-  const { id } = useParams<ParamsType>();
-  console.log(id, 'id22', typeof id);
-  const { data } = useQuery<any, any, ProductDetailType>({
-    queryKey: ['product', id],
-    queryFn: () => getProduct(id)
-  });
-  if (data?.product.status === 'PROCESSING') {
-    return <DeleteSkeleton />;
 
-    // return <LoadingAnimation />;
-  }
-  console.log(222);
+const formatCount = (value?: number) =>
+  new Intl.NumberFormat('ko-KR').format(value ?? 0);
+
+export default function ProductPage({ id }: ProductPageProps) {
+  const artworkRef = useRef<HTMLElement>(null);
+  const detailsPanelRef = useRef<HTMLElement>(null);
+  const trackedHitProductRef = useRef<string | undefined>(undefined);
+  const [detailsHeight, setDetailsHeight] = useState<number>();
+  const { data } = useQuery<ProductDetailType>({
+    queryKey: ['product', id],
+    queryFn: () => getProduct(id) as unknown as ProductDetailType,
+    staleTime: 5 * 1000
+  });
+  const product = data?.product;
+
+  useEffect(() => {
+    if (trackedHitProductRef.current === id) return;
+    trackedHitProductRef.current = id;
+    fetch(`/api/product/${id}`, { method: 'POST', keepalive: true }).catch(
+      () => undefined
+    );
+  }, [id]);
+
+  useLayoutEffect(() => {
+    const artwork = artworkRef.current;
+    const detailsPanel = detailsPanelRef.current;
+    if (!artwork || !detailsPanel) return;
+
+    const syncPanelHeight = () => {
+      if (window.innerWidth >= 681) {
+        setDetailsHeight(artwork.getBoundingClientRect().height);
+        detailsPanel.style.overflowY = 'auto';
+      } else {
+        setDetailsHeight(undefined);
+        detailsPanel.style.overflowY = 'visible';
+      }
+    };
+
+    syncPanelHeight();
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? undefined
+        : new ResizeObserver(syncPanelHeight);
+    observer?.observe(artwork);
+    window.addEventListener('resize', syncPanelHeight);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', syncPanelHeight);
+    };
+  }, [product?.id]);
+
+  if (product?.status === 'PROCESSING') return <DeleteSkeleton />;
+  if (!product)
+    return (
+      <main className="product-detail">
+        <p className="product-empty">상품 정보를 불러오지 못했습니다.</p>
+      </main>
+    );
+
   return (
-    <div className="productwrapin">
-      <ProductImage product={data?.product} />
-      <div className="userInfo">
-        {/* <ProductInfo key={id} productId={id?.toString()} />
-          <ProductChat key={id} data={data} />
-          <ProductChatForm key={id} data={data} /> */}
-        <ProductInfo productId={id?.toString()} />
-        <ProductChat data={data} />
-        <ProductChatForm data={data} />
-      </div>
-      <style jsx>{`
-        .productwrapin {
-          width: 100%;
-          min-height: 80vh;
-          max-width: 1050px;
-          display: flex;
-          justify-content: center;
-          border-radius: 2rem;
-          overflow: hidden;
-          box-shadow:
-            rgba(0, 0, 0, 0.16) 0px 3px 6px,
-            rgba(0, 0, 0, 0.23) 0px 3px 6px;
-          > div:last-child {
-            padding: 3rem;
-          }
-        }
-      `}</style>
-    </div>
+    <main className="product-detail">
+      <section className="product-detail-grid" aria-label="작품 상세">
+        <div className="product-main-column">
+          <ProductImage product={product} artworkRef={artworkRef} />
+        </div>
+        <aside
+          className="product-sidebar"
+          ref={detailsPanelRef}
+          style={detailsHeight ? { height: `${detailsHeight}px` } : undefined}
+        >
+          <ProductInfo productId={id} data={data} />
+          <div className="product-stats" aria-label="작품 반응 및 조회수">
+            <span>
+              <b aria-hidden="true">♡</b>
+              {formatCount(product.likesCount)} 좋아요
+            </span>
+            <span>
+              <b aria-hidden="true">◉</b>
+              {formatCount(product.productHit?.hit)} 조회
+            </span>
+            <span>
+              <b aria-hidden="true">▤</b>
+              {formatCount(product.commentsCount)} 댓글
+            </span>
+          </div>
+          <ProductChat data={data} totalCount={product.commentsCount} />
+          <ProductChatForm data={data} />
+        </aside>
+      </section>
+    </main>
   );
 }

@@ -4,6 +4,7 @@ import { timeForToday } from '@libs/client/timeForToday';
 import { Board, User } from '@prisma/client';
 import Image from 'next/image';
 import { getCategoryData } from '@app/board/_lib/utils';
+import sanitizeHtml from 'sanitize-html';
 
 interface BoardCardProps {
   post: Board & {
@@ -36,7 +37,11 @@ export default function BoardPostCard({ post }: BoardCardProps) {
             </div>
 
             <p className="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed">
-              {post.description}
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(post.description)
+                }}
+              ></div>
             </p>
           </Link>
         </div>
@@ -55,6 +60,40 @@ export default function BoardPostCard({ post }: BoardCardProps) {
         {post.images.length > 0 && (
           <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 border border-slate-100">
             <Image
+              // object-fill은 원본 비율을 깨뜨리고 찌그러뜨리므로 object-cover를 권장합니다.
+              className="object-cover object-top"
+              src={`474x/${post.images[0].image}`}
+              alt="Thumbnail"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
+              fill
+            />
+
+            {/* 2장 이상일 때 뱃지 노출 */}
+            {post.images.length > 1 && (
+              <div
+                className="absolute bottom-1.5 right-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[11px] font-medium leading-none select-none pointer-events-none"
+                aria-label={`총 ${post.images.length}장의 이미지`}
+              >
+                {/* 다중 이미지(겹침) 아이콘 */}
+                <svg
+                  className="w-2.5 h-2.5 fill-current"
+                  viewBox="0 0 16 16"
+                  aria-hidden="true"
+                >
+                  <path d="M2 3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3z" />
+                  <path
+                    d="M0 6a2 2 0 0 1 2-2v7.5A2.5 2.5 0 0 0 4.5 14H12a2 2 0 0 1-2 2H4.5A4.5 4.5 0 0 1 0 11.5V6z"
+                    opacity="0.6"
+                  />
+                </svg>
+                <span>{post.images.length}</span>
+              </div>
+            )}
+          </div>
+        )}
+        {/* {post.images.length > 0 && (
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 border border-slate-100">
+            <Image
               className="object-fill"
               src={`474x/${post.images[0].image}`}
               alt="Thumbnail"
@@ -62,7 +101,7 @@ export default function BoardPostCard({ post }: BoardCardProps) {
               fill
             />
           </div>
-        )}
+        )} */}
       </div>
 
       <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 text-xs">

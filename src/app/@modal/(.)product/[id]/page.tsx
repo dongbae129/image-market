@@ -202,7 +202,7 @@ export default function IntercetProductPage() {
   );
 }
 
-function Spinner() {
+export function Spinner() {
   return (
     <svg
       className="animate-spin h-6 w-6 text-gray-400"

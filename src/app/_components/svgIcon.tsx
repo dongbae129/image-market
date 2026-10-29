@@ -40,8 +40,6 @@ const SvgIcon = ({ svgInfo, ...rest }: SvgIconProps) => {
       </svg>
       <style jsx>{`
         svg {
-          width: 100%;
-          height: 100%;
           cursor: pointer;
         }
       `}</style>

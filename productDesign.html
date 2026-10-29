@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f7f8fa" />
+    <title>노을의 기억 · Pinz</title>
+    <style>
+      :root {
+        --ink: #111a31;
+        --muted: #71809a;
+        --line: #e4e9f1;
+        --paper: #fff;
+        --canvas: #f7f8fa;
+        --navy: #11192f;
+        --pink: #ee5d8c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font:
+          15px/1.55 Inter,
+          'Apple SD Gothic Neo',
+          'Malgun Gothic',
+          system-ui,
+          sans-serif;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+
+      nav {
+        display: flex;
+        gap: 22px;
+        font-weight: 750;
+        font-size: 14px;
+      }
+      nav a {
+        color: #8b97aa;
+        text-decoration: none;
+        padding: 8px 0;
+      }
+      nav a:first-child {
+        color: var(--ink);
+        border-bottom: 2px solid var(--navy);
+      }
+      .search {
+        height: 44px;
+        max-width: 510px;
+        flex: 1;
+        margin: auto;
+        border-radius: 24px;
+        background: #f3f6fa;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 15px;
+        color: #91a0b7;
+      }
+      .search input {
+        border: 0;
+        outline: 0;
+        background: none;
+        min-width: 0;
+        flex: 1;
+      }
+      .search kbd {
+        font-size: 11px;
+        border: 1px solid #dfe5ee;
+        background: white;
+        border-radius: 6px;
+        padding: 2px 6px;
+      }
+      .tools {
+        display: flex;
+        align-items: center;
+        gap: 17px;
+        white-space: nowrap;
+      }
+      .pay {
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .pay b {
+        color: #6669ff;
+        font-size: 19px;
+        margin-right: 5px;
+      }
+      .upload {
+        border: 0;
+        border-radius: 22px;
+        background: var(--navy);
+        color: #fff;
+        padding: 10px 16px;
+        font-weight: 750;
+      }
+      .bell {
+        position: relative;
+        border: 0;
+        background: none;
+        color: #516079;
+        font-size: 20px;
+      }
+      .bell:after {
+        content: '';
+        position: absolute;
+        right: 1px;
+        top: 3px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ff496d;
+        border: 2px solid white;
+      }
+      .avatar {
+        width: 37px;
+        height: 37px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #ffd3c0, #bb7d85);
+        border: 2px solid white;
+        box-shadow: 0 0 0 1px var(--line);
+        font-size: 21px;
+      }
+      main {
+        width: min(1200px, calc(100% - 48px));
+        margin: 25px auto 70px;
+      }
+      .crumb {
+        display: flex;
+        gap: 9px;
+        color: #97a2b2;
+        font-size: 13px;
+        margin-bottom: 17px;
+      }
+      .crumb a {
+        color: #77869b;
+        text-decoration: none;
+      }
+      .crumb strong {
+        color: #34415a;
+        font-weight: 650;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.82fr);
+        gap: 22px;
+        align-items: start;
+      }
+      .panel {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        overflow: hidden;
+      }
+      .visual {
+        padding: 13px;
+      }
+      .visual-head {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 5px 9px;
+        color: #77859a;
+        font-size: 12px;
+      }
+      .art {
+        position: relative;
+        aspect-ratio: 1.12;
+        overflow: hidden;
+        border-radius: 15px;
+        background: #e6b4a0;
+      }
+      .art svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .badge {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        background: #fff;
+        color: #516079;
+        border-radius: 22px;
+        padding: 7px 11px;
+        font-size: 11px;
+        box-shadow: 0 5px 16px #17243a22;
+      }
+      .badge i {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #60c6a0;
+        margin-right: 7px;
+      }
+      .caption {
+        display: flex;
+        justify-content: space-between;
+        padding: 11px 5px 0;
+        color: #75839a;
+        font-size: 12px;
+      }
+      .details {
+        height: 100%;
+        min-height: 0;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: #cad3e0 transparent;
+      }
+      .creator {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #edf0f4;
+      }
+      .creator-face {
+        width: 47px;
+        height: 47px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #fbd5c5, #bb8284);
+        display: grid;
+        place-items: center;
+        font-size: 24px;
+      }
+      .person {
+        flex: 1;
+      }
+      .person b {
+        display: block;
+        font-size: 14px;
+      }
+      .person span {
+        font-size: 12px;
+        color: #8c98aa;
+      }
+      .follow {
+        border: 1px solid #dce3ec;
+        background: #fff;
+        color: #28364e;
+        border-radius: 19px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .title {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-top: 19px;
+      }
+      h1 {
+        font-size: 26px;
+        line-height: 1.25;
+        letter-spacing: -0.6px;
+        margin: 0;
+      }
+      .icon {
+        border: 0;
+        border-radius: 11px;
+        width: 37px;
+        height: 37px;
+        background: #f3f6fa;
+        color: #63728a;
+        font-size: 18px;
+      }
+      .desc {
+        color: #5f6e85;
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 12px 0 3px;
+      }
+      .desc.is-clamped {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+      }
+      .desc-toggle {
+        display: inline-block;
+        border: 0;
+        background: transparent;
+        color: #566fc0;
+        padding: 0;
+        margin: 0 0 16px;
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .desc-toggle[hidden] {
+        display: none;
+      }
+      .tags {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .tag {
+        font-size: 11px;
+        font-weight: 650;
+        color: #65758d;
+        background: #f3f6fa;
+        border-radius: 16px;
+        padding: 6px 10px;
+      }
+      .stats {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 24px;
+        padding: 15px 1px;
+        border-top: 1px solid #edf0f4;
+        border-bottom: 1px solid #edf0f4;
+      }
+      .metric {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #8491a6;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+      }
+      .metric svg {
+        width: 18px;
+        height: 18px;
+        display: block;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .like-metric {
+        border: 0;
+        background: transparent;
+        padding: 2px 0;
+        color: #8491a6;
+        cursor: pointer;
+      }
+      .like-metric:hover {
+        color: #e84f81;
+      }
+      .like-metric.is-liked {
+        color: #e84f81;
+      }
+      .like-metric.is-liked svg {
+        fill: #e84f81;
+      }
+      .like-metric:focus-visible {
+        outline: 3px solid #a6c4ff;
+        outline-offset: 4px;
+        border-radius: 4px;
+      }
+      .heading {
+        font-size: 15px;
+        font-weight: 800;
+        margin: 18px 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 7px;
+      }
+      .comments-toggle {
+        width: 24px;
+        height: 24px;
+        display: inline-grid;
+        place-items: center;
+        border: 0;
+        border-radius: 7px;
+        padding: 0;
+        background: transparent;
+        color: #697a96;
+      }
+      .comments-toggle:hover {
+        background: #f1f4f8;
+        color: #3e557d;
+      }
+      .comments-toggle svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .comments-toggle .arrow-up {
+        display: none;
+      }
+      .comments-toggle[aria-expanded='true'] .arrow-down {
+        display: none;
+      }
+      .comments-toggle[aria-expanded='true'] .arrow-up {
+        display: block;
+      }
+      .heading .comment-sort {
+        margin-left: auto;
+        font-size: 11px;
+        color: #99a4b4;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      .comments {
+        display: grid;
+        gap: 13px;
+        margin-bottom: 1rem;
+      }
+      .comment {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .comment[hidden] {
+        display: none;
+      }
+      .face {
+        flex: none;
+        width: 31px;
+        height: 31px;
+        border-radius: 50%;
+        background: #e1eee9;
+        display: grid;
+        place-items: center;
+      }
+      .comment-body {
+        flex: 1;
+        font-size: 12px;
+      }
+      .comment-body b {
+        color: #34425a;
+      }
+      .comment-body small {
+        color: #9aa5b5;
+        margin-left: 6px;
+      }
+      .comment-body p {
+        margin: 3px 0 0;
+        color: #6b7890;
+        line-height: 1.6;
+      }
+      .details > * {
+        flex-shrink: 0;
+      }
+      .comment-form {
+        margin-top: auto;
+        flex-shrink: 0;
+        display: flex;
+        gap: 8px;
+        padding: 8px;
+        border: 1px solid #e5eaf1;
+        border-radius: 13px;
+        background: #fafbfd;
+      }
+      .comment-form input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        padding: 5px;
+        font-size: 12px;
+      }
+      .comment-form input:focus {
+        outline: 2px solid #dbe6ff;
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+      .comment-form button {
+        border: 0;
+        border-radius: 9px;
+        background: var(--navy);
+        color: white;
+        padding: 8px 12px;
+        font-size: 11px;
+        font-weight: 750;
+      }
+      .intro {
+        margin-top: 22px;
+      }
+      .intro h2,
+      .similar h2 {
+        font-size: 16px;
+        margin: 0 0 10px;
+      }
+      .intro p {
+        margin: 0;
+        padding: 15px 18px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        color: #68778e;
+        font-size: 13px;
+        line-height: 1.85;
+      }
+      .similar {
+        margin-top: 26px;
+      }
+      .similar-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .similar-head a {
+        font-size: 12px;
+        color: #77869d;
+        text-decoration: none;
+      }
+      .recommend {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 13px;
+      }
+      .rec {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        overflow: hidden;
+      }
+      .thumb {
+        height: 132px;
+      }
+      .thumb svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .rec p {
+        margin: 8px 10px 0;
+        font-size: 12px;
+        font-weight: 750;
+        color: #29364b;
+      }
+      .rec small {
+        display: block;
+        margin: 1px 10px 10px;
+        color: #98a2b2;
+        font-size: 10px;
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 25px;
+        transform: translate(-50%, 10px);
+        opacity: 0;
+        pointer-events: none;
+        background: #11192f;
+        color: #fff;
+        border-radius: 24px;
+        padding: 11px 16px;
+        font-size: 12px;
+        transition: 0.2s;
+        z-index: 9;
+        box-shadow: 0 10px 28px #18253b22;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      :focus-visible {
+        outline: 3px solid #a6c4ff;
+        outline-offset: 3px;
+      }
+      @media (max-width: 900px) {
+        .top {
+          gap: 20px;
+        }
+        .grid {
+          grid-template-columns: minmax(0, 1.1fr) minmax(310px, 0.9fr);
+        }
+        .details {
+          padding: 20px;
+        }
+        .thumb {
+          height: 110px;
+        }
+      }
+      @media (max-width: 680px) {
+        nav,
+        .pay,
+        .upload,
+        .search kbd {
+          display: none;
+        }
+        .search {
+          height: 39px;
+          padding: 0 12px;
+        }
+        .tools {
+          gap: 8px;
+        }
+        .avatar {
+          width: 32px;
+          height: 32px;
+        }
+        main {
+          width: calc(100% - 28px);
+          margin: 17px auto 45px;
+        }
+        .crumb {
+          margin-bottom: 12px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+        .visual {
+          padding: 9px;
+        }
+        .art {
+          aspect-ratio: 1.06;
+        }
+        .details {
+          height: auto !important;
+          max-height: none;
+          overflow: visible;
+          padding: 19px;
+        }
+        .comment-form {
+          margin-top: 15px;
+        }
+        h1 {
+          font-size: 23px;
+        }
+        .desc {
+          font-size: 13px;
+        }
+        .recommend {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+        .thumb {
+          height: 135px;
+        }
+        .intro {
+          margin-top: 19px;
+        }
+      }
+      @media (max-width: 390px) {
+        .search input {
+          font-size: 12px;
+        }
+        .art {
+          aspect-ratio: 0.98;
+        }
+        .thumb {
+          height: 115px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="grid" aria-label="작품 상세">
+        <div>
+          <article class="panel visual">
+            <div class="visual-head">
+              <span>PHOTO · 2025. 06. 18</span>
+            </div>
+            <div
+              class="art"
+              role="img"
+              aria-label="노을이 바다 위로 번지는 해변 풍경"
+            >
+              <svg
+                viewBox="0 0 900 805"
+                preserveAspectRatio="xMidYMid slice"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient id="sky" x2=".1" y2="1">
+                    <stop stop-color="#96c4cf" />
+                    <stop offset=".48" stop-color="#e3b1a7" />
+                    <stop offset=".76" stop-color="#ffba7c" />
+                    <stop offset="1" stop-color="#df8167" />
+                  </linearGradient>
+                  <linearGradient id="sea" x2=".6" y2="1">
+                    <stop stop-color="#78c3c1" />
+                    <stop offset=".5" stop-color="#388b9b" />
+                    <stop offset="1" stop-color="#285d70" />
+                  </linearGradient>
+                  <linearGradient id="beach" x2=".9" y2="1">
+                    <stop stop-color="#e1b393" />
+                    <stop offset="1" stop-color="#986c60" />
+                  </linearGradient>
+                  <radialGradient id="glow">
+                    <stop stop-color="#fff4d1" stop-opacity=".9" />
+                    <stop offset="1" stop-color="#ffe2ad" stop-opacity="0" />
+                  </radialGradient>
+                  <filter id="soft">
+                    <feGaussianBlur stdDeviation="18" />
+                  </filter>
+                </defs>
+                <rect width="900" height="805" fill="url(#sky)" />
+                <circle cx="605" cy="292" r="162" fill="url(#glow)" />
+                <circle cx="605" cy="292" r="48" fill="#fff1ce" />
+                <g fill="#fff4e7" opacity=".48" filter="url(#soft)">
+                  <ellipse cx="175" cy="117" rx="135" ry="22" />
+                  <ellipse cx="763" cy="152" rx="143" ry="21" />
+                </g>
+                <rect y="390" width="900" height="415" fill="url(#sea)" />
+                <path
+                  d="M0 431q155-17 308 1t294-3 298 2M0 485q170-16 344 4t292-4 264 1M0 545q190-18 360 4t297-2 243 1"
+                  fill="none"
+                  stroke="#f6e5cc"
+                  stroke-width="4"
+                  opacity=".43"
+                />
+                <path
+                  d="M0 483q151-16 272 1t216 7 215 0 197-4v318H0Z"
+                  fill="url(#beach)"
+                />
+                <path
+                  d="M0 484q151-16 272 1t216 7 215 0 197-4"
+                  fill="none"
+                  stroke="#fff4dc"
+                  stroke-width="12"
+                  opacity=".84"
+                />
+                <path
+                  d="M0 491q156-15 278 4t221 6 209-2 192-2"
+                  fill="none"
+                  stroke="#fff"
+                  stroke-width="3"
+                  opacity=".7"
+                />
+                <g
+                  fill="none"
+                  stroke="#fff0d9"
+                  stroke-linecap="round"
+                  opacity=".34"
+                >
+                  <path d="M54 590h78" />
+                  <path d="M206 634h55" />
+                  <path d="M625 581h97" />
+                  <path d="M728 701h72" />
+                  <path d="M116 743h48" />
+                  <path d="M418 708h91" />
+                </g>
+                <g fill="#fff0d2" opacity=".35">
+                  <circle cx="158" cy="681" r="3" />
+                  <circle cx="349" cy="658" r="2" />
+                  <circle cx="792" cy="582" r="3" />
+                </g></svg
+              ><span class="badge"><i></i>핀즈 큐레이션 · 오늘의 발견</span>
+            </div>
+            <div class="caption">
+              <span>📍 제주, 협재 해변</span><span>⤢　크게 보기</span>
+            </div>
+          </article>
+        </div>
+        <aside class="panel details">
+          <div class="creator">
+            <span class="creator-face">🐷</span>
+            <div class="person">
+              <b>배수민님</b><span>@bae0258 · 사진가</span>
+            </div>
+            <button class="follow" id="follow">+ 팔로우</button>
+          </div>
+          <div class="title"><h1>노을의 기억</h1></div>
+          <div class="description-wrap">
+            <p class="desc is-clamped" id="description">
+              오늘의 마지막 빛을 담았어요. 파도 소리와 함께 잠시 쉬어가세요.
+              해가 수평선에 닿기 전, 바다 위로 번지는 분홍빛을 오래 기억하고
+              싶어 담았습니다. 협재 해변을 걷다 만난 고요한 순간과 부드러운
+              바람의 온도를 사진 안에 남겼어요. 이 장면이 여러분에게도 잠깐의
+              쉼이 되기를 바랍니다.
+            </p>
+            <button
+              class="desc-toggle"
+              id="descriptionToggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="description"
+            >
+              더보기
+            </button>
+          </div>
+          <div class="tags">
+            <span class="tag">#노을</span><span class="tag">#바다</span
+            ><span class="tag">#제주여행</span
+            ><span class="tag">#감성사진</span>
+          </div>
+          <div class="stats" aria-label="작품 반응 및 조회수">
+            <button
+              class="metric like-metric"
+              id="like"
+              type="button"
+              aria-label="좋아요 412개"
+              aria-pressed="false"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M20.8 8.8c0 4.2-8.8 10.1-8.8 10.1S3.2 13 3.2 8.8a4.5 4.5 0 0 1 8.8-1.1 4.5 4.5 0 0 1 8.8 1.1Z"
+                /></svg
+              ><span id="likes">412</span></button
+            ><span class="metric" aria-label="조회수 2481"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"
+                />
+                <circle cx="12" cy="12" r="2.5" /></svg
+              ><span>2,481</span></span
+            ><span class="metric" aria-label="댓글 12개"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M20.5 11.5a8.2 8.2 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.5-4.1A7.6 7.6 0 0 1 3.5 12a8.2 8.2 0 0 1 8.5-8 8.2 8.2 0 0 1 8.5 7.5Z"
+                /></svg
+              ><span id="commentCount">12</span></span
+            >
+          </div>
+          <div class="heading">
+            <strong>작품 이야기</strong
+            ><button
+              class="comments-toggle"
+              id="commentsToggle"
+              type="button"
+              aria-label="댓글 더 보기 10개"
+              title="댓글 더 보기 10개"
+              aria-expanded="false"
+              aria-controls="comments"
+            >
+              <svg class="arrow-down" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" /></svg
+              ><svg class="arrow-up" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 15 6-6 6 6" />
+              </svg></button
+            ><span class="comment-sort">최신순⌄</span>
+          </div>
+          <div class="comments" id="comments">
+            <div class="comment">
+              <span class="face">🌱</span>
+              <div class="comment-body">
+                <b>초록한하루</b><small>2시간 전</small>
+                <p>빛이 정말 따뜻해요. 잠금화면으로 저장해도 될까요? 🌅</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">🧸</span>
+              <div class="comment-body">
+                <b>여행수집가</b><small>어제</small>
+                <p>협재의 저녁은 언제 봐도 좋네요!</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">🌊</span>
+              <div class="comment-body">
+                <b>파란여행</b><small>3시간 전</small>
+                <p>수평선에 번지는 색감이 너무 예뻐요.</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">📷</span>
+              <div class="comment-body">
+                <b>셔터산책</b><small>5시간 전</small>
+                <p>렌즈 정보도 적어주셔서 참고가 되네요!</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">🌅</span>
+              <div class="comment-body">
+                <b>오늘의빛</b><small>어제</small>
+                <p>이런 노을을 직접 보면 얼마나 좋을까요.</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">🐚</span>
+              <div class="comment-body">
+                <b>소소한기록</b><small>어제</small>
+                <p>사진에서 파도 소리가 들리는 것 같아요.</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">🧡</span>
+              <div class="comment-body">
+                <b>주황빛하루</b><small>2일 전</small>
+                <p>따뜻한 색감 덕분에 기분이 좋아졌어요.</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">🗺️</span>
+              <div class="comment-body">
+                <b>길위의메모</b><small>2일 전</small>
+                <p>다음 제주 여행 때 협재에 꼭 들러볼게요.</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">☁️</span>
+              <div class="comment-body">
+                <b>구름수집가</b><small>3일 전</small>
+                <p>구름과 바다 색이 자연스럽게 어울려요.</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">🌿</span>
+              <div class="comment-body">
+                <b>느린오후</b><small>3일 전</small>
+                <p>잠깐 쉬어가라는 소개 문구도 참 좋네요.</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">✨</span>
+              <div class="comment-body">
+                <b>별빛필름</b><small>4일 전</small>
+                <p>저장해 두고 힘들 때마다 보고 싶어요.</p>
+              </div>
+            </div>
+            <div class="comment">
+              <span class="face">🏝️</span>
+              <div class="comment-body">
+                <b>바다곁에서</b><small>4일 전</small>
+                <p>협재의 저녁 풍경을 멋지게 담으셨네요!</p>
+              </div>
+            </div>
+          </div>
+          <form class="comment-form" id="commentForm">
+            <input
+              id="commentInput"
+              aria-label="댓글 입력"
+              placeholder="따뜻한 댓글을 남겨보세요"
+            /><button>등록</button>
+          </form>
+        </aside>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+      (function () {
+        var liked = false,
+          count = 412,
+          toastBox = document.getElementById('toast'),
+          timer;
+        function toast(text) {
+          toastBox.textContent = text;
+          toastBox.classList.add('show');
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            toastBox.classList.remove('show');
+          }, 1800);
+        }
+        var visualPanel = document.querySelector('.visual');
+        var detailSidebar = document.querySelector('.details');
+        function syncSidebarHeight() {
+          if (window.matchMedia('(min-width: 681px)').matches) {
+            detailSidebar.style.height =
+              visualPanel.getBoundingClientRect().height + 'px';
+            detailSidebar.style.overflowY = 'auto';
+          } else {
+            detailSidebar.style.height = 'auto';
+            detailSidebar.style.overflowY = 'visible';
+          }
+        }
+        syncSidebarHeight();
+        var sidebarObserver;
+        if ('ResizeObserver' in window) {
+          sidebarObserver = new ResizeObserver(syncSidebarHeight);
+          sidebarObserver.observe(visualPanel);
+        }
+        window.addEventListener('resize', syncSidebarHeight);
+
+        var description = document.getElementById('description');
+        var descriptionToggle = document.getElementById('descriptionToggle');
+        descriptionToggle.hidden = description.textContent.trim().length <= 90;
+        descriptionToggle.addEventListener('click', function () {
+          var expanded =
+            descriptionToggle.getAttribute('aria-expanded') === 'true';
+          descriptionToggle.setAttribute('aria-expanded', String(!expanded));
+          description.classList.toggle('is-clamped', expanded);
+          descriptionToggle.textContent = expanded ? '더보기' : '접기';
+        });
+
+        var commentsExpanded = false;
+        var commentsContainer = document.getElementById('comments');
+        var commentsToggle = document.getElementById('commentsToggle');
+        function updateCommentsView() {
+          var commentItems = commentsContainer.querySelectorAll('.comment');
+          var hiddenCount = Math.max(0, commentItems.length - 2);
+          commentItems.forEach(function (item, index) {
+            item.hidden = !commentsExpanded && index >= 2;
+          });
+          commentsToggle.hidden = hiddenCount === 0;
+          commentsToggle.setAttribute(
+            'aria-expanded',
+            String(commentsExpanded)
+          );
+          var toggleLabel = commentsExpanded
+            ? '댓글 접기'
+            : '댓글 더 보기 ' + hiddenCount + '개';
+          commentsToggle.setAttribute('aria-label', toggleLabel);
+          commentsToggle.title = toggleLabel;
+          document
+            .querySelector('.metric[aria-label^="댓글"]')
+            .setAttribute('aria-label', '댓글 ' + commentItems.length + '개');
+        }
+        commentsToggle.addEventListener('click', function () {
+          commentsExpanded = !commentsExpanded;
+          updateCommentsView();
+        });
+        updateCommentsView();
+
+        var like = document.getElementById('like');
+        like.addEventListener('click', function () {
+          liked = !liked;
+          count += liked ? 1 : -1;
+          like.classList.toggle('is-liked', liked);
+          like.setAttribute('aria-pressed', String(liked));
+          like.setAttribute('aria-label', '좋아요 ' + count + '개');
+          document.getElementById('likes').textContent = count;
+          toast(liked ? '좋아요를 눌렀어요' : '좋아요를 취소했어요');
+        });
+        document
+          .getElementById('follow')
+          .addEventListener('click', function (e) {
+            var on = e.currentTarget.dataset.on === 'true';
+            e.currentTarget.dataset.on = String(!on);
+            e.currentTarget.textContent = on ? '+ 팔로우' : '✓ 팔로잉';
+            toast(on ? '팔로우를 취소했어요' : '배수민님을 팔로우했어요');
+          });
+        document
+          .getElementById('commentForm')
+          .addEventListener('submit', function (e) {
+            e.preventDefault();
+            var input = document.getElementById('commentInput'),
+              text = input.value.trim();
+            if (!text) {
+              input.focus();
+              toast('댓글 내용을 입력해 주세요');
+              return;
+            }
+            var row = document.createElement('div');
+            row.className = 'comment';
+            var face = document.createElement('span');
+            face.className = 'face';
+            face.textContent = '🙂';
+            var body = document.createElement('div');
+            body.className = 'comment-body';
+            var name = document.createElement('b');
+            name.textContent = '나';
+            var time = document.createElement('small');
+            time.textContent = '방금 전';
+            var copy = document.createElement('p');
+            copy.textContent = text;
+            body.append(name, time, copy);
+            row.append(face, body);
+            document.getElementById('comments').prepend(row);
+            input.value = '';
+            var total = document.getElementById('commentCount');
+            total.textContent = String(Number(total.textContent) + 1);
+            updateCommentsView();
+            toast('댓글을 남겼어요');
+          });
+      })();
+    </script>
+  </body>
+</html>

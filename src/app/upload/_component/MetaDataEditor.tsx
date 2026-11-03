@@ -3,10 +3,11 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Globe, X, Rocket, Loader2 } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { UploadImageItem } from '@/app/upload/page';
 import { privateApi } from '@libs/client/axiosIntercepotr';
+import type { ProductDetailType } from '@app/product/[id]/page';
 
 const BOARD_CATEGORIES = [
   '작품 피드백',
@@ -21,20 +22,35 @@ interface MetadataEditorProps {
   images: UploadImageItem[];
   uploadType: UploadType;
   setUploadType: (type: UploadType) => void;
+  mode: 'create' | 'edit';
+  productId?: string;
+  initialProduct?: ProductDetailType['product'];
 }
 
 export default function MetadataEditor({
   images,
   uploadType,
-  setUploadType
+  setUploadType,
+  mode,
+  productId,
+  initialProduct
 }: MetadataEditorProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState(initialProduct?.title ?? '');
+  const [description, setDescription] = useState(
+    initialProduct?.description ?? ''
+  );
   const [category, setCategory] = useState(BOARD_CATEGORIES[0]);
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(
+    initialProduct?.hashtag?.hashtag
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean) ?? []
+  );
+  const [productAuth, setProductAuth] = useState(initialProduct?.auth ?? false);
   const [tagInput, setTagInput] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -61,6 +77,47 @@ export default function MetadataEditor({
   // ⭐ FormData 전송 방식으로 변경
   const uploadMutation = useMutation({
     mutationFn: async () => {
+      if (mode === 'edit') {
+        if (!productId) throw new Error('Product ID is required for editing');
+
+        let tempKey: string | undefined;
+        if (images.length > 0) {
+          const file = images[0].file;
+          const extension = file.name.split('.').pop()?.toLowerCase();
+          if (!extension) throw new Error('Image extension is required');
+
+          const { data } = await privateApi.post<{
+            tickets: { url: string; fields: Record<string, string>; tempUrl: string }[];
+          }>('/api/product/init', {
+            fileInfos: [{ name: file.name, ext: extension }]
+          });
+          const ticket = data.tickets[0];
+          if (!ticket) throw new Error('Upload ticket was not issued');
+
+          const s3Form = new FormData();
+          Object.entries(ticket.fields).forEach(([key, value]) => {
+            s3Form.append(key, value);
+          });
+          if (!ticket.fields['Content-Type']) {
+            const contentType =
+              file.type ||
+              (extension === 'jpg' ? 'image/jpeg' : `image/${extension}`);
+            s3Form.append('Content-Type', contentType);
+          }
+          s3Form.append('file', file);
+          await axios.post(ticket.url, s3Form);
+          tempKey = `temp/${ticket.tempUrl}`;
+        }
+
+        return privateApi.put(`/api/product/${productId}/setting`, {
+          title,
+          description,
+          hashtag: tags.join(','),
+          productAuth,
+          ...(tempKey ? { tempKey } : {})
+        });
+      }
+
       const endpoint = `/api/${uploadType}`;
 
       // JSON 객체 대신 멀티파트 폼데이터 생성
@@ -88,14 +145,14 @@ export default function MetadataEditor({
         };
       });
 
-      const { data }: { data: { ok: boolean; tickets: any[] } } =
-        await privateApi.post(`api/product/init`, { fileInfos });
-
       type TicketType = {
         url: string;
-        fields: string;
+        fields: Record<string, string>;
         tempUrl: string;
       };
+      const { data }: { data: { ok: boolean; tickets: TicketType[] } } =
+        await privateApi.post(`api/product/init`, { fileInfos });
+
       const urls = data.tickets.map((v: TicketType) => ({
         url: v.tempUrl
       }));
@@ -153,8 +210,14 @@ export default function MetadataEditor({
 
       // return response.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       setUploadProgress(100);
+      if (mode === 'edit' && productId) {
+        await queryClient.invalidateQueries({
+          queryKey: ['product', productId]
+        });
+        router.push(`/product/${productId}`);
+      }
       // setTimeout(() => {
       //   alert(`${uploadType === 'product' ? '작품이' : '게시글이'} 성공적으로 게시되었습니다!`);
       //   router.push(uploadType === 'product' ? '/' : '/board');
@@ -168,7 +231,7 @@ export default function MetadataEditor({
   });
 
   const handleSubmit = () => {
-    if (uploadType === 'product' && images.length === 0) {
+    if (mode === 'create' && uploadType === 'product' && images.length === 0) {
       alert('최소 1장의 이미지가 필요합니다.');
       return;
     }
@@ -186,23 +249,43 @@ export default function MetadataEditor({
     <div className="lg:col-span-7 bg-white rounded-[2rem] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col h-[580px]">
       {/* 상단 탭 스위치 */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-        <div className="bg-slate-100/80 p-1.5 rounded-xl inline-flex items-center">
+        {mode === 'create' ? (
+          <div className="bg-slate-100/80 p-1.5 rounded-xl inline-flex items-center">
+            <button
+              type="button"
+              onClick={() => handleTabSwitch('product')}
+              className={`px-4 py-1.5 rounded-lg text-xs transition-all ${uploadType === 'product' ? 'font-extrabold bg-white text-slate-900 shadow-sm' : 'font-bold text-slate-500 hover:text-slate-900'}`}
+            >
+              작품 갤러리
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTabSwitch('board')}
+              className={`px-4 py-1.5 rounded-lg text-xs transition-all ${uploadType === 'board' ? 'font-extrabold bg-white text-slate-900 shadow-sm' : 'font-bold text-slate-500 hover:text-slate-900'}`}
+            >
+              게시판
+            </button>
+          </div>
+        ) : (
+          <span className="text-xs font-bold text-slate-500">상품 정보 수정</span>
+        )}
+        {mode === 'edit' ? (
+          <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+            <input
+              type="checkbox"
+              checked={productAuth}
+              onChange={(event) => setProductAuth(event.target.checked)}
+            />
+            유료 상품
+          </label>
+        ) : (
           <button
-            onClick={() => handleTabSwitch('product')}
-            className={`px-4 py-1.5 rounded-lg text-xs transition-all ${uploadType === 'product' ? 'font-extrabold bg-white text-slate-900 shadow-sm' : 'font-bold text-slate-500 hover:text-slate-900'}`}
+            type="button"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
           >
-            작품 갤러리
+            <Globe className="w-3.5 h-3.5" /> 전체 공개
           </button>
-          <button
-            onClick={() => handleTabSwitch('board')}
-            className={`px-4 py-1.5 rounded-lg text-xs transition-all ${uploadType === 'board' ? 'font-extrabold bg-white text-slate-900 shadow-sm' : 'font-bold text-slate-500 hover:text-slate-900'}`}
-          >
-            게시판
-          </button>
-        </div>
-        <button className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors">
-          <Globe className="w-3.5 h-3.5" /> 전체 공개
-        </button>
+        )}
       </div>
 
       <div className="flex-1 flex flex-col space-y-4 overflow-y-auto no-scrollbar pb-2">
@@ -278,7 +361,15 @@ export default function MetadataEditor({
       </div>
 
       <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-        <button className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors">
+        <button
+          type="button"
+          onClick={() =>
+            mode === 'edit' && productId
+              ? router.push(`/product/${productId}`)
+              : router.back()
+          }
+          className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+        >
           취소
         </button>
         <div className="flex gap-2">
@@ -303,12 +394,12 @@ export default function MetadataEditor({
             <span className="relative z-10 flex items-center gap-1.5">
               {uploadMutation.isPending ? (
                 <>
-                  업로드 중... {uploadProgress}%{' '}
+                {mode === 'edit' ? '저장 중...' : '업로드 중...'} {uploadProgress}%{' '}
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 </>
               ) : (
                 <>
-                  작성하기
+                  {mode === 'edit' ? '변경사항 저장' : '작성하기'}
                   <Rocket className="w-3.5 h-3.5" />
                 </>
               )}

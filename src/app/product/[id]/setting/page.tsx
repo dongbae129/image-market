@@ -1,11 +1,9 @@
 'use client';
-import type { NextPage } from 'next';
-import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getFetch } from '@libs/client/fetcher';
-import UploadImage from '@app/_components/uploadImage';
+import ProductEditor from '@app/upload/_component/ProductEditor';
 import { ProductDetailType } from '@app/product/[id]/page';
+import { getProduct } from '@app/product/[id]/_lib/getProduct';
 
 type SettingProps = {
   params: {
@@ -13,48 +11,37 @@ type SettingProps = {
   };
 };
 const ProductSetting = ({ params }: SettingProps) => {
-  const router = useRouter();
   const productId = params.id;
+  const queryClient = useQueryClient();
+  const queryKey = ['product', productId] as const;
 
-  const { data } = useQuery<ProductDetailType>({
-    queryKey: ['getProduct'],
-    queryFn: () => getFetch(`/api/product/${productId}`),
-
+  const { data, isLoading, isError } = useQuery<ProductDetailType>({
+    queryKey,
+    queryFn: () =>
+      getProduct(productId) as unknown as Promise<ProductDetailType>,
+    initialData: () =>
+      queryClient.getQueryData<ProductDetailType>(queryKey),
+    initialDataUpdatedAt: () =>
+      queryClient.getQueryState(queryKey)?.dataUpdatedAt,
+    staleTime: 5_000,
     enabled: !!productId
   });
-  console.log(data, 'pro');
+
+  if (isLoading) {
+    return <div className="p-8 text-center">상품 정보를 불러오는 중입니다.</div>;
+  }
+
+  if (isError || !data?.ok || !data.product) {
+    return <div className="p-8 text-center">상품 정보를 불러오지 못했습니다.</div>;
+  }
+
   return (
-    <div className="uploadwrap">
-      <div>
-        <UploadImage
-          url={`product/${productId}/setting`}
-          // component={['title', 'description', 'productAuth']}
-          component={['productAuth', 'title', 'description']}
-          elementType={['input', 'input', 'textarea']}
-          buttontext={['수정']}
-          buttonColor={[]}
-          hashtrue={true}
-          labelTrue={true}
-          image="true"
-          elementValue={{
-            title: data?.product.title,
-            description: data?.product.description,
-            hashtag: data?.product.hashtag.hashtag,
-            imgsrc: data?.product.image
-          }}
-        />
-      </div>
-      <style jsx>{`
-        .uploadwrap {
-          margin-top: 2rem;
-          display: flex;
-          justify-content: center;
-          > div {
-            width: 400px;
-          }
-        }
-      `}</style>
-    </div>
+    <ProductEditor
+      key={productId}
+      mode="edit"
+      productId={productId}
+      initialProduct={data.product}
+    />
   );
 };
 

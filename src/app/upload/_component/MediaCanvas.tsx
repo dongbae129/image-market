@@ -250,9 +250,16 @@ const MAX_IMAGES = 3;
 interface MediaCanvasProps {
   images: UploadImageItem[];
   setImages: React.Dispatch<React.SetStateAction<UploadImageItem[]>>;
+  initialImageUrl?: string;
+  maxImages?: number;
 }
 
-export default function MediaCanvas({ images, setImages }: MediaCanvasProps) {
+export default function MediaCanvas({
+  images,
+  setImages,
+  initialImageUrl,
+  maxImages = MAX_IMAGES
+}: MediaCanvasProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -260,17 +267,18 @@ export default function MediaCanvas({ images, setImages }: MediaCanvasProps) {
   console.log(images, 'mediaCanvas Image');
   const fileAddRef = useRef<HTMLInputElement>(null);
   const fileReplaceRef = useRef<HTMLInputElement>(null);
+  const activePreview = images[currentIndex]?.preview ?? initialImageUrl;
 
   // 1. 이미지 추가 (URL.createObjectURL 사용)
   const handleAddFiles = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    const availableSlots = MAX_IMAGES - images.length;
+    const availableSlots = maxImages - images.length;
     const allowedFiles = files.slice(0, availableSlots);
 
     if (files.length > availableSlots) {
-      alert(`최대 ${MAX_IMAGES}장까지만 업로드할 수 있습니다.`);
+      alert(`최대 ${maxImages}장까지만 업로드할 수 있습니다.`);
     }
 
     // ⭐ 실제 파일 객체 보존 + 가벼운 미리보기 URL 생성
@@ -291,14 +299,17 @@ export default function MediaCanvas({ images, setImages }: MediaCanvasProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 이전 메모리 누수 방지
-    URL.revokeObjectURL(images[currentIndex].preview);
+    const currentImage = images[currentIndex];
+    if (currentImage) URL.revokeObjectURL(currentImage.preview);
     const newImages = [...images];
-    newImages[currentIndex] = {
+    const replacement = {
       file,
       preview: URL.createObjectURL(file)
     };
+    if (currentImage) newImages[currentIndex] = replacement;
+    else newImages.splice(currentIndex, 0, replacement);
     setImages(newImages);
+    setCurrentIndex(currentIndex);
     e.target.value = '';
   };
 
@@ -367,7 +378,7 @@ export default function MediaCanvas({ images, setImages }: MediaCanvasProps) {
         onChange={handleReplaceFile}
       />
 
-      {images.length === 0 ? (
+      {images.length === 0 && !initialImageUrl ? (
         <div
           onClick={() => fileAddRef.current?.click()}
           className="relative flex-1 group cursor-pointer overflow-hidden rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-indigo-50/30 hover:border-indigo-400 transition-all duration-300 flex flex-col items-center justify-center text-center"
@@ -388,15 +399,28 @@ export default function MediaCanvas({ images, setImages }: MediaCanvasProps) {
           className="relative flex-1 group cursor-pointer overflow-hidden rounded-[1.5rem] border border-slate-100 bg-slate-950 transition-all duration-300 flex flex-col items-center justify-center text-center shadow-inner"
         >
           {currentIndex === 0 && (
-            <span className="absolute top-4 left-4 bg-indigo-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-md tracking-wider z-10 flex items-center gap-1">
+            <span className="absolute top-4 left-4 z-30 flex items-center gap-1 rounded-md bg-indigo-500 px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-white shadow-md">
               <Star className="w-3 h-3 fill-current" /> 대표 이미지
             </span>
           )}
-          {/* ⭐ preview 속성으로 이미지 렌더링 */}
+          {activePreview && (
+            <>
+              <img
+                src={activePreview}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-70"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-slate-950/35"
+              />
+            </>
+          )}
           <img
-            src={images[currentIndex].preview}
-            alt="Main Preview"
-            className="absolute inset-0 w-full h-full object-contain opacity-90 transition-transform duration-500"
+            src={activePreview!}
+            alt={images[currentIndex] ? 'New image preview' : 'Current product image'}
+            className="absolute inset-0 z-10 h-full w-full object-contain transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center backdrop-blur-sm z-20">
             <div className="px-4 py-2 bg-white text-slate-900 rounded-full text-xs font-extrabold shadow-lg flex items-center gap-2 hover:scale-105 transition-transform">
@@ -451,14 +475,27 @@ export default function MediaCanvas({ images, setImages }: MediaCanvasProps) {
           );
         })}
 
-        {images.length < MAX_IMAGES && (
+        {initialImageUrl && images.length === 0 && (
+          <div
+            className="relative w-16 h-16 rounded-xl border-2 border-indigo-500 overflow-hidden shrink-0"
+            aria-label="현재 이미지"
+          >
+            <img
+              src={initialImageUrl}
+              alt="현재 상품 이미지"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        {images.length < maxImages && (
           <button
             onClick={() => fileAddRef.current?.click()}
             className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-indigo-500 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all shrink-0"
           >
             <Plus className="w-4 h-4 mb-0.5" />
             <span className="text-[9px] font-bold">
-              {images.length}/{MAX_IMAGES}
+              {images.length}/{maxImages}
             </span>
           </button>
         )}

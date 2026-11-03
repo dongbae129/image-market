@@ -103,48 +103,12 @@
 // export default Upload;
 'use client';
 
-import { useState } from 'react';
-import MediaCanvas from '@app/upload/_component/MediaCanvas';
-import MetadataEditor from '@app/upload/_component/MetaDataEditor';
-import { useSearchParams } from 'next/navigation';
+import ProductEditor from '@app/upload/_component/ProductEditor';
+
 export type UploadImageItem = {
   file: File; // 백엔드/S3 전송용 실제 바이너리 파일
   preview: string; // 화면에 그리기 위한 로컬 미리보기 URL
 };
 export default function UploadPage() {
-  const [images, setImages] = useState<UploadImageItem[]>([]);
-  const searchParams = useSearchParams();
-  const initialType =
-    (searchParams.get('type') as 'product' | 'board') || 'product';
-  const [uploadType, setUploadTpye] = useState(initialType);
-  return (
-    // py-6 -> py-4 로 상하 여백 축소
-    // 화면 높이에 맞게 flex 컨테이너 최적화
-    <div className="min-h-[calc(100vh-76px)] bg-[#f4f5f7] flex items-center justify-center py-4 px-4 sm:px-6">
-      <main className="w-full max-w-[1200px]">
-        {/* mb-5 -> mb-4 로 간격 축소 */}
-        <div className="flex items-end justify-between mb-4 px-2">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              새 작업물 게시
-            </h1>
-            <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">
-              최대 3장의 이미지를 업로드하고 순서를 변경해 갤러리를
-              구성해보세요.
-            </p>
-          </div>
-        </div>
-
-        {/* 좌우 패널 갭 유지 */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
-          <MediaCanvas images={images} setImages={setImages} />
-          <MetadataEditor
-            images={images}
-            uploadType={uploadType}
-            setUploadType={setUploadTpye}
-          />
-        </div>
-      </main>
-    </div>
-  );
+  return <ProductEditor mode="create" />;
 }

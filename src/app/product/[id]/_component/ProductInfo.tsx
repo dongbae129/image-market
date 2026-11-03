@@ -25,8 +25,7 @@ type ProductInfoProps = {
 function ProductInfo({ productId, data: initialData }: ProductInfoProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [paidDown, setPaidDown] = useState(false);
-  const { register, watch } = useForm();
-  const watchAuth = watch('checkAuth');
+  const { register } = useForm();
   const { data: queryData } = useQuery<ProductDetailType>({
     queryKey: ['product', productId],
     queryFn: () =>
@@ -37,7 +36,6 @@ function ProductInfo({ productId, data: initialData }: ProductInfoProps) {
   const data = initialData?.product ? initialData : queryData;
   const product = data?.product;
   const onClickDelete = () => setModalOpen((prev) => !prev);
-  const onClickDown = () => setPaidDown((prev) => !prev);
   return (
     <>
       <ProductModal
@@ -52,11 +50,8 @@ function ProductInfo({ productId, data: initialData }: ProductInfoProps) {
           <div className="productInfo">
             <UserImage user={product.user} />
             <ProductBtnModifty
-              product={product}
               onClickDelete={onClickDelete}
               productId={productId}
-              onClickDown={onClickDown}
-              watchAuth={watchAuth}
             />
             <div className="product-auth-control">
               <Input

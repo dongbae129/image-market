@@ -36,13 +36,13 @@ export default function BoardPostCard({ post }: BoardCardProps) {
               {post.title}
             </div>
 
-            <p className="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed">
+            <div className="text-xs text-slate-500 line-clamp-2 font-medium leading-relaxed">
               <div
                 dangerouslySetInnerHTML={{
                   __html: sanitizeHtml(post.description)
                 }}
               ></div>
-            </p>
+            </div>
           </Link>
         </div>
 

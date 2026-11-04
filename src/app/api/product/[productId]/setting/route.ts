@@ -9,6 +9,7 @@ type UpdateProductBody = {
   hashtag?: unknown;
   productAuth?: unknown;
   tempKey?: unknown;
+  ratio?: unknown;
 };
 
 export async function PUT(
@@ -57,10 +58,7 @@ export async function PUT(
 
   let replacementImage: string | undefined;
   if (body.tempKey !== undefined) {
-    if (
-      typeof body.tempKey !== 'string' ||
-      !body.tempKey.startsWith('temp/')
-    ) {
+    if (typeof body.tempKey !== 'string' || !body.tempKey.startsWith('temp/')) {
       return NextResponse.json(
         { ok: false, message: '이미지 업로드 키가 올바르지 않습니다.' },
         { status: 400 }
@@ -68,9 +66,20 @@ export async function PUT(
     }
 
     replacementImage = body.tempKey.slice('temp/'.length);
-    if (!replacementImage || replacementImage.includes('/') || replacementImage.includes('\\')) {
+    if (
+      !replacementImage ||
+      replacementImage.includes('/') ||
+      replacementImage.includes('\\')
+    ) {
       return NextResponse.json(
         { ok: false, message: '이미지 업로드 키가 올바르지 않습니다.' },
+        { status: 400 }
+      );
+    }
+    const ratio = Number(body.ratio);
+    if (!Number.isFinite(ratio) || ratio <= 0) {
+      return NextResponse.json(
+        { ok: false, message: '이미지 비율이 올바르지 않습니다.' },
         { status: 400 }
       );
     }
@@ -84,6 +93,7 @@ export async function PUT(
         userId: true,
         status: true,
         image: true,
+        ratio: true,
         title: true,
         description: true,
         auth: true,
@@ -107,7 +117,10 @@ export async function PUT(
 
     if (existingProduct.status === 'PROCESSING') {
       return NextResponse.json(
-        { ok: false, message: '이미지 처리 중인 상품은 잠시 후 수정할 수 있습니다.' },
+        {
+          ok: false,
+          message: '이미지 처리 중인 상품은 잠시 후 수정할 수 있습니다.'
+        },
         { status: 409 }
       );
     }
@@ -120,7 +133,11 @@ export async function PUT(
           description: body.description as string,
           auth: body.productAuth as boolean,
           ...(replacementImage
-            ? { image: replacementImage, status: 'PROCESSING' }
+            ? {
+                image: replacementImage,
+                ratio: String(body.ratio),
+                status: 'PROCESSING'
+              }
             : {})
         }
       });
@@ -136,14 +153,24 @@ export async function PUT(
 
     if (body.tempKey && replacementImage) {
       const sqs = new SQSClient({ region: process.env.AWS_REGION });
+      const s3Payloads = {
+        feenId: productId,
+        tempKeys: [
+          {
+            // Lambda 공통 이미지 처리 함수가 boardImageId.id를 읽으므로
+            // 상품 이미지에도 현재 상품 ID를 전달한다.
+            boardImageId: { id: productId },
+            tempUrl: body.tempKey
+          }
+        ],
+        tableType: 'PRODUCT'
+      };
+
       try {
         await sqs.send(
           new SendMessageCommand({
             QueueUrl: process.env.AWS_SQS_QUEUE_URL!,
-            MessageBody: JSON.stringify({
-              feenId: productId,
-              tempKey: body.tempKey
-            })
+            MessageBody: JSON.stringify(s3Payloads)
           })
         );
       } catch (error) {
@@ -152,6 +179,7 @@ export async function PUT(
             where: { id: productId },
             data: {
               image: existingProduct.image,
+              ratio: existingProduct.ratio,
               title: existingProduct.title,
               description: existingProduct.description,
               auth: existingProduct.auth,

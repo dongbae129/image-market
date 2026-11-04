@@ -19,8 +19,7 @@ const ProductSetting = ({ params }: SettingProps) => {
     queryKey,
     queryFn: () =>
       getProduct(productId) as unknown as Promise<ProductDetailType>,
-    initialData: () =>
-      queryClient.getQueryData<ProductDetailType>(queryKey),
+    initialData: () => queryClient.getQueryData<ProductDetailType>(queryKey),
     initialDataUpdatedAt: () =>
       queryClient.getQueryState(queryKey)?.dataUpdatedAt,
     staleTime: 5_000,
@@ -28,11 +27,15 @@ const ProductSetting = ({ params }: SettingProps) => {
   });
 
   if (isLoading) {
-    return <div className="p-8 text-center">상품 정보를 불러오는 중입니다.</div>;
+    return (
+      <div className="p-8 text-center">상품 정보를 불러오는 중입니다.</div>
+    );
   }
 
   if (isError || !data?.ok || !data.product) {
-    return <div className="p-8 text-center">상품 정보를 불러오지 못했습니다.</div>;
+    return (
+      <div className="p-8 text-center">상품 정보를 불러오지 못했습니다.</div>
+    );
   }
 
   return (

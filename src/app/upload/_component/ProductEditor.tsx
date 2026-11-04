@@ -45,7 +45,9 @@ export default function ProductEditor({
             <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">
               {mode === 'edit'
                 ? '작업물 정보를 수정하고 이미지를 교체할 수 있습니다.'
-                : '최대 3장의 이미지를 업로드하고 순서를 변경해 갤러리를 구성해보세요.'}
+                : uploadType === 'product'
+                  ? '대표 이미지 한 장과 상품 정보를 등록하세요.'
+                  : '최대 3장의 이미지를 업로드하고 순서를 변경해보세요.'}
             </p>
           </div>
         </div>
@@ -55,7 +57,7 @@ export default function ProductEditor({
             images={images}
             setImages={setImages}
             initialImageUrl={initialImageUrl}
-            maxImages={mode === 'edit' ? 1 : 3}
+            maxImages={mode === 'edit' || uploadType === 'product' ? 1 : 3}
           />
           <MetadataEditor
             images={images}

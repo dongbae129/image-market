@@ -16,13 +16,13 @@ export default function LikeComment({ productId }: Props) {
       <div className="flex items-center space-x-1 text-gray-700">
         <Heart size={20} className="text-red-500" />
         <span className="text-sm font-semibold">
-          +{data.product.likesCount}
+          +{data?.product?.likesCount}
         </span>
       </div>
       <div className="flex items-center space-x-1 text-gray-700">
         <MessageCircle size={20} />
         <span className="text-sm font-semibold">
-          +{data.product.commentsCount}
+          +{data?.product?.commentsCount}
         </span>
       </div>
     </div>

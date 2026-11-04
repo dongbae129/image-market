@@ -8,6 +8,8 @@ import axios from 'axios';
 import { UploadImageItem } from '@/app/upload/page';
 import { privateApi } from '@libs/client/axiosIntercepotr';
 import type { ProductDetailType } from '@app/product/[id]/page';
+import sanitizeHtml from 'sanitize-html';
+import { getImageRatio } from '@libs/client/getImageRatio';
 
 const BOARD_CATEGORIES = [
   '작품 피드백',
@@ -81,13 +83,19 @@ export default function MetadataEditor({
         if (!productId) throw new Error('Product ID is required for editing');
 
         let tempKey: string | undefined;
+        let ratio: string | undefined;
         if (images.length > 0) {
           const file = images[0].file;
+          ratio = await getImageRatio(file);
           const extension = file.name.split('.').pop()?.toLowerCase();
           if (!extension) throw new Error('Image extension is required');
 
           const { data } = await privateApi.post<{
-            tickets: { url: string; fields: Record<string, string>; tempUrl: string }[];
+            tickets: {
+              url: string;
+              fields: Record<string, string>;
+              tempUrl: string;
+            }[];
           }>('/api/product/init', {
             fileInfos: [{ name: file.name, ext: extension }]
           });
@@ -114,7 +122,7 @@ export default function MetadataEditor({
           description,
           hashtag: tags.join(','),
           productAuth,
-          ...(tempKey ? { tempKey } : {})
+          ...(tempKey ? { tempKey, ratio } : {})
         });
       }
 
@@ -137,7 +145,13 @@ export default function MetadataEditor({
       //   formData.append('images', item.file);
       // });
       // console.log(images, 'imageeess');
-      const fileInfos = images.map((value) => {
+      // Product has one primary image and one ratio field; board posts can have multiple images.
+      const uploadImages = uploadType === 'product' ? images.slice(0, 1) : images;
+      const ratio =
+        uploadType === 'product' && uploadImages[0]
+          ? await getImageRatio(uploadImages[0].file)
+          : undefined;
+      const fileInfos = uploadImages.map((value) => {
         const fileName = value.file.name;
         return {
           name: fileName,
@@ -162,17 +176,31 @@ export default function MetadataEditor({
         Object.entries(v.fields).forEach(([k, v]) => {
           s3Form.append(k, v);
         });
-        s3Form.append('file', images[i].file);
+        s3Form.append('file', uploadImages[i].file);
         return axios.post(v.url, s3Form);
       });
       await Promise.all(s3UploadPromise);
-      await privateApi.post(endpoint, {
-        title,
-        description,
-        hashtags,
-        category: uploadType === 'board' ? modifyCategory(category) : null,
-        urls
-      });
+      if (uploadType === 'product') {
+        if (!uploadImages[0] || !data.tickets[0]) {
+          throw new Error('상품 대표 이미지가 필요합니다.');
+        }
+        await privateApi.post(endpoint, {
+          title,
+          description,
+          hashtag: hashtags,
+          productAuth,
+          ratio,
+          tempKey: `temp/${data.tickets[0].tempUrl}`
+        });
+      } else {
+        await privateApi.post(endpoint, {
+          title,
+          description,
+          hashtags,
+          category: modifyCategory(category),
+          urls
+        });
+      }
       return;
       const setFileFormData = (fileForm: FormData, index: number) => {
         // const fileType = fileData.name.split('.').pop()?.toLowerCase();
@@ -267,7 +295,9 @@ export default function MetadataEditor({
             </button>
           </div>
         ) : (
-          <span className="text-xs font-bold text-slate-500">상품 정보 수정</span>
+          <span className="text-xs font-bold text-slate-500">
+            상품 정보 수정
+          </span>
         )}
         {mode === 'edit' ? (
           <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
@@ -394,7 +424,8 @@ export default function MetadataEditor({
             <span className="relative z-10 flex items-center gap-1.5">
               {uploadMutation.isPending ? (
                 <>
-                {mode === 'edit' ? '저장 중...' : '업로드 중...'} {uploadProgress}%{' '}
+                  {mode === 'edit' ? '저장 중...' : '업로드 중...'}{' '}
+                  {uploadProgress}%{' '}
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 </>
               ) : (

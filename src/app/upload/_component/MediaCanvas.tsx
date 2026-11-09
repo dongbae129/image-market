@@ -488,7 +488,7 @@ export default function MediaCanvas({
           </div>
         )}
 
-        {images.length < maxImages && (
+        {images.length < maxImages && !initialImageUrl && (
           <button
             onClick={() => fileAddRef.current?.click()}
             className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-indigo-500 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all shrink-0"

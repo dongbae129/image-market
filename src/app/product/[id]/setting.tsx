@@ -12,7 +12,7 @@ const ProductSetting: NextPage = () => {
 
   const { data } = useQuery<ProductDetailType>({
     queryKey: ['getProduct'],
-    queryFn: getFetch(`/api/product/${productId}`),
+    queryFn: () => getFetch(`/api/product/${productId}`),
 
     enabled: !!productId
   });

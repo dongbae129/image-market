@@ -5,7 +5,7 @@ import ProductImage from '@app/product/[id]/_component/ProductImage';
 import ProductInfo from '@app/product/[id]/_component/ProductInfo';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
 import { UserHashtagHit } from '@app/product/[id]/page';
-import DeleteSkeleton from '@components/DeleteSkeleton';
+import LoadingSkeleton from '@components/LoadingSkeleton';
 import { Product } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -29,7 +29,9 @@ export default function ProductPage({ id }: ProductPageProps) {
   const { data } = useQuery<ProductDetailType>({
     queryKey: ['product', id],
     queryFn: () => getProduct(id) as unknown as ProductDetailType,
-    staleTime: 5 * 1000
+    staleTime: 2 * 1000,
+    refetchInterval: (query) =>
+      query.state.data?.product?.status === 'PROCESSING' ? 2_000 : false
   });
   const product = data?.product;
 
@@ -69,7 +71,7 @@ export default function ProductPage({ id }: ProductPageProps) {
     };
   }, [product?.id]);
 
-  if (product?.status === 'PROCESSING') return <DeleteSkeleton />;
+  if (product?.status === 'PROCESSING') return <LoadingSkeleton />;
   if (!product)
     return (
       <main className="product-detail">

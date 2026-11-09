@@ -146,7 +146,8 @@ export default function MetadataEditor({
       // });
       // console.log(images, 'imageeess');
       // Product has one primary image and one ratio field; board posts can have multiple images.
-      const uploadImages = uploadType === 'product' ? images.slice(0, 1) : images;
+      const uploadImages =
+        uploadType === 'product' ? images.slice(0, 1) : images;
       const ratio =
         uploadType === 'product' && uploadImages[0]
           ? await getImageRatio(uploadImages[0].file)
@@ -244,7 +245,8 @@ export default function MetadataEditor({
         await queryClient.invalidateQueries({
           queryKey: ['product', productId]
         });
-        router.push(`/product/${productId}`);
+        window.location.assign(`/product/${productId}`);
+        // router.push(`/product/${productId}`);
       }
       // setTimeout(() => {
       //   alert(`${uploadType === 'product' ? '작품이' : '게시글이'} 성공적으로 게시되었습니다!`);

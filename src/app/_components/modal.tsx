@@ -1,4 +1,3 @@
-import { downloadImage } from '@libs/client/downloadImage';
 import { UseMutateFunction } from '@tanstack/react-query';
 
 import { Dispatch, MouseEvent, SetStateAction, useEffect } from 'react';
@@ -6,9 +5,8 @@ import { Dispatch, MouseEvent, SetStateAction, useEffect } from 'react';
 interface ModalProps {
   modalOpen: boolean;
   setModalOpen: Dispatch<SetStateAction<boolean>>;
-  deleteMutation?: UseMutateFunction<any, unknown, void, unknown> | null;
-  modalUse: 'delete' | 'paidDown';
-  productId?: string;
+  deleteMutation?: UseMutateFunction<unknown, unknown, void, unknown> | null;
+  modalUse: 'delete' | 'productDelete';
 }
 const modalText = {
   delete: {
@@ -16,18 +14,17 @@ const modalText = {
     main: '삭제 후에는 실행을 취소할수 없습니다!',
     btn: '삭제'
   },
-  paidDown: {
-    header: '해당 이미지를 다운로드 하시겠습니까?',
-    main: '해당 이미지는 1코인 또는 쿠폰 1장이 필요합니다',
-    btn: '쿠폰사용'
+  productDelete: {
+    header: '상품 판매를 중단할까요?',
+    main: '상품이 공개 목록에서 내려갑니다. 기존 구매자는 구매한 Pro 버전을 계속 다시 받을 수 있습니다.',
+    btn: '판매 중지'
   }
 };
 const Modal = ({
   modalOpen,
   setModalOpen,
   deleteMutation,
-  modalUse,
-  productId
+  modalUse
 }: ModalProps) => {
   const onClickClose = () => {
     setModalOpen((prev) => !prev);
@@ -39,53 +36,6 @@ const Modal = ({
       setModalOpen((prev) => !prev);
     }
   };
-  const onClickDelOrCouponDown = () => {
-    if (modalUse === 'paidDown' && productId) {
-      downloadImage({ productId, setState: setModalOpen });
-    } else {
-      if (deleteMutation) deleteMutation();
-    }
-  };
-
-  // const extractFilenameFromContentDisposition = (
-  //   contentDisposition: string
-  // ) => {
-  //   const filenameRegex = /filename=[\w.-]+/;
-  //   const matches = contentDisposition.match(filenameRegex);
-
-  //   let filename = '';
-  //   if (matches) {
-  //     filename = matches[0].split('=')[1];
-  //   }
-
-  //   return filename;
-  // };
-
-  // const downloadImage = async () => {
-  //   const response = await axios(
-  //     `/api/product/download?productId=${productId}&imgAuth=${true}`,
-  //     {
-  //       responseType: 'blob'
-  //     }
-  //   );
-
-  //   const contentDisposition = response.headers['content-disposition'];
-
-  //   const fileName = extractFilenameFromContentDisposition(contentDisposition);
-
-  //   const url = URL.createObjectURL(response.data);
-
-  //   const link = document.createElement('a');
-  //   // const fileName = prompt('enter the file name');
-  //   link.href = url;
-  //   link.download = fileName;
-
-  //   link.click();
-
-  //   URL.revokeObjectURL(url);
-  //   setModalOpen((prev) => !prev);
-  // };
-
   useEffect(() => {
     const keyDeleteModal = (e: KeyboardEvent) => {
       if (modalOpen && e.key === 'Escape') setModalOpen((prev) => !prev);
@@ -94,7 +44,7 @@ const Modal = ({
     return () => {
       document.removeEventListener('keyup', keyDeleteModal);
     };
-  }, []);
+  }, [modalOpen, setModalOpen]);
 
   return (
     <div className="modalwrap">
@@ -114,15 +64,13 @@ const Modal = ({
               <div className="content_btnwrap">
                 <div>
                   <button className="content_btn_cancel" onClick={onClickClose}>
-                    <div className="content_btn">
-                      {modalUse === 'delete' ? '취소' : '코인사용'}
-                    </div>
+                    <div className="content_btn">취소</div>
                   </button>
                 </div>
                 <div>
                   <button
                     className="content_btn_delete"
-                    onClick={onClickDelOrCouponDown}
+                    onClick={() => deleteMutation?.()}
                   >
                     <div className="content_btn">{modalText[modalUse].btn}</div>
                   </button>

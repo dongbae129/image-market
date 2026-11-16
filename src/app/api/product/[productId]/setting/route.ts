@@ -2,6 +2,7 @@ import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { checkAuth } from '@libs/server/auth';
 import client from '@libs/server/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { publishProductVersionInTransaction } from '@libs/server/productVersions';
 
 type UpdateProductBody = {
   title?: unknown;
@@ -91,13 +92,18 @@ export async function PUT(
       select: {
         id: true,
         userId: true,
+        saleStatus: true,
         status: true,
         image: true,
         ratio: true,
         title: true,
         description: true,
         auth: true,
-        hashtag: { select: { hashtag: true } }
+        hashtag: { select: { hashtag: true } },
+        versions: {
+          where: { status: 'ACTIVE' },
+          select: { id: true }
+        }
       }
     });
 
@@ -112,6 +118,13 @@ export async function PUT(
       return NextResponse.json(
         { ok: false, message: '상품 소유자만 수정할 수 있습니다.' },
         { status: 403 }
+      );
+    }
+
+    if (existingProduct.saleStatus !== 'ACTIVE') {
+      return NextResponse.json(
+        { ok: false, message: '판매 중단된 상품은 수정할 수 없습니다.' },
+        { status: 409 }
       );
     }
 
@@ -147,6 +160,20 @@ export async function PUT(
         update: { hashtag: body.hashtag as string },
         create: { productId, hashtag: body.hashtag as string }
       });
+
+      if (body.productAuth) {
+        if (!existingProduct.auth || replacementImage) {
+          await publishProductVersionInTransaction(tx, {
+            productId,
+            imageKey: replacementImage ?? existingProduct.image
+          });
+        }
+      } else if (existingProduct.auth) {
+        await tx.productVersion.updateMany({
+          where: { productId, status: 'ACTIVE' },
+          data: { status: 'RETIRED' }
+        });
+      }
 
       return product;
     });
@@ -186,6 +213,21 @@ export async function PUT(
               status: existingProduct.status
             }
           });
+
+          await tx.productVersion.updateMany({
+            where: { productId, status: 'ACTIVE' },
+            data: { status: 'TAKEN_DOWN' }
+          });
+          if (existingProduct.versions.length) {
+            await tx.productVersion.updateMany({
+              where: {
+                id: {
+                  in: existingProduct.versions.map((version) => version.id)
+                }
+              },
+              data: { status: 'ACTIVE' }
+            });
+          }
 
           if (existingProduct.hashtag) {
             await tx.hashTag.upsert({

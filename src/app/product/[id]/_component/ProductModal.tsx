@@ -7,16 +7,12 @@ import { useMutation } from '@tanstack/react-query';
 type ProductModalProps = {
   productId: string | string[] | undefined;
   modalOpen: boolean;
-  paidOpen: boolean;
-  setPaidDown: Dispatch<SetStateAction<boolean>>;
   setModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 function ProductModal({
   productId,
-  paidOpen,
   modalOpen,
-  setModalOpen,
-  setPaidDown
+  setModalOpen
 }: ProductModalProps) {
   const router = useRouter();
   const deleteSend = () =>
@@ -29,6 +25,13 @@ function ProductModal({
     },
     onError: (res) => {
       console.error(res, 'deleted fail');
+      const message = axios.isAxiosError<{ message?: string }>(res)
+        ? res.response?.data?.message
+        : undefined;
+      window.alert(
+        message ?? '상품 판매 중단에 실패했습니다. 다시 시도해주세요.'
+      );
+      setModalOpen(false);
     }
   });
   return (
@@ -38,14 +41,7 @@ function ProductModal({
           modalOpen={modalOpen}
           setModalOpen={setModalOpen}
           deleteMutation={deleteMutation}
-          modalUse="delete"
-        />
-      )}
-      {paidOpen && (
-        <Modal
-          modalOpen={paidOpen}
-          setModalOpen={setPaidDown}
-          modalUse="paidDown"
+          modalUse="productDelete"
         />
       )}
     </>

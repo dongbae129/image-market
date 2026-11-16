@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Gem, Upload, Bell } from 'lucide-react';
+import { Gem, Upload, Bell } from 'lucide-react';
 import SearchBox from '@components/SearchInput';
 import ThemeToggle from '@components/themeToggle';
 
@@ -84,6 +84,13 @@ export default function Header() {
             className="px-3 py-2 text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-full flex items-center gap-1.5 transition-colors"
           >
             <Gem className="w-4 h-4 text-indigo-500" /> PAY
+          </Link>
+
+          <Link
+            href="/purchases"
+            className="px-3 py-2 text-slate-700 hover:text-indigo-600 hover:bg-slate-100 rounded-full transition-colors"
+          >
+            구매 내역
           </Link>
 
           {/* UPLOAD */}

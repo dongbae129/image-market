@@ -11,6 +11,7 @@ import './product-detail.css';
 
 export interface UserHashtagHit {
   user: {
+    id: number;
     email: string;
     name: string;
     image?: string | null;
@@ -21,7 +22,8 @@ export interface UserHashtagHit {
 
 export type ProductDetailType = {
   ok: boolean;
-  product: Product & UserHashtagHit;
+  product: Product &
+    UserHashtagHit & { versions: { id: number; version: number }[] };
 };
 
 /*

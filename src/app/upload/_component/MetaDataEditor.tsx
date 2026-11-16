@@ -185,7 +185,7 @@ export default function MetadataEditor({
         if (!uploadImages[0] || !data.tickets[0]) {
           throw new Error('상품 대표 이미지가 필요합니다.');
         }
-        await privateApi.post(endpoint, {
+        return await privateApi.post(endpoint, {
           title,
           description,
           hashtag: hashtags,
@@ -194,7 +194,7 @@ export default function MetadataEditor({
           tempKey: `temp/${data.tickets[0].tempUrl}`
         });
       } else {
-        await privateApi.post(endpoint, {
+        return await privateApi.post(endpoint, {
           title,
           description,
           hashtags,
@@ -202,7 +202,7 @@ export default function MetadataEditor({
           urls
         });
       }
-      return;
+
       const setFileFormData = (fileForm: FormData, index: number) => {
         // const fileType = fileData.name.split('.').pop()?.toLowerCase();
         const fileType = data.tickets[index].tempUrl
@@ -239,15 +239,20 @@ export default function MetadataEditor({
 
       // return response.data;
     },
-    onSuccess: async () => {
+    onSuccess: async (res) => {
       setUploadProgress(100);
+      console.log(res, 'router res');
       if (mode === 'edit' && productId) {
         await queryClient.invalidateQueries({
           queryKey: ['product', productId]
         });
-        window.location.assign(`/product/${productId}`);
+
         // router.push(`/product/${productId}`);
       }
+      const resData = res.data;
+      window.location.assign(
+        `/${resData.type === 'board' ? 'board' : 'product'}/${resData.id}`
+      );
       // setTimeout(() => {
       //   alert(`${uploadType === 'product' ? '작품이' : '게시글이'} 성공적으로 게시되었습니다!`);
       //   router.push(uploadType === 'product' ? '/' : '/board');

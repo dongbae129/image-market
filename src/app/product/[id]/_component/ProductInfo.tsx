@@ -9,14 +9,16 @@ import { useForm } from 'react-hook-form';
 import ProductModal from './ProductModal';
 import { getProduct } from '@app/product/[id]/_lib/getProduct';
 import sanitizeHtml from 'sanitize-html';
+import { privateApi } from '@libs/client/axiosIntercepotr';
 export interface UserHashtagHit {
-  user: { email: string; name: string; image?: string | null };
+  user: { id: number; email: string; name: string; image?: string | null };
   hashtag: HashTag;
   productHit: ProductHit;
 }
 export type ProductDetailType = {
   ok: boolean;
-  product: Product & UserHashtagHit;
+  product: Product &
+    UserHashtagHit & { versions: { id: number; version: number }[] };
 };
 type ProductInfoProps = {
   productId: string;
@@ -24,7 +26,6 @@ type ProductInfoProps = {
 };
 function ProductInfo({ productId, data: initialData }: ProductInfoProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [paidDown, setPaidDown] = useState(false);
   const { register } = useForm();
   const { data: queryData } = useQuery<ProductDetailType>({
     queryKey: ['product', productId],
@@ -35,16 +36,31 @@ function ProductInfo({ productId, data: initialData }: ProductInfoProps) {
   });
   const data = initialData?.product ? initialData : queryData;
   const product = data?.product;
+  const { data: currentUserData } = useQuery<{
+    ok: boolean;
+    user?: { id: number };
+  }>({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const response = await privateApi.get('/api/user');
+      return response.data;
+    },
+    enabled: Boolean(product),
+    retry: false,
+    staleTime: 60_000
+  });
+  const canManage =
+    Boolean(product) && currentUserData?.user?.id === product?.userId;
   const onClickDelete = () => setModalOpen((prev) => !prev);
   return (
     <>
-      <ProductModal
-        modalOpen={modalOpen}
-        paidOpen={paidDown}
-        productId={productId}
-        setModalOpen={setModalOpen}
-        setPaidDown={setPaidDown}
-      />
+      {canManage && (
+        <ProductModal
+          modalOpen={modalOpen}
+          productId={productId}
+          setModalOpen={setModalOpen}
+        />
+      )}
       {product && (
         <>
           <div className="productInfo">
@@ -52,15 +68,20 @@ function ProductInfo({ productId, data: initialData }: ProductInfoProps) {
             <ProductBtnModifty
               onClickDelete={onClickDelete}
               productId={productId}
+              productAuth={product.auth}
+              canManage={canManage}
+              productVersionId={product.versions?.[0]?.id}
             />
-            <div className="product-auth-control">
-              <Input
-                label="checkAuth"
-                name="checkAuth"
-                type="checkbox"
-                register={register('checkAuth')}
-              />
-            </div>
+            {canManage && (
+              <div className="product-auth-control">
+                <Input
+                  label="checkAuth"
+                  name="checkAuth"
+                  type="checkbox"
+                  register={register('checkAuth')}
+                />
+              </div>
+            )}
           </div>
           <h1>{product.title}</h1>
           <div

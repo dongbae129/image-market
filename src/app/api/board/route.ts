@@ -195,6 +195,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({
         ok: true,
         message: 'create the board',
+        type: 'board',
         id: board.id
       });
     }

@@ -1,0 +1,15 @@
+# SDD ledger — plan: docs/superpowers/plans/2026-11-12-product-purchase-and-versioning.md
+
+Ruling: Work in the existing `feat/delete` branch because the user explicitly requested it; no new branch/worktree.
+Ruling: Do not add or run tests per the user instruction, overriding the plan TDD steps; use Prisma validation, type checking if authorized, and lint/code inspection only.
+Ruling: Use current SQS payload and do not edit Lambda; unique base image keys plus `ProductVersion.imageKey` preserve purchase-version mappings.
+Task 1: complete — Prisma schema validates and client generation passed.
+Task 2: complete — Product create/edit now publish immutable Pro versions and preserve the SQS contract.
+Task 3: complete — transactional coin/coupon purchase and idempotent entitlement endpoints are implemented.
+Task 4: complete for core scope — downloads, normal seller withdrawal, public filters, and purchase history API are implemented. Moderator takedown operations are deferred.
+Task 5: complete — Pro purchase/download actions and buyer history page/navigation are implemented.
+Task 6: core verification complete — Prisma validation and changed-file ESLint pass; the user confirms migrations and ordinary Product flows work. Repository-wide lint/type checks report existing errors outside this change. A later local Prisma generate attempt hit a Windows DLL lock; no tests added or run as requested.
+Follow-up: purchase history snapshots title at purchase, shows the purchased version's 474x thumbnail, and hides thumbnails when the purchase is unavailable. Added a forward-only title snapshot migration; generated Prisma type files contained the new field, though the local generate command reported a Windows DLL unlink lock.
+2026-11-13 scope ruling: ordinary Product edit and seller withdrawal are the active scope. Rights/safety reporting, moderator takedown and refund behavior are explicitly deferred; existing TAKEN_DOWN checks are groundwork, not an operational workflow.
+2026-11-13 assessment: the user confirms ordinary Product flows work. Code inspection covers Product edit/version transitions, normal withdrawal/public filtering, entitled re-download, and purchase-history title/thumbnail. Product setting PUT now also rejects edits to WITHDRAWN Products. Product restoration, S3 cleanup, moderator takedown, and refund paths remain deferred. Scoped ESLint and formatting checks pass; no tests added or run.
+2026-11-13 frontend ownership gap fixed: the client compares the authenticated `/api/user` ID with the Product owner ID; only the owner sees modify/delete controls, while server-side owner checks remain authoritative. Delete failures now show a message. Clarified `Product.auth` vs `ProductEntitlement` in the policy document.

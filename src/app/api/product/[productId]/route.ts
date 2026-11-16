@@ -1,6 +1,11 @@
 import { timeFailed } from '@libs/server/utils';
 import client from '@libs/server/client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { checkAuth } from '@libs/server/auth';
+import {
+  ProductManagementError,
+  withdrawProduct
+} from '@libs/server/productDownloads';
 type Props = {
   params: {
     productId: string;
@@ -19,9 +24,10 @@ export const GET = async (req: NextRequest, { params }: Props) => {
       }
     );
   try {
-    const product = await client.product.findUnique({
+    const product = await client.product.findFirst({
       where: {
-        id: +productId
+        id: +productId,
+        saleStatus: 'ACTIVE'
       },
       include: {
         user: {
@@ -41,6 +47,12 @@ export const GET = async (req: NextRequest, { params }: Props) => {
           select: {
             hashtag: true
           }
+        },
+        versions: {
+          where: { status: 'ACTIVE' },
+          orderBy: { version: 'desc' },
+          take: 1,
+          select: { id: true, version: true }
         }
       }
     });
@@ -90,11 +102,45 @@ export const POST = async (_req: NextRequest, { params }: Props) => {
     );
   }
 };
-export const PUT = async () => {
-  return NextResponse.json({
-    message: '???'
-  });
+
+export const DELETE = async (_req: NextRequest, { params }: Props) => {
+  const auth = checkAuth();
+  if (auth.checkError || !auth.userId) {
+    return NextResponse.json(
+      { ok: false, message: '로그인이 필요합니다.' },
+      { status: 401 }
+    );
+  }
+
+  const productId = Number(params.productId);
+  if (!Number.isInteger(productId) || productId <= 0) {
+    return NextResponse.json(
+      { ok: false, message: '상품 정보가 올바르지 않습니다.' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    await withdrawProduct({ productId, userId: Number(auth.userId) });
+    return NextResponse.json({
+      ok: true,
+      message: '상품 판매를 중단했습니다.'
+    });
+  } catch (error) {
+    if (error instanceof ProductManagementError) {
+      return NextResponse.json(
+        { ok: false, code: error.code, message: error.message },
+        { status: error.code === 'NOT_FOUND' ? 404 : 403 }
+      );
+    }
+    console.error('Product withdrawal failed:', error);
+    return NextResponse.json(
+      { ok: false, message: '상품 삭제에 실패했습니다.' },
+      { status: 500 }
+    );
+  }
 };
+
 // const Product = async (
 //   req: NextApiRequest,
 //   res: NextApiResponse<ResponseType>

@@ -1,5 +1,3 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { ResponseType } from '@libs/server/utils';
 import client from '@libs/server/client';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -25,7 +23,8 @@ export const GET = async (req: NextRequest, { params }: Props) => {
   try {
     const products = await client.product.findMany({
       where: {
-        userId: +userId
+        userId: +userId,
+        saleStatus: 'ACTIVE'
       },
       take: 6,
       skip: pageParam ? 1 : 0,

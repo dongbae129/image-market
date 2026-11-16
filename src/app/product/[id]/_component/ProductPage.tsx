@@ -12,7 +12,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 type ProductDetailType = {
   ok: boolean;
-  product: Product & UserHashtagHit;
+  product: Product &
+    UserHashtagHit & { versions: { id: number; version: number }[] };
 };
 type ProductPageProps = {
   id: string;

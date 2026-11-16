@@ -1,4 +1,3 @@
-import { ResponseType } from '@libs/server/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 const Popular = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -6,7 +5,8 @@ const Popular = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       console.log(req.query, '@@');
       const products = await client.product.findMany({
-        take: 40
+        take: 40,
+        where: { status: 'READY', saleStatus: 'ACTIVE' }
       });
       return res.json({
         products

@@ -5,7 +5,11 @@ import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
 import { checkAuth } from '@libs/server/auth';
 import { dbNow } from '@libs/server/utils';
-export const GET = async (req: NextRequest, res) => {
+import {
+  publishProductVersion,
+  retireActiveProVersion
+} from '@libs/server/productVersions';
+export const GET = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
   const id = searchParams.get('id');
   const searchQuery = searchParams.get('search');
@@ -24,6 +28,7 @@ export const GET = async (req: NextRequest, res) => {
       ...(lastId && { cursor: { id: lastId } }),
       where: {
         status: 'READY',
+        saleStatus: 'ACTIVE',
         ...(searchQuery
           ? {
               title: {
@@ -66,7 +71,7 @@ export const GET = async (req: NextRequest, res) => {
     );
   }
 };
-export const POST = async (req: NextRequest, res: NextResponse) => {
+export const POST = async (req: NextRequest) => {
   const auth = checkAuth();
   if (auth.checkError || !auth.userId) {
     return NextResponse.json(
@@ -99,12 +104,16 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         description,
         userId,
         auth: !!productAuth,
+        status: 'PROCESSING',
         ratio,
         createdAt: now,
         updatedAt: now
       }
     });
     feenId = product.id;
+    if (product.auth) {
+      await publishProductVersion({ productId: product.id, imageKey });
+    }
     await client.productHit.create({
       data: {
         hit: 0,
@@ -120,11 +129,22 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     await sqs.send(
       new SendMessageCommand({
         QueueUrl: process.env.AWS_SQS_QUEUE_URL!,
-        MessageBody: JSON.stringify({ feenId, tempKey })
+        MessageBody: JSON.stringify({
+          feenId,
+          tempKeys: [
+            {
+              boardImageId: { id: feenId },
+              tempUrl: tempKey
+            }
+          ],
+          tableType: 'PRODUCT'
+        })
       })
     );
     return NextResponse.json({
-      ok: true
+      ok: true,
+      type: 'product',
+      id: product.id
     });
   } catch (error) {
     console.error(error, 'product post fail');
@@ -141,6 +161,12 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         .catch((e) => {
           console.error('product status 롤백실패', e);
         });
+      await retireActiveProVersion({
+        productId: feenId,
+        nextStatus: 'TAKEN_DOWN'
+      }).catch((e) => {
+        console.error('product version rollback failed', e);
+      });
     }
     return NextResponse.json(
       {

@@ -10,28 +10,29 @@ datasource db {
 }
 
 model User {
-  id          Int           @id @default(autoincrement())
-  email       String        @unique
-  emailActive Boolean?
-  name        String?
-  image       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  coin        Int           @default(0)
-  bonusCoupon Int           @default(0)
-  delete      Boolean       @default(false)
-  tag         String        @default("")
-  following   Int           @default(0)
-  followed    Int           @default(0)
-  boards      Board[]
-  boardChat   BoardChat[]
-  Chat        Chat[]
-  localUser   LocalUser?
-  pay         PayDetail[]
-  payUsage    PayUsage?
-  products    Product[]
-  productAuth ProductAuth[]
-  socialUser  SocialUser?
+  id                  Int                  @id @default(autoincrement())
+  email               String               @unique
+  emailActive         Boolean?
+  name                String?
+  image               String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  coin                Int                  @default(0)
+  bonusCoupon         Int                  @default(0)
+  delete              Boolean              @default(false)
+  tag                 String               @default("")
+  following           Int                  @default(0)
+  followed            Int                  @default(0)
+  boards              Board[]
+  boardChat           BoardChat[]
+  Chat                Chat[]
+  localUser           LocalUser?
+  pay                 PayDetail[]
+  payUsage            PayUsage?
+  products            Product[]
+  productAuth         ProductAuth[]
+  productEntitlements ProductEntitlement[]
+  socialUser          SocialUser?
 }
 
 model SocialUser {
@@ -83,28 +84,65 @@ model PayProduct {
 }
 
 model Product {
-  id            Int           @id @default(autoincrement())
+  id            Int              @id @default(autoincrement())
   image         String
   title         String
   description   String?
-  tag           String        @default("")
-  auth          Boolean       @default(false)
-  ratio         String        @default("1")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  tag           String           @default("")
+  auth          Boolean          @default(false)
+  ratio         String           @default("1")
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
   userId        Int
-  commentsCount Int           @default(0)
-  likesCount    Int           @default(0)
-  status        String        @default("READY")
+  commentsCount Int              @default(0)
+  likesCount    Int              @default(0)
+  status        String           @default("READY")
+  saleStatus    String           @default("ACTIVE")
   dominantColor String?
   lqip          String?
   chats         Chat[]
   hashtag       HashTag?
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   productAuth   ProductAuth[]
   productHit    ProductHit?
+  versions      ProductVersion[]
 
   @@index([userId])
+  @@index([saleStatus, status])
+}
+
+model ProductVersion {
+  id               Int      @id @default(autoincrement())
+  productId        Int
+  version          Int
+  imageKey         String
+  status           String   @default("ACTIVE")
+  moderationReason String?
+  createdAt        DateTime @default(now())
+
+  product      Product              @relation(fields: [productId], references: [id], onDelete: Restrict)
+  entitlements ProductEntitlement[]
+
+  @@unique([productId, version])
+  @@index([productId, status])
+}
+
+model ProductEntitlement {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  productVersionId Int
+  titleAtPurchase  String
+  paymentType      String
+  amountPaid       Int
+  idempotencyKey   String
+  createdAt        DateTime @default(now())
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  productVersion ProductVersion @relation(fields: [productVersionId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, productVersionId])
+  @@unique([userId, idempotencyKey])
+  @@index([userId, createdAt])
 }
 
 model Board {

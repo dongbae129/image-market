@@ -146,23 +146,28 @@ model ProductEntitlement {
 }
 
 model Board {
-  id           Int          @id @default(autoincrement())
-  title        String
-  description  String
-  category     String       @default("자유수다")
-  viewCount    Int          @default(0)
-  likeCount    Int          @default(0)
-  commentCount Int          @default(0)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  userId       Int
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  boardChat    BoardChat[]
-  boardHit     BoardHit?
-  boardTag     BoardTag?
-  images       BoardImage[]
+  id                    Int          @id @default(autoincrement())
+  title                 String
+  description           String
+  category              String       @default("자유수다")
+  viewCount             Int          @default(0)
+  likeCount             Int          @default(0)
+  commentCount          Int          @default(0)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  userId                Int
+  deletionStatus        String       @default("ACTIVE")
+  deletionError         String?
+  deletionAttempts      Int          @default(0)
+  deletionLastAttemptAt DateTime?
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  boardChat             BoardChat[]
+  boardHit              BoardHit?
+  boardTag              BoardTag?
+  images                BoardImage[]
 
   @@index([userId])
+  @@index([deletionStatus, deletionLastAttemptAt])
 }
 
 model BoardImage {
@@ -172,6 +177,18 @@ model BoardImage {
   dominantColor String?
   boardId       Int?
   board         Board?  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+}
+
+model StorageCleanupJob {
+  id        String   @id @default(cuid())
+  payload   Json
+  status    String   @default("PENDING")
+  attempts  Int      @default(0)
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
 }
 
 model Chat {

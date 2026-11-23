@@ -1,10 +1,7 @@
-import Link from 'next/link';
-
 export default function UserInfocard({
   avatarClass,
   authorName,
-  boardUserTrue,
-  boardId
+  boardUserTrue
 }) {
   return (
     <section className="rounded-[18px] border border-slate-200 bg-white p-5">
@@ -24,14 +21,7 @@ export default function UserInfocard({
             게시글을 공유하는 멤버
           </p>
         </div>
-        {boardUserTrue ? (
-          <Link
-            href={`/board/${boardId}/setting`}
-            className="shrink-0 rounded-full border border-indigo-300 px-2.5 py-1.5 text-[9px] font-bold text-indigo-600"
-          >
-            수정
-          </Link>
-        ) : (
+        {!boardUserTrue && (
           <button
             type="button"
             className="shrink-0 rounded-full border border-indigo-300 px-2.5 py-1.5 text-[9px] font-bold text-indigo-600"

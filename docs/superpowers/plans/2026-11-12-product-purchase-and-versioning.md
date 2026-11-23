@@ -23,7 +23,7 @@
 
 ## Prerequisites and Open Product Decision
 
-- Keep the existing SQS consumer and payload unchanged. Use a unique base object key in `Product.image` and store the same base key on each Pro version; the worker's existing `474x/`, `736x/`, and `original/` prefixes produce the versioned files. No Lambda source changes are in scope.
+- Keep the existing SQS/Lambda consumer unchanged. Product producers send the consumer contract: `{ feenId: productId, tempKeys: [{ boardImageId: { id: productId }, tempUrl: 'temp/<uploaded-key>' }], tableType: 'PRODUCT' }`. The shared worker's nested identifier is still named `boardImageId` for Product messages. Use a unique base object key in `Product.image` and store the same base key on each Pro version; the worker's existing `474x/`, `736x/`, and `original/` prefixes produce the versioned files. No Lambda source changes are in scope.
 - Current Pro payment choices are fixed at 10 `User.coin` or 1 `User.bonusCoupon`; the buyer selects one. Store the actual payment type and amount on the entitlement so later seller-set pricing can be added.
 - Do not create a branch or worktree. The user explicitly requested all changes on the existing `feat/delete` branch.
 - Preserve the pre-existing local modification in `src/app/api/product/[productId]/route.ts`; inspect its diff before editing and retain its behavior unless the owner explicitly asks otherwise.
@@ -94,7 +94,7 @@ Expected: Prisma Client includes `productVersion` and `productEntitlement` deleg
 
 - `publishProductVersion({ productId, imageKey }): Promise<ProductVersion>` creates a pending Pro snapshot; its exact return shape is the Prisma `ProductVersion` model.
 - `retireActiveProVersion({ productId, nextStatus }): Promise<void>` retires the previous current Pro version. `TAKEN_DOWN` is used only for failed upload cleanup in the current flow; moderator takedown remains deferred.
-- Existing SQS payload remains `{ feenId: productId, tempKey, tableType: 'PRODUCT' }`; the existing consumer writes derivatives under the unique base image key and `ProductVersion.imageKey` references that base key.
+- Send the existing consumer's `PRODUCT` contract: `{ feenId: productId, tempKeys: [{ boardImageId: { id: productId }, tempUrl: 'temp/<uploaded-key>' }], tableType: 'PRODUCT' }`. The shared processor reads `boardImageId.id`, so Product messages carry the Product ID there. The consumer writes derivatives under the unique base image key and `ProductVersion.imageKey` references that base key. Keep Lambda source unchanged.
 
 - [x] **Step 1: Implement version lifecycle service**
 
@@ -102,7 +102,7 @@ Create `productVersions.ts`. Keep free image replacement on the Product row with
 
 - [x] **Step 2: Wire create and edit routes to the service**
 
-Create a Pro ProductVersion on Pro product creation. On edit, metadata-only changes update Product; free image replacement updates the free image key; Pro image replacement creates a new version; `free → Pro` creates the first Pro version; `Pro → free` retires the active version and changes current listing access. Keep the existing SQS payload and do not edit Lambda code.
+Create a Pro ProductVersion on Pro product creation. On edit, metadata-only changes update Product; free image replacement updates the free image key; Pro image replacement creates a new version; `free → Pro` creates the first Pro version; `Pro → free` retires the active version and changes current listing access. Send the established SQS consumer payload described above; do not edit Lambda code.
 
 Only `ACTIVE` Products can be edited. Seller withdrawal is terminal in this iteration; restoration/relisting is deferred.
 
@@ -216,7 +216,15 @@ Expected: migration model and generated client are valid.
 
 - [x] **Step 2: Run TypeScript and lint validation**
 
-The user reports that the normal Product flows work after applying migrations. Scoped ESLint passes for changed TypeScript files. The repository-wide lint and TypeScript checks report existing errors in unrelated files. No test code was added or run, per user instruction.
+The user reports that the normal Product flows work after applying migrations. The user also confirmed Product SQS image processing works with the consumer payload and that a withdrawn Product remains downloadable to prior Pro buyers at the purchased version. Scoped ESLint passes for changed TypeScript files. The repository-wide lint and TypeScript checks report existing errors in unrelated files. No test code was added or run, per user instruction.
 
 Run: `npm run lint`
 Expected: no lint errors in changed files.
+
+## Product Completion Review — 2026-11-16
+
+- Product core scope is complete: create/edit image processing, free and Pro edit/version behavior, Pro purchase and purchase history, seller withdrawal, public filtering, and re-download of purchased versions after withdrawal.
+- Manual checks reported by the user: Product SQS image processing succeeds; after seller withdrawal, an existing buyer can still download the purchased image version.
+- Current Pro version is derivable from the active `ProductVersion` and returned by the detail API. The seller-facing Product page does not currently show the version number; this is an optional UI improvement, not a blocker for the agreed core scope.
+- Deferred: restoration/relisting, permanent row or S3 deletion, S3/CDN cleanup, rights/safety moderation, forced takedown operations, refunds, and seller-configurable pricing.
+- No tests were added or run, per the user's instruction.

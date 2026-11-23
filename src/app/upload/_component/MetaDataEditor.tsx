@@ -8,7 +8,7 @@ import axios from 'axios';
 import { UploadImageItem } from '@/app/upload/page';
 import { privateApi } from '@libs/client/axiosIntercepotr';
 import type { ProductDetailType } from '@app/product/[id]/page';
-import sanitizeHtml from 'sanitize-html';
+import type { BoardEditorData } from '@app/upload/_component/ProductEditor';
 import { getImageRatio } from '@libs/client/getImageRatio';
 
 const BOARD_CATEGORIES = [
@@ -27,6 +27,9 @@ interface MetadataEditorProps {
   mode: 'create' | 'edit';
   productId?: string;
   initialProduct?: ProductDetailType['product'];
+  boardId?: string;
+  initialBoard?: BoardEditorData;
+  removedBoardImageIds: number[];
 }
 
 export default function MetadataEditor({
@@ -35,22 +38,29 @@ export default function MetadataEditor({
   setUploadType,
   mode,
   productId,
-  initialProduct
+  initialProduct,
+  boardId,
+  initialBoard,
+  removedBoardImageIds
 }: MetadataEditorProps) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
 
-  const [title, setTitle] = useState(initialProduct?.title ?? '');
-  const [description, setDescription] = useState(
-    initialProduct?.description ?? ''
+  const [title, setTitle] = useState(
+    initialBoard?.title ?? initialProduct?.title ?? ''
   );
-  const [category, setCategory] = useState(BOARD_CATEGORIES[0]);
+  const [description, setDescription] = useState(
+    initialBoard?.description ?? initialProduct?.description ?? ''
+  );
+  const [category, setCategory] = useState(
+    initialBoard?.category ?? BOARD_CATEGORIES[0]
+  );
   const [tags, setTags] = useState<string[]>(
-    initialProduct?.hashtag?.hashtag
+    (initialBoard?.boardTag?.hashtag ?? initialProduct?.hashtag?.hashtag ?? '')
       .split(',')
       .map((tag) => tag.trim())
-      .filter(Boolean) ?? []
+      .filter(Boolean)
   );
   const [productAuth, setProductAuth] = useState(initialProduct?.auth ?? false);
   const [tagInput, setTagInput] = useState('');
@@ -80,6 +90,49 @@ export default function MetadataEditor({
   const uploadMutation = useMutation({
     mutationFn: async () => {
       if (mode === 'edit') {
+        if (uploadType === 'board') {
+          if (!boardId) throw new Error('Board ID is required for editing');
+          let imageKeys: string[] | undefined;
+          if (images.length) {
+            const fileInfos = images.map((item) => ({
+              name: item.file.name,
+              ext: item.file.name.split('.').pop()?.toLowerCase() ?? ''
+            }));
+            const { data } = await privateApi.post<{
+              tickets: {
+                url: string;
+                fields: Record<string, string>;
+                tempUrl: string;
+              }[];
+            }>('/api/product/init', { fileInfos });
+            await Promise.all(
+              data.tickets.map(async (ticket, index) => {
+                const file = images[index].file;
+                const form = new FormData();
+                Object.entries(ticket.fields).forEach(([key, value]) =>
+                  form.append(key, value)
+                );
+                if (!ticket.fields['Content-Type'])
+                  form.append(
+                    'Content-Type',
+                    file.type || `image/${fileInfos[index].ext}`
+                  );
+                form.append('file', file);
+                await axios.post(ticket.url, form);
+              })
+            );
+            imageKeys = data.tickets.map((ticket) => `temp/${ticket.tempUrl}`);
+          }
+          return privateApi.put(`/api/board/${boardId}`, {
+            title,
+            description,
+            boardtag: tags.join(','),
+            ...(imageKeys ? { imageKeys } : {}),
+            ...(removedBoardImageIds.length
+              ? { removedImageIds: removedBoardImageIds }
+              : {})
+          });
+        }
         if (!productId) throw new Error('Product ID is required for editing');
 
         let tempKey: string | undefined;
@@ -203,21 +256,7 @@ export default function MetadataEditor({
         });
       }
 
-      const setFileFormData = (fileForm: FormData, index: number) => {
-        // const fileType = fileData.name.split('.').pop()?.toLowerCase();
-        const fileType = data.tickets[index].tempUrl
-          .split('.')
-          .pop()
-          ?.toLowerCase();
-        fileForm.append('Content-Type', `image/${fileType}`);
-        const fields: Record<string, string> = data.tickets[index].fields;
-        Object.entries(fields).forEach(([k, v]) => {
-          fileForm.append(k, v);
-        });
-        fileForm.append('file', images[index].file);
-      };
-      const s3FormData = new FormData();
-      console.log(s3FormData, 's3FormData');
+      // Legacy multipart upload experiment was replaced by presigned tickets above.
       // const uploadS3Promise = data.tickets.map((v, i: number) => {
       //   const s3UploadData = setFileFormData(s3FormData, i);
       //   return axios.post(v.url, s3UploadData);
@@ -242,7 +281,7 @@ export default function MetadataEditor({
     onSuccess: async (res) => {
       setUploadProgress(100);
       console.log(res, 'router res');
-      if (mode === 'edit' && productId) {
+      if (mode === 'edit' && uploadType === 'product' && productId) {
         await queryClient.invalidateQueries({
           queryKey: ['product', productId]
         });
@@ -250,6 +289,14 @@ export default function MetadataEditor({
         // router.push(`/product/${productId}`);
       }
       const resData = res.data;
+      if (mode === 'edit' && uploadType === 'board' && boardId) {
+        window.location.assign(`/board/${boardId}`);
+        return;
+      }
+      if (mode === 'edit' && uploadType === 'product' && productId) {
+        window.location.assign(`/product/${productId}`);
+        return;
+      }
       window.location.assign(
         `/${resData.type === 'board' ? 'board' : 'product'}/${resData.id}`
       );
@@ -303,10 +350,10 @@ export default function MetadataEditor({
           </div>
         ) : (
           <span className="text-xs font-bold text-slate-500">
-            상품 정보 수정
+            {uploadType === 'board' ? '게시글 정보 수정' : '상품 정보 수정'}
           </span>
         )}
-        {mode === 'edit' ? (
+        {mode === 'edit' && uploadType === 'product' ? (
           <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
             <input
               type="checkbox"
@@ -315,18 +362,18 @@ export default function MetadataEditor({
             />
             유료 상품
           </label>
-        ) : (
+        ) : mode === 'create' ? (
           <button
             type="button"
             className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
           >
             <Globe className="w-3.5 h-3.5" /> 전체 공개
           </button>
-        )}
+        ) : null}
       </div>
 
       <div className="flex-1 flex flex-col space-y-4 overflow-y-auto no-scrollbar pb-2">
-        {uploadType === 'board' && (
+        {uploadType === 'board' && mode === 'create' && (
           <div className="space-y-1.5 mb-2">
             <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
               게시판 카테고리
@@ -401,15 +448,39 @@ export default function MetadataEditor({
         <button
           type="button"
           onClick={() =>
-            mode === 'edit' && productId
-              ? router.push(`/product/${productId}`)
-              : router.back()
+            mode === 'edit' && uploadType === 'board' && boardId
+              ? router.push(`/board/${boardId}`)
+              : mode === 'edit' && productId
+                ? router.push(`/product/${productId}`)
+                : router.back()
           }
           className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
         >
           취소
         </button>
         <div className="flex gap-2">
+          {mode === 'edit' && uploadType === 'board' && boardId && (
+            <button
+              type="button"
+              onClick={async () => {
+                if (
+                  !window.confirm(
+                    '게시글과 댓글이 함께 삭제되며 복구할 수 없습니다. 삭제할까요?'
+                  )
+                )
+                  return;
+                try {
+                  await privateApi.delete(`/api/board/${boardId}`);
+                  window.location.assign('/board');
+                } catch {
+                  alert('게시글을 삭제하지 못했습니다. 다시 시도해 주세요.');
+                }
+              }}
+              className="px-4 py-2 text-xs font-bold text-rose-700 bg-white border border-rose-200 rounded-lg"
+            >
+              삭제
+            </button>
+          )}
           <button
             disabled={uploadMutation.isPending}
             className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 rounded-lg shadow-sm transition-all"

@@ -251,6 +251,9 @@ interface MediaCanvasProps {
   images: UploadImageItem[];
   setImages: React.Dispatch<React.SetStateAction<UploadImageItem[]>>;
   initialImageUrl?: string;
+  initialImageUrls?: string[];
+  initialImages?: { id: number; src: string }[];
+  onRemoveInitialImage?: (imageId: number) => void;
   maxImages?: number;
 }
 
@@ -258,27 +261,52 @@ export default function MediaCanvas({
   images,
   setImages,
   initialImageUrl,
+  initialImageUrls,
+  initialImages,
+  onRemoveInitialImage,
   maxImages = MAX_IMAGES
 }: MediaCanvasProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-  console.log(images, 'mediaCanvas Image');
   const fileAddRef = useRef<HTMLInputElement>(null);
   const fileReplaceRef = useRef<HTMLInputElement>(null);
-  const activePreview = images[currentIndex]?.preview ?? initialImageUrl;
+  const existingImages: { src: string; id?: number }[] = initialImages
+    ? initialImages.map((image) => ({ src: image.src, id: image.id }))
+    : (initialImageUrls ?? (initialImageUrl ? [initialImageUrl] : [])).map(
+        (src) => ({ src })
+      );
+  const isBoardGallery = initialImages !== undefined;
+  const appendFiles = isBoardGallery || maxImages > 1;
+  const visibleImages: { src: string; id?: number; isNew?: boolean }[] =
+    isBoardGallery
+      ? [
+          ...existingImages,
+          ...images.map((item) => ({ src: item.preview, isNew: true }))
+        ]
+      : images.length
+        ? images.map((item) => ({ src: item.preview, isNew: true }))
+        : existingImages;
+  const galleryImageCount = isBoardGallery
+    ? existingImages.length + images.length
+    : Math.max(existingImages.length, images.length);
+  const activePreview = visibleImages[currentIndex]?.src;
 
   // 1. 이미지 추가 (URL.createObjectURL 사용)
   const handleAddFiles = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    const availableSlots = maxImages - images.length;
+    const availableSlots = Math.max(0, maxImages - galleryImageCount);
     const allowedFiles = files.slice(0, availableSlots);
 
     if (files.length > availableSlots) {
       alert(`최대 ${maxImages}장까지만 업로드할 수 있습니다.`);
+    }
+    if (availableSlots === 0) {
+      e.target.value = '';
+      return;
     }
 
     // ⭐ 실제 파일 객체 보존 + 가벼운 미리보기 URL 생성
@@ -287,9 +315,13 @@ export default function MediaCanvas({
       preview: URL.createObjectURL(file)
     }));
 
-    const updatedImages = [...images, ...newItems];
+    const updatedImages = appendFiles ? [...images, ...newItems] : newItems;
+    if (!appendFiles)
+      images.forEach((image) => URL.revokeObjectURL(image.preview));
     setImages(updatedImages);
-    setCurrentIndex(updatedImages.length - 1);
+    setCurrentIndex(
+      (isBoardGallery ? existingImages.length : 0) + updatedImages.length - 1
+    );
 
     e.target.value = '';
   };
@@ -299,17 +331,22 @@ export default function MediaCanvas({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const currentImage = images[currentIndex];
+    const imageIndex = isBoardGallery
+      ? currentIndex - existingImages.length
+      : currentIndex;
+    const currentImage = images[imageIndex];
     if (currentImage) URL.revokeObjectURL(currentImage.preview);
     const newImages = [...images];
     const replacement = {
       file,
       preview: URL.createObjectURL(file)
     };
-    if (currentImage) newImages[currentIndex] = replacement;
-    else newImages.splice(currentIndex, 0, replacement);
+    if (currentImage) newImages[imageIndex] = replacement;
+    else newImages.splice(imageIndex, 0, replacement);
     setImages(newImages);
-    setCurrentIndex(currentIndex);
+    setCurrentIndex(
+      isBoardGallery ? existingImages.length + imageIndex : imageIndex
+    );
     e.target.value = '';
   };
 
@@ -318,14 +355,17 @@ export default function MediaCanvas({
     e.stopPropagation();
 
     // 메모리 릭(Leak) 방지: 브라우저 캐시에서 URL 해제
-    URL.revokeObjectURL(images[index].preview);
+    const fileIndex = isBoardGallery ? index - existingImages.length : index;
+    URL.revokeObjectURL(images[fileIndex].preview);
     const newImages = [...images];
-    newImages.splice(index, 1);
+    newImages.splice(fileIndex, 1);
     setImages(newImages);
-    if (newImages.length === 0) setCurrentIndex(0);
-    else if (currentIndex >= newImages.length)
-      setCurrentIndex(newImages.length - 1);
+    const nextCount =
+      (isBoardGallery ? existingImages.length : 0) + newImages.length;
+    if (nextCount === 0) setCurrentIndex(0);
     else if (currentIndex > index) setCurrentIndex(currentIndex - 1);
+    else if (currentIndex === index)
+      setCurrentIndex(Math.min(index, nextCount - 1));
   };
 
   // Drag & Drop 로직 (동일)
@@ -355,7 +395,7 @@ export default function MediaCanvas({
         newImages.splice(targetIdx, 0, movedItem);
         return newImages;
       });
-      setCurrentIndex(targetIdx);
+      setCurrentIndex((isBoardGallery ? existingImages.length : 0) + targetIdx);
     }
     setDraggedIndex(null);
   };
@@ -378,7 +418,7 @@ export default function MediaCanvas({
         onChange={handleReplaceFile}
       />
 
-      {images.length === 0 && !initialImageUrl ? (
+      {visibleImages.length === 0 ? (
         <div
           onClick={() => fileAddRef.current?.click()}
           className="relative flex-1 group cursor-pointer overflow-hidden rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-indigo-50/30 hover:border-indigo-400 transition-all duration-300 flex flex-col items-center justify-center text-center"
@@ -390,12 +430,14 @@ export default function MediaCanvas({
             여기를 클릭하여 이미지 업로드
           </h3>
           <p className="text-[11px] font-medium text-slate-500">
-            최대 {MAX_IMAGES}장
+            최대 {maxImages}장
           </p>
         </div>
       ) : (
         <div
-          onClick={() => fileReplaceRef.current?.click()}
+          onClick={() =>
+            (isBoardGallery ? fileAddRef : fileReplaceRef).current?.click()
+          }
           className="relative flex-1 group cursor-pointer overflow-hidden rounded-[1.5rem] border border-slate-100 bg-slate-950 transition-all duration-300 flex flex-col items-center justify-center text-center shadow-inner"
         >
           {currentIndex === 0 && (
@@ -419,12 +461,19 @@ export default function MediaCanvas({
           )}
           <img
             src={activePreview!}
-            alt={images[currentIndex] ? 'New image preview' : 'Current product image'}
+            alt={
+              images[currentIndex]
+                ? 'New image preview'
+                : 'Current product image'
+            }
             className="absolute inset-0 z-10 h-full w-full object-contain transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center backdrop-blur-sm z-20">
             <div className="px-4 py-2 bg-white text-slate-900 rounded-full text-xs font-extrabold shadow-lg flex items-center gap-2 hover:scale-105 transition-transform">
-              <RefreshCw className="w-3.5 h-3.5 text-indigo-500" /> 이미지 교체
+              <RefreshCw className="w-3.5 h-3.5 text-indigo-500" />
+              {isBoardGallery
+                ? `이미지 추가 (${galleryImageCount}/${maxImages})`
+                : '이미지 교체'}
             </div>
           </div>
         </div>
@@ -432,27 +481,53 @@ export default function MediaCanvas({
 
       {/* 썸네일 스트립 */}
       <div className="mt-3 flex items-center gap-2 px-1 overflow-x-auto no-scrollbar pb-1 min-h-[4.5rem]">
-        {images.map((item, idx) => {
+        {visibleImages.map((preview, idx) => {
           const isCover = idx === 0;
           const isActive = idx === currentIndex;
-          const isDragOver = idx === dragOverIndex;
-          const isDragged = idx === draggedIndex;
+          const dragIndex = isBoardGallery ? idx - existingImages.length : idx;
+          const isDragOver = preview.isNew && dragIndex === dragOverIndex;
+          const isDragged = preview.isNew && dragIndex === draggedIndex;
 
           return (
             <div
-              key={`${item.preview}-${idx}`}
-              draggable
-              onDragStart={(e) => handleDragStart(idx, e)}
-              onDragOver={handleDragOver}
-              onDragEnter={(e) => handleDragEnter(idx, e)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(idx, e)}
-              onDragEnd={() => setDraggedIndex(null)}
+              key={`${preview.id ?? preview.src}-${idx}`}
+              draggable={Boolean(preview.isNew)}
+              onDragStart={(e) =>
+                preview.isNew &&
+                handleDragStart(
+                  isBoardGallery ? idx - existingImages.length : idx,
+                  e
+                )
+              }
+              onDragOver={preview.isNew ? handleDragOver : undefined}
+              onDragEnter={
+                preview.isNew
+                  ? (e) =>
+                      handleDragEnter(
+                        isBoardGallery ? idx - existingImages.length : idx,
+                        e
+                      )
+                  : undefined
+              }
+              onDragLeave={preview.isNew ? handleDragLeave : undefined}
+              onDrop={
+                preview.isNew
+                  ? (e) =>
+                      handleDrop(
+                        isBoardGallery ? idx - existingImages.length : idx,
+                        e
+                      )
+                  : undefined
+              }
+              onDragEnd={
+                preview.isNew ? () => setDraggedIndex(null) : undefined
+              }
               onClick={() => setCurrentIndex(idx)}
               className={`relative w-16 h-16 rounded-xl border-2 overflow-hidden shrink-0 group cursor-grab active:cursor-grabbing transition-all duration-200 
                 ${isActive ? 'border-indigo-500 shadow-md' : 'border-slate-200 opacity-60 hover:opacity-100 hover:border-indigo-300'}
                 ${isDragOver ? 'scale-105 border-indigo-500 shadow-[0_4px_14px_0_rgba(99,102,241,0.39)]' : ''}
                 ${isDragged ? 'opacity-30' : ''}
+                ${preview.isNew ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
               `}
             >
               {isCover && (
@@ -461,41 +536,48 @@ export default function MediaCanvas({
                 </span>
               )}
               <img
-                src={item.preview}
+                src={preview.src}
                 alt={`Thumb ${idx}`}
                 className="w-full h-full object-cover pointer-events-none"
               />
-              <button
-                onClick={(e) => handleRemoveImage(idx, e)}
-                className="absolute top-1 right-1 w-4 h-4 bg-black/60 hover:bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-md z-20"
-              >
-                <X className="w-2.5 h-2.5 pointer-events-none" />
-              </button>
+              {(preview.isNew || preview.id !== undefined) && (
+                <button
+                  aria-label="이미지 삭제"
+                  onClick={(e) => {
+                    if (preview.isNew) {
+                      handleRemoveImage(idx, e);
+                    } else if (preview.id !== undefined) {
+                      e.stopPropagation();
+                      onRemoveInitialImage?.(preview.id);
+                      setCurrentIndex((current) =>
+                        current > idx
+                          ? current - 1
+                          : current === idx
+                            ? Math.max(
+                                0,
+                                Math.min(current, visibleImages.length - 2)
+                              )
+                            : current
+                      );
+                    }
+                  }}
+                  className="absolute top-1 right-1 w-4 h-4 bg-black/60 hover:bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-md z-20"
+                >
+                  <X className="w-2.5 h-2.5 pointer-events-none" />
+                </button>
+              )}
             </div>
           );
         })}
 
-        {initialImageUrl && images.length === 0 && (
-          <div
-            className="relative w-16 h-16 rounded-xl border-2 border-indigo-500 overflow-hidden shrink-0"
-            aria-label="현재 이미지"
-          >
-            <img
-              src={initialImageUrl}
-              alt="현재 상품 이미지"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-
-        {images.length < maxImages && !initialImageUrl && (
+        {galleryImageCount < maxImages && (
           <button
             onClick={() => fileAddRef.current?.click()}
             className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-indigo-500 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all shrink-0"
           >
             <Plus className="w-4 h-4 mb-0.5" />
             <span className="text-[9px] font-bold">
-              {images.length}/{maxImages}
+              {galleryImageCount}/{maxImages}
             </span>
           </button>
         )}

@@ -1,88 +1,60 @@
 'use client';
-import type { NextPage } from 'next';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { getFetch, newAxios } from '@libs/client/fetcher';
-import { useState } from 'react';
-import UploadImage from '@app/_components/uploadImage';
+
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// import axios from 'axios';
-import Modal from '@app/_components/modal';
-import { Board } from '@prisma/client';
+import { useQuery } from '@tanstack/react-query';
+import { getFetch } from '@libs/client/fetcher';
+import ProductEditor, {
+  BoardEditorData
+} from '@app/upload/_component/ProductEditor';
 
-interface BoardTag {
-  boardTag: {
-    hashtag: string;
-  }[];
-}
-interface BoardDetail {
+type BoardResponse = {
   ok: boolean;
-  board: Board & BoardTag;
-}
-interface BoardProps {
-  params: {
-    id: string;
-  };
-}
-const BoardSetting = ({ params }: BoardProps) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const router = useRouter();
-  const boardId = params.id;
-  const { data } = useQuery<BoardDetail>({
-    queryKey: ['getBoard'],
-    queryFn: getFetch(`/api/board/${boardId}`),
-
-    enabled: !!boardId
-  });
-  const deleteSend = () =>
-    newAxios.delete(`/api/board/${boardId}`).then((res) => res.data);
-  const { mutate: deleteMutation } = useMutation({
-    mutationFn: deleteSend,
-    onSuccess: (res) => {
-      console.log(res, 'deleted success');
-      router.replace('/board');
-    },
-    onError: (res) => {
-      console.error(res, 'deleted fail');
-      setModalOpen(false);
-      alert('해당 게시물을 삭제하는데 실패했어요!!');
-    }
-  });
-  console.log(data, 'Data');
-  return (
-    <div className="settingwrap">
-      {modalOpen && (
-        <Modal
-          modalOpen={modalOpen}
-          setModalOpen={setModalOpen}
-          deleteMutation={deleteMutation}
-          modalUse="delete"
-        />
-      )}
-
-      <UploadImage
-        url={`board/${boardId}`}
-        component={['title', 'description']}
-        elementType={['input', 'textarea']}
-        buttontext={['삭제', '수정']}
-        hashtrue={true}
-        buttonColor={['#dee2e6']}
-        labelTrue={true}
-        setModalOpen={() => setModalOpen((prev) => !prev)}
-        elementValue={{
-          title: data?.board.title,
-          description: data?.board.description,
-          hashtag: data?.board.boardTag[0].hashtag
-        }}
-      />
-
-      <style jsx>{`
-        .settingwrap {
-          width: 50vw;
-          margin: auto;
-        }
-      `}</style>
-    </div>
-  );
+  board?: BoardEditorData & { userId: number };
 };
+type UserResponse = { ok: boolean; user?: { id: number } };
 
-export default BoardSetting;
+export default function BoardSettingPage({
+  params
+}: {
+  params: { id: string };
+}) {
+  const boardId = params.id;
+  const router = useRouter();
+  const { data: boardResponse, isLoading: boardLoading } =
+    useQuery<BoardResponse>({
+      queryKey: ['board-detail', boardId],
+      queryFn: () => getFetch(`/api/board/${boardId}`),
+      enabled: !!boardId
+    });
+  const { data: userResponse, isLoading: userLoading } = useQuery<UserResponse>(
+    {
+      queryKey: ['current-user'],
+      queryFn: () => getFetch('/api/user')
+    }
+  );
+
+  const board = boardResponse?.board;
+  const isOwner = !!board && userResponse?.user?.id === board.userId;
+  useEffect(() => {
+    if (!boardLoading && !userLoading && board && !isOwner)
+      router.replace(`/board/${boardId}`);
+  }, [board, boardId, boardLoading, isOwner, router, userLoading]);
+
+  if (boardLoading || userLoading)
+    return (
+      <div className="p-8 text-center">게시글 정보를 불러오는 중입니다.</div>
+    );
+  if (!isOwner || !board)
+    return <div className="p-8 text-center">작성자만 수정할 수 있습니다.</div>;
+
+  return (
+    <ProductEditor
+      key={boardId}
+      mode="edit"
+      editType="board"
+      boardId={boardId}
+      initialBoard={board}
+    />
+  );
+}

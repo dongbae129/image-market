@@ -13,9 +13,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  Loader2,
   Heart,
   MessageCircle,
-  MoreHorizontal,
   Send,
   Share2,
   X
@@ -32,7 +32,12 @@ import { BoardChat } from '@prisma/client';
 import BoardMainNav from '@app/board/[id]/_component/BoardMainNav';
 import BoardCommentForm from '@app/board/[id]/_component/BoardCommentForm';
 
-type BoardImage = { id: number; image: string; dominantColor: string | null };
+type BoardImage = {
+  id: number;
+  image: string;
+  dominantColor: string | null;
+  status: string;
+};
 type BoardDetailResponse = {
   ok: boolean;
   board?: {
@@ -92,6 +97,10 @@ export default function BoardDetailPage({ boardId }: Props) {
   const queryClient = useQueryClient();
   const thumbnailRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [lightboxImageLoaded, setLightboxImageLoaded] = useState(false);
+  const [lightboxImageFailed, setLightboxImageFailed] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+  const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
   const [comment, setComment] = useState('');
   const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
   const { data: boardData, isLoading } = useQuery<BoardDetailResponse>({
@@ -104,7 +113,13 @@ export default function BoardDetailPage({ boardId }: Props) {
       return data;
     },
     enabled: !!boardId,
-    staleTime: 2000
+    staleTime: 2000,
+    refetchInterval: (query) =>
+      query.state.data?.board?.images.some(
+        (image) => image.status === 'PROCESSING'
+      )
+        ? 2_000
+        : false
   });
   console.log(boardData, 'boardData');
   // const { data: commentsData } = useQuery<CommentResponse>({
@@ -144,10 +159,11 @@ export default function BoardDetailPage({ boardId }: Props) {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-  const { data: currentUser } = useQuery<UserResponse>({
-    queryKey: ['userInfo'],
-    queryFn: () => getFetch('/api/user')
-  });
+  const { data: currentUser, isLoading: currentUserLoading } =
+    useQuery<UserResponse>({
+      queryKey: ['userInfo'],
+      queryFn: () => getFetch('/api/user')
+    });
   const createComment = useMutation({
     mutationFn: (chat: string) =>
       newAxios
@@ -169,6 +185,12 @@ export default function BoardDetailPage({ boardId }: Props) {
         .filter(Boolean)
     : [];
   // const { color, name } = getCategoryData(board?.category as string);
+
+  useEffect(() => {
+    if (selectedImage === null) return;
+    setLightboxImageLoaded(false);
+    setLightboxImageFailed(false);
+  }, [selectedImage]);
 
   useEffect(() => {
     if (selectedImage === null) return;
@@ -283,17 +305,51 @@ export default function BoardDetailPage({ boardId }: Props) {
                         <button
                           key={image.id}
                           type="button"
+                          disabled={image.status !== 'READY'}
                           onClick={() => setSelectedImage(index)}
-                          className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[10px] bg-slate-100"
+                          className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[10px] bg-slate-100 disabled:cursor-default"
                         >
-                          <Image
-                            className="object-cover object-top"
-                            src={`474x/${image.image}`}
-                            alt={`게시글 사진 ${index + 1}`}
-                            fill
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
-                            // className="h-full w-full object-cover transition duration-200 hover:scale-105"
-                          />
+                          {(image.status !== 'READY' ||
+                            (!loadedImages[image.id] &&
+                              !failedImages[image.id])) && (
+                            <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-slate-200">
+                              {!failedImages[image.id] &&
+                                image.status !== 'FAILED' && (
+                                  <Loader2
+                                    aria-label="이미지 처리 중"
+                                    className="h-5 w-5 animate-spin text-slate-500"
+                                  />
+                                )}
+                            </div>
+                          )}
+                          {image.status === 'READY' &&
+                            !failedImages[image.id] && (
+                              <Image
+                                className={`object-cover object-top transition-opacity duration-200 ${loadedImages[image.id] ? 'opacity-100' : 'opacity-0'}`}
+                                src={`474x/${image.image}`}
+                                alt={`게시글 사진 ${index + 1}`}
+                                fill
+                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
+                                onLoad={() =>
+                                  setLoadedImages((loaded) => ({
+                                    ...loaded,
+                                    [image.id]: true
+                                  }))
+                                }
+                                onError={() =>
+                                  setFailedImages((failed) => ({
+                                    ...failed,
+                                    [image.id]: true
+                                  }))
+                                }
+                              />
+                            )}
+                          {(image.status === 'FAILED' ||
+                            failedImages[image.id]) && (
+                            <span className="absolute inset-0 flex items-center justify-center px-2 text-center text-[10px] text-slate-500">
+                              이미지를 불러오지 못했습니다
+                            </span>
+                          )}
                         </button>
                       ))}
                     </div>
@@ -325,7 +381,11 @@ export default function BoardDetailPage({ boardId }: Props) {
                   ))}
                 </div>
               )}
-              <BoardMainNav likeCount={board.likeCount} />
+              <BoardMainNav
+                likeCount={board.likeCount}
+                isOwner={currentUserLoading ? undefined : boardUserTrue}
+                boardId={board.id}
+              />
             </article>
 
             <section className="mt-[42px] rounded-[18px] border border-slate-200 bg-white px-5 py-7 sm:px-[30px] sm:py-[27px]">
@@ -368,7 +428,6 @@ export default function BoardDetailPage({ boardId }: Props) {
           <aside className="space-y-4">
             <UserInfocard
               authorName={authorName}
-              boardId={board.id}
               avatarClass={avatarClass}
               boardUserTrue={boardUserTrue}
             />
@@ -400,12 +459,23 @@ export default function BoardDetailPage({ boardId }: Props) {
           >
             <ChevronLeft size={28} />
           </button>
-          <img
-            src={`https://d18ktmttqdka9f.cloudfront.net/736x/${images[selectedImage].image}`}
-            alt={`게시글 사진 ${selectedImage + 1}`}
-            onClick={(event) => event.stopPropagation()}
-            className="max-h-[84vh] max-w-[84vw] rounded-md object-cover"
-          />
+          {!lightboxImageLoaded && !lightboxImageFailed && (
+            <div className="h-[60vh] w-[70vw] max-w-4xl animate-pulse rounded-xl bg-white/15" />
+          )}
+          {!lightboxImageFailed ? (
+            <img
+              src={`https://d18ktmttqdka9f.cloudfront.net/736x/${images[selectedImage].image}`}
+              alt={`게시글 사진 ${selectedImage + 1}`}
+              onLoad={() => setLightboxImageLoaded(true)}
+              onError={() => setLightboxImageFailed(true)}
+              onClick={(event) => event.stopPropagation()}
+              className={`max-h-[84vh] max-w-[84vw] rounded-md object-cover ${lightboxImageLoaded ? 'opacity-100' : 'absolute opacity-0'}`}
+            />
+          ) : (
+            <div className="rounded-lg bg-white/10 px-6 py-4 text-sm text-white/80">
+              이미지를 불러오지 못했습니다.
+            </div>
+          )}
           <button
             type="button"
             aria-label="다음 이미지"

@@ -25,6 +25,16 @@ export const GET = async (req: NextRequest, { params }: Props) => {
   const lastId = Number(pageParamId);
 
   try {
+    const board = await client.board.findFirst({
+      where: { id: Number(boardId), deletionStatus: 'ACTIVE' },
+      select: { id: true }
+    });
+    if (!board)
+      return NextResponse.json(
+        { ok: false, message: '게시글을 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+
     const comments = await client.boardChat.findMany({
       take: 3,
       skip: lastId ? 1 : 0,
@@ -94,6 +104,16 @@ export const POST = async (req: NextRequest, { params }: Props) => {
   const userId = Number(auth.userId);
 
   try {
+    const board = await client.board.findFirst({
+      where: { id: Number(boardId), deletionStatus: 'ACTIVE' },
+      select: { id: true }
+    });
+    if (!board)
+      return NextResponse.json(
+        { ok: false, message: '게시글을 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+
     const now = dbNow();
     const chat = await client.boardChat.create({
       data: {

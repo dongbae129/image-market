@@ -5,6 +5,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbNow } from '@libs/server/utils';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { getPostsQuerySchema } from '@app/board/types/board';
+import {
+  createStorageCleanupJob,
+  dispatchStorageCleanupJob
+} from '@libs/server/storageCleanup';
 
 export async function GET(request: NextRequest) {
   const pageLlimit = 7;
@@ -30,8 +34,9 @@ export async function GET(request: NextRequest) {
 
     // $transaction을 통해 데이터 목록 조회와 총 개수 조회를 일관성 있게 병렬 처리
     const [totalItems, boards] = await client.$transaction([
-      client.board.count(),
+      client.board.count({ where: { deletionStatus: 'ACTIVE' } }),
       client.board.findMany({
+        where: { deletionStatus: 'ACTIVE' },
         take: limit,
         skip,
         orderBy: { createdAt: 'desc' },
@@ -78,6 +83,9 @@ export async function GET(request: NextRequest) {
 }
 
 export const POST = async (req: NextRequest) => {
+  let createdBoardId: number | undefined;
+  let createdBoardImageIds: number[] = [];
+  let uploadedTempKeys: string[] = [];
   try {
     const body = await req.json();
 
@@ -180,6 +188,9 @@ export const POST = async (req: NextRequest) => {
         return { board, boardImageIds };
       });
       const { board, boardImageIds } = result;
+      createdBoardId = board.id;
+      createdBoardImageIds = boardImageIds.map((item) => item.boardImageId.id);
+      uploadedTempKeys = boardImageIds.map((item) => item.tempUrl);
       const sqs = new SQSClient({ region: process.env.AWS_REGION });
       const s3Payloads = {
         feenId: board.id,
@@ -202,6 +213,33 @@ export const POST = async (req: NextRequest) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error);
+    }
+    if (createdBoardId && createdBoardImageIds.length) {
+      await client.boardImage
+        .updateMany({
+          where: {
+            boardId: createdBoardId,
+            id: { in: createdBoardImageIds },
+            status: 'PROCESSING'
+          },
+          data: { status: 'FAILED' }
+        })
+        .catch((statusError) => {
+          console.error('Board image status update failed:', statusError);
+        });
+    }
+    if (uploadedTempKeys.length) {
+      try {
+        const cleanupJob = await client.$transaction((tx) =>
+          createStorageCleanupJob(tx, {
+            baseKeys: [],
+            temporaryKeys: uploadedTempKeys
+          })
+        );
+        if (cleanupJob) await dispatchStorageCleanupJob(cleanupJob.id);
+      } catch (cleanupError) {
+        console.error('Could not record Board upload cleanup:', cleanupError);
+      }
     }
 
     return NextResponse.json(

@@ -1,7 +1,12 @@
 import client from '@libs/server/client';
-import { TokenPayload } from '@libs/server/utils';
 import { checkAuth } from '@libs/server/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import {
+  createStorageCleanupJob,
+  dispatchStorageCleanupJob
+} from '@libs/server/storageCleanup';
+import { dispatchBoardDeletion } from '@libs/server/boardDeletion';
 
 export interface PostBoardInfo {
   title: string;
@@ -29,21 +34,20 @@ export const GET = async (req: NextRequest, { params }: Props) => {
 
   try {
     const board = await client.$transaction(async (tx) => {
-      const findBoard = await tx.board.findUnique({
+      const updated = await tx.board.updateMany({
         where: {
-          id: +boardId
-        }
-      });
-      if (!findBoard) throw new Error('Board not found');
-      const updatedBoard = await tx.board.update({
-        where: {
-          id: +boardId
+          id: +boardId,
+          deletionStatus: 'ACTIVE'
         },
         data: {
           viewCount: {
             increment: 1
           }
-        },
+        }
+      });
+      if (!updated.count) return null;
+      const updatedBoard = await tx.board.findFirst({
+        where: { id: +boardId, deletionStatus: 'ACTIVE' },
         include: {
           user: {
             select: {
@@ -57,7 +61,8 @@ export const GET = async (req: NextRequest, { params }: Props) => {
             select: {
               id: true,
               image: true,
-              dominantColor: true
+              dominantColor: true,
+              status: true
             }
           },
           boardChat: {
@@ -79,6 +84,11 @@ export const GET = async (req: NextRequest, { params }: Props) => {
       });
       return updatedBoard;
     });
+    if (!board)
+      return NextResponse.json(
+        { ok: false, message: 'Board not found' },
+        { status: 404 }
+      );
     return NextResponse.json({
       board
     });
@@ -95,9 +105,9 @@ export const GET = async (req: NextRequest, { params }: Props) => {
     );
   }
 };
-export const POST = async (req: NextRequest, { params }: Props) => {
+export const PUT = async (req: NextRequest, { params }: Props) => {
   const auth = checkAuth();
-  if (auth.checkError) {
+  if (auth.checkError || !auth.userId) {
     return NextResponse.json(
       {
         ok: false,
@@ -108,78 +118,253 @@ export const POST = async (req: NextRequest, { params }: Props) => {
       }
     );
   }
-  const body = await req.json();
-  const { title, description, boardtag } = body;
   const { boardId } = params;
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, message: 'invalid request body' },
+      { status: 400 }
+    );
+  }
+  const { title, description, boardtag, imageKeys, removedImageIds } = body;
 
-  if (!boardId || !title || !description)
+  if (
+    !boardId ||
+    typeof title !== 'string' ||
+    !title.trim() ||
+    typeof description !== 'string' ||
+    !description.trim() ||
+    typeof boardtag !== 'string' ||
+    (imageKeys !== undefined &&
+      (!Array.isArray(imageKeys) ||
+        imageKeys.length > 3 ||
+        imageKeys.some(
+          (key: unknown) =>
+            typeof key !== 'string' ||
+            !key.startsWith('temp/') ||
+            !key.slice('temp/'.length) ||
+            key.slice('temp/'.length).includes('/') ||
+            key.slice('temp/'.length).includes('\\')
+        ))) ||
+    (removedImageIds !== undefined &&
+      (!Array.isArray(removedImageIds) ||
+        removedImageIds.length > 3 ||
+        new Set(removedImageIds).size !== removedImageIds.length ||
+        removedImageIds.some(
+          (id: unknown) => !Number.isInteger(id) || Number(id) <= 0
+        )))
+  )
     return NextResponse.json(
       {
         ok: false,
-        message: 'does not existing the board'
+        message: 'invalid board information'
       },
       {
-        status: 401
+        status: 400
       }
     );
+  const replacementImageKeys = imageKeys as string[] | undefined;
+  const requestedRemovedImageIds = removedImageIds as number[] | undefined;
   try {
-    const board = await client.board.findUnique({
-      where: {
-        id: +boardId.toString()
-      }
-    });
-    console.log(board, 'board find');
-    if (board) {
-      await client.board.update({
-        where: {
-          id: board.id
-        },
-        data: {
-          title: title,
-          description: description
-        }
-      });
-      const boardTag = await client.boardTag.findUnique({
-        where: {
-          boardId: board.id
-        }
-      });
-      if (boardTag) {
-        await client.boardTag.update({
-          where: {
-            boardId: board.id
-          },
-          data: {
-            hashtag: boardtag
-          }
-        });
-      } else {
-        await client.boardTag.create({
-          data: {
-            boardId: board.id,
-            hashtag: boardtag
-          }
-        });
-      }
-
-      return NextResponse.json({
-        ok: true,
-        message: 'updated the board',
-        board: {
-          id: board.id
-        }
-      });
-    } else {
+    let storageCleanupDispatchFailed = false;
+    const boardIdNumber = Number(boardId);
+    if (!Number.isInteger(boardIdNumber) || boardIdNumber <= 0)
       return NextResponse.json(
         {
           ok: false,
-          message: "doesn't have the board"
+          message: 'invalid boardId'
         },
         {
-          status: 401
+          status: 400
         }
       );
+    const board = await client.board.findUnique({
+      where: { id: boardIdNumber },
+      select: {
+        id: true,
+        userId: true,
+        title: true,
+        description: true,
+        boardTag: { select: { hashtag: true } },
+        deletionStatus: true,
+        images: { select: { id: true, image: true } }
+      }
+    });
+    if (!board)
+      return NextResponse.json(
+        { ok: false, message: "doesn't have the board" },
+        { status: 404 }
+      );
+    if (board.userId !== Number(auth.userId))
+      return NextResponse.json(
+        { ok: false, message: '당신의 게시물이 아닙니다' },
+        { status: 403 }
+      );
+    if (board.deletionStatus !== 'ACTIVE')
+      return NextResponse.json(
+        { ok: false, message: '삭제 처리 중인 게시글은 수정할 수 없습니다.' },
+        { status: 409 }
+      );
+
+    if (
+      requestedRemovedImageIds?.some(
+        (imageId) => !board.images.some((image) => image.id === imageId)
+      )
+    )
+      return NextResponse.json(
+        { ok: false, message: 'invalid board image' },
+        { status: 400 }
+      );
+
+    const resultingImageCount =
+      board.images.length -
+      (requestedRemovedImageIds?.length ?? 0) +
+      (replacementImageKeys?.length ?? 0);
+    if (resultingImageCount > 3)
+      return NextResponse.json(
+        { ok: false, message: '게시글 이미지는 최대 3장까지 가능합니다' },
+        { status: 400 }
+      );
+
+    const newImages = replacementImageKeys?.length
+      ? await client.$transaction(async (tx) => {
+          await tx.board.update({
+            where: { id: board.id },
+            data: { title: title.trim(), description }
+          });
+          await tx.boardTag.upsert({
+            where: { boardId: board.id },
+            create: { boardId: board.id, hashtag: boardtag },
+            update: { hashtag: boardtag }
+          });
+          return Promise.all(
+            replacementImageKeys.map((key) =>
+              tx.boardImage.create({
+                data: {
+                  boardId: board.id,
+                  image: key.slice('temp/'.length),
+                  status: 'PROCESSING'
+                },
+                select: { id: true }
+              })
+            )
+          );
+        })
+      : undefined;
+
+    if (!replacementImageKeys?.length) {
+      const cleanupJob = await client.$transaction(async (tx) => {
+        await tx.board.update({
+          where: { id: board.id },
+          data: { title: title.trim(), description }
+        });
+        await tx.boardTag.upsert({
+          where: { boardId: board.id },
+          create: { boardId: board.id, hashtag: boardtag },
+          update: { hashtag: boardtag }
+        });
+        if (requestedRemovedImageIds?.length) {
+          const removedImages = board.images.filter((image) =>
+            requestedRemovedImageIds.includes(image.id)
+          );
+          await tx.boardImage.deleteMany({
+            where: {
+              boardId: board.id,
+              id: { in: requestedRemovedImageIds }
+            }
+          });
+          return createStorageCleanupJob(tx, {
+            baseKeys: removedImages.map((image) => image.image),
+            temporaryKeys: []
+          });
+        }
+        return null;
+      });
+      if (cleanupJob)
+        storageCleanupDispatchFailed = !(await dispatchStorageCleanupJob(
+          cleanupJob.id
+        ));
     }
+
+    if (newImages?.length) {
+      const sqs = new SQSClient({ region: process.env.AWS_REGION });
+      try {
+        await sqs.send(
+          new SendMessageCommand({
+            QueueUrl: process.env.AWS_SQS_QUEUE_URL!,
+            MessageBody: JSON.stringify({
+              feenId: board.id,
+              tempKeys: newImages.map((image, index) => ({
+                boardImageId: { id: image.id },
+                tempUrl: replacementImageKeys![index]
+              })),
+              tableType: 'BOARD'
+            })
+          })
+        );
+      } catch (error) {
+        const cleanupJob = await client.$transaction(async (tx) => {
+          await tx.boardImage.deleteMany({
+            where: { id: { in: newImages.map((image) => image.id) } }
+          });
+          await tx.board.update({
+            where: { id: board.id },
+            data: {
+              title: board.title,
+              description: board.description
+            }
+          });
+          if (board.boardTag) {
+            await tx.boardTag.upsert({
+              where: { boardId: board.id },
+              create: {
+                boardId: board.id,
+                hashtag: board.boardTag.hashtag
+              },
+              update: { hashtag: board.boardTag.hashtag }
+            });
+          } else {
+            await tx.boardTag.deleteMany({ where: { boardId: board.id } });
+          }
+          return createStorageCleanupJob(tx, {
+            baseKeys: [],
+            temporaryKeys: replacementImageKeys ?? []
+          });
+        });
+        if (cleanupJob) await dispatchStorageCleanupJob(cleanupJob.id);
+        throw error;
+      }
+      if (requestedRemovedImageIds?.length) {
+        const cleanupJob = await client.$transaction(async (tx) => {
+          const removedImages = board.images.filter((image) =>
+            requestedRemovedImageIds.includes(image.id)
+          );
+          await tx.boardImage.deleteMany({
+            where: {
+              boardId: board.id,
+              id: { in: requestedRemovedImageIds }
+            }
+          });
+          return createStorageCleanupJob(tx, {
+            baseKeys: removedImages.map((image) => image.image),
+            temporaryKeys: []
+          });
+        });
+        if (cleanupJob)
+          storageCleanupDispatchFailed = !(await dispatchStorageCleanupJob(
+            cleanupJob.id
+          ));
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      message: 'updated the board',
+      board: { id: board.id },
+      storageCleanupDispatchFailed
+    });
   } catch (error) {
     console.error(error, 'the baord error');
     return NextResponse.json(
@@ -198,7 +383,7 @@ export const DELETE = async (req: NextRequest, { params }: Props) => {
   try {
     const auth = checkAuth();
 
-    if (auth?.checkError)
+    if (auth?.checkError || !auth.userId)
       return NextResponse.json(
         {
           ok: false,
@@ -208,7 +393,7 @@ export const DELETE = async (req: NextRequest, { params }: Props) => {
           status: 401
         }
       );
-    const decodedId = (auth.payload as TokenPayload).id;
+    const decodedId = Number(auth.userId);
 
     if (!boardId)
       return NextResponse.json(
@@ -220,9 +405,20 @@ export const DELETE = async (req: NextRequest, { params }: Props) => {
           status: 404
         }
       );
+    const boardIdNumber = Number(boardId);
+    if (!Number.isInteger(boardIdNumber) || boardIdNumber <= 0)
+      return NextResponse.json(
+        { ok: false, message: 'invalid boardId' },
+        { status: 400 }
+      );
     const board = await client.board.findUnique({
       where: {
-        id: +boardId.toString()
+        id: boardIdNumber
+      },
+      select: {
+        id: true,
+        userId: true,
+        deletionStatus: true
       }
     });
     if (!board)
@@ -242,18 +438,18 @@ export const DELETE = async (req: NextRequest, { params }: Props) => {
           message: '당신의 게시물이 아닙니다'
         },
         {
-          status: 401
+          status: 403
         }
       );
-    await client.board.delete({
-      where: {
-        id: +boardId.toString()
-      }
-    });
+    const dispatch = await dispatchBoardDeletion(board);
 
     return NextResponse.json({
       ok: true,
-      message: 'success delete the board'
+      deletionStatus: dispatch.status,
+      message:
+        dispatch.status === 'DELETE_FAILED'
+          ? '삭제 요청은 보관됐지만 이미지 정리 요청 전송에 실패했습니다.'
+          : '게시글 삭제 요청을 접수했습니다.'
     });
   } catch (error) {
     console.error(error, `${boardId} board error`);

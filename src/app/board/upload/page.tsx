@@ -1,54 +1,26 @@
 'use client';
-import UploadImage from '@app/_components/uploadImage';
-import type { NextPage } from 'next';
-import { useQuery } from '@tanstack/react-query';
-import { userResponse } from '@app/_components/headmenu';
-import { useRouter } from 'next/navigation';
+
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { getFetch } from '@libs/client/fetcher';
-import store from '@reducers/store';
+import ProductEditor from '@app/upload/_component/ProductEditor';
 
-const BoardUpload: NextPage = () => {
-  const { data } = useQuery<userResponse>({
-    queryKey: ['userInfo'],
-    queryFn: getFetch('/api/user'),
-    enabled: !store.getState().user.restoreState
-  });
+type UserResponse = { ok: boolean; user?: { id: number } };
+
+export default function BoardUploadPage() {
   const router = useRouter();
+  const { data, isLoading } = useQuery<UserResponse>({
+    queryKey: ['current-user'],
+    queryFn: () => getFetch('/api/user')
+  });
+
   useEffect(() => {
-    if ((data && !data?.ok) || (data && !data?.user.id)) {
-      router.push('/board');
-    }
-  }, []);
+    if (!isLoading && !data?.user?.id) router.replace('/board');
+  }, [data, isLoading, router]);
 
-  return (
-    <div className="boarduploadwrap">
-      <UploadImage
-        url="board"
-        component={['title', 'description']}
-        elementType={['input', 'textarea']}
-        buttontext={['등록']}
-        buttonColor={[]}
-        labelTrue={true}
-        hashtrue={true}
-      />
-      <style jsx>{`
-        .boarduploadwrap {
-          display: flex;
-          justify-content: center;
-          flex-direction: column;
-          align-items: center;
-          max-width: 40rem;
-          box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-          margin: auto;
-          margin-top: 2rem;
-          padding: 2.5rem;
-          padding-bottom: 10px;
-          padding-top: 2rem;
-        }
-      `}</style>
-    </div>
-  );
-};
+  if (isLoading || !data?.user?.id)
+    return <div className="p-8 text-center">로그인 상태를 확인 중입니다.</div>;
 
-export default BoardUpload;
+  return <ProductEditor mode="create" defaultUploadType="board" />;
+}
